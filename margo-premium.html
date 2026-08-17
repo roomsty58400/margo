@@ -6232,40 +6232,55 @@ if(!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && location.pro
     "et restreins la clé par référent HTTP dans Google Cloud Console."
   );
 }
+/* Clé API "démo publique" : volontairement visible dans ce code source,
+   car restreinte côté Google Cloud Console par référent HTTP à
+   https://roomsty58400.github.io/* uniquement (donc inutilisable depuis
+   n'importe quel autre site). Sert de repli UNIQUEMENT quand apiki.env est
+   absent (cas normal sur GitHub Pages, qui ne publie jamais ce fichier) ET
+   que la page tourne bien sur ce domaine précis — jamais en local, où
+   apiki.env garde toujours la priorité. */
+const PUBLIC_DEMO_API_KEY = (location.hostname === 'roomsty58400.github.io')
+  ? 'AIzaSyA7Tj3WXzOANGNOVJKHQB2trX9K-b0WMd8'
+  : null;
+
 let apiKeyAutoLoadPromise = (async ()=>{
+  let key = null;
   try{
     const res = await fetch('apiki.env');
-    if(!res.ok) return;
-    const text = await res.text();
-    const match = text.match(/AIza[0-9A-Za-z_\-]{10,}/);
-    const key = match ? match[0] : text.trim().split('\n')[0].trim();
-    if(!key) return;
-
-    autoLoadedApiKey = key;
-
-    // Masque complètement le formulaire de saisie manuelle : la clé ne doit
-    // apparaître nulle part à l'écran.
-    document.getElementById('apiKeyManualRow').style.display = 'none';
-    document.getElementById('apiKeyManualHelp').style.display = 'none';
-    const maskedRow = document.createElement('p');
-    maskedRow.innerHTML = '<svg class="icon-inline" aria-hidden="true"><use href="#icon-lock"></use></svg> Clé API chargée automatiquement depuis <code>apiki.env</code> (masquée). <button type="button" class="btn small secondary" id="btnUseManualKey">Utiliser une autre clé…</button>';
-    document.getElementById('apiKeyManualRow').insertAdjacentElement('afterend', maskedRow);
-    document.getElementById('btnUseManualKey').addEventListener('click', ()=>{
-      autoLoadedApiKey = null;
-      maskedRow.remove();
-      document.getElementById('apiKeyManualRow').style.display = '';
-      document.getElementById('apiKeyManualHelp').style.display = '';
-      updateApiModeLabel();
-      setApiStatus('', false);
-    });
-
-    updateApiModeLabel();
-    // Validation FORCÉE, sans attendre de clic, puisque cette clé vient
-    // d'une source locale de confiance choisie par l'utilisateur. La popup
-    // reste fermée (pas besoin de l'ouvrir : le bouton déclencheur affiche
-    // déjà « mode données réelles »).
-    await validateApiKey();
+    if(res.ok){
+      const text = await res.text();
+      const match = text.match(/AIza[0-9A-Za-z_\-]{10,}/);
+      key = match ? match[0] : text.trim().split('\n')[0].trim();
+    }
   }catch(err){ /* pas de serveur local, fichier absent, ou CORS : on ignore silencieusement */ }
+
+  if(!key && PUBLIC_DEMO_API_KEY) key = PUBLIC_DEMO_API_KEY;
+  if(!key) return;
+
+  autoLoadedApiKey = key;
+
+  // Masque complètement le formulaire de saisie manuelle : la clé ne doit
+  // apparaître nulle part à l'écran.
+  document.getElementById('apiKeyManualRow').style.display = 'none';
+  document.getElementById('apiKeyManualHelp').style.display = 'none';
+  const maskedRow = document.createElement('p');
+  maskedRow.innerHTML = '<svg class="icon-inline" aria-hidden="true"><use href="#icon-lock"></use></svg> Clé API chargée automatiquement (masquée). <button type="button" class="btn small secondary" id="btnUseManualKey">Utiliser une autre clé…</button>';
+  document.getElementById('apiKeyManualRow').insertAdjacentElement('afterend', maskedRow);
+  document.getElementById('btnUseManualKey').addEventListener('click', ()=>{
+    autoLoadedApiKey = null;
+    maskedRow.remove();
+    document.getElementById('apiKeyManualRow').style.display = '';
+    document.getElementById('apiKeyManualHelp').style.display = '';
+    updateApiModeLabel();
+    setApiStatus('', false);
+  });
+
+  updateApiModeLabel();
+  // Validation FORCÉE, sans attendre de clic, puisque cette clé vient d'une
+  // source de confiance (locale ou démo publique restreinte). La popup
+  // reste fermée (pas besoin de l'ouvrir : le bouton déclencheur affiche
+  // déjà « mode données réelles »).
+  try{ await validateApiKey(); }catch(err){ /* pas de réseau, quota, ou clé invalide : on ignore silencieusement */ }
 })();
 
 document.getElementById('apiKeyInput').addEventListener('input', updateApiModeLabel);
