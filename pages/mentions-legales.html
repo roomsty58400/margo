@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Informations — Mentions légales &amp; RGPD | Margo</title>
+<style>
+  :root{ --primary:#10132b; --secondary:#0d7a3a; --petal-visite:#0d7a3a; --light:#f2faf5; }
+  *{box-sizing:border-box;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
+  body{margin:0;background:linear-gradient(180deg,#f7f9fd 0%,#eef2f9 45%,#eaf1fb 100%);color:#333;line-height:1.6;}
+  header.app-header{background:linear-gradient(120deg,var(--primary) 0%,var(--secondary) 65%,#3ecf6e 100%);color:#fff;padding:1.6rem 1rem 1.8rem;text-align:center;box-shadow:0 8px 24px rgba(16,19,43,.22);border-radius:0 0 22px 22px;}
+  header.app-header h1{font-size:1.4rem;margin:0;font-weight:800;letter-spacing:-.01em;}
+  .back-btn{position:absolute;top:1.1rem;left:1.2rem;background:rgba(255,255,255,.16);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:10px;padding:.45rem .8rem;font-size:.8rem;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;transition:background .15s, transform .15s;}
+  .back-btn:hover{background:rgba(255,255,255,.3);transform:translateY(-1px);}
+  header.app-header{position:relative;}
+  @media (max-width:480px){ .back-btn{position:static;display:inline-block;margin-bottom:.5rem;} }
+  main{max-width:800px;margin:0 auto;padding:1.5rem 1.2rem 3rem;}
+  /* Même habillage "pétale" (liseré blanc + bordure bleue, fond dégradé) que
+     les cadres de l'application principale, pour une cohérence graphique. */
+  section{background:radial-gradient(circle at 50% 8%,#fff,var(--light));border:1.5px solid #d8f0e0;border-radius:20px;box-shadow:0 10px 28px -8px rgba(13,122,58,.18),inset 0 0 0 4px #fff;padding:1.2rem 1.4rem;margin-bottom:1.2rem;}
+  h2{color:var(--secondary);font-size:1.05rem;margin-top:0;font-weight:700;}
+  h3{color:var(--primary);font-size:.95rem;}
+  p, li{font-size:.9rem;color:#444;}
+  .todo{background:#fff8e1;border:1px dashed #e0b400;padding:.6rem .8rem;border-radius:10px;font-size:.85rem;color:#7a5c00;}
+  .icon-inline{width:1em;height:1em;vertical-align:-0.125em;display:inline-block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+</style>
+</head>
+<body>
+<svg id="lucide-sprite" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></symbol></svg>
+
+<header class="app-header">
+  <a href="../margo.html" class="back-btn">← Retour à l'application</a>
+  <h1><svg class="icon-inline" aria-hidden="true"><use href="#icon-info"></use></svg> Informations, mentions légales &amp; RGPD</h1>
+</header>
+
+<main>
+
+  <section>
+    <h2>Mentions légales</h2>
+    <h3>Éditeur du site</h3>
+    <p>Topkapi Studio — 2 impasse du Buisson des Chaumes, 58400 Chaulgnes, France — <a href="mailto:topkapi-studio@gmail.com">topkapi-studio@gmail.com</a>.</p>
+    <h3>Hébergement</h3>
+    <p>GitHub, Inc. — GitHub Pages (<a href="https://pages.github.com/" target="_blank" rel="noopener noreferrer">pages.github.com</a>).</p>
+    <h3>Directeur de la publication</h3>
+    <p>Sylvain Migeon.</p>
+  </section>
+
+  <section>
+    <h2>Protection des données personnelles (RGPD)</h2>
+    <p>Ce générateur d'itinéraire touristique fonctionne principalement côté client (dans le navigateur) : les critères saisis (ville, catégories, rayon) sont utilisés pour interroger, selon le mode actif :</p>
+    <ul>
+      <li>des données de démonstration locales (mode démo, sans envoi à un service tiers autre que le géocodage gratuit OpenStreetMap/Nominatim) ;</li>
+      <li>ou l'API Google Places / Google Maps (mode données réelles), si une clé API valide est configurée — dans ce cas, les requêtes sont envoyées directement à Google, conformément à leur propre politique de confidentialité.</li>
+    </ul>
+    <p>Aucune donnée personnelle identifiante n'est collectée ni stockée par ce site pour son propre compte. La clé API Google, si renseignée, est conservée localement dans le navigateur de l'utilisateur (stockage local) et n'est jamais transmise à un serveur tiers autre que Google.</p>
+    <h3>Vos droits</h3>
+    <p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition concernant vos données. Pour toute question, contactez <a href="mailto:topkapi-studio@gmail.com">topkapi-studio@gmail.com</a>.</p>
+  </section>
+
+  <section>
+    <h2>Cookies</h2>
+    <p>Ce site n'utilise pas de cookies de suivi ou publicitaires. Seul le stockage local du navigateur peut être utilisé pour mémoriser certaines préférences techniques (ex. clé API).</p>
+  </section>
+
+</main>
+
+</body>
+</html>

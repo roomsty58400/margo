@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Margo — (remplacez par une courte description de l'application)">
+  <meta http-equiv="refresh" content="0; url=margo.html">
+  <title>Margo</title>
+  <link rel="canonical" href="margo.html">
+  <script>
+    // Use replace() so the browser doesn't keep this redirect in history.
+    // Keep the query string and hash so links like ?foo=bar#section still work.
+    // Relative path ("margo.html", not "/margo.html") so this also works
+    // when the site is served from a subpath, e.g. GitHub Pages project
+    // pages (https://user.github.io/repo/) : an absolute "/margo.html"
+    // resolves to the domain root instead of the repo's own folder and 404s.
+    try {
+      location.replace('margo.html' + location.search + location.hash);
+    } catch (e) {
+      // fallback: do nothing (meta-refresh will still run)
+    }
+  </script>
+</head>
+<body>
+  <!-- Visible fallback for users (and for search engines/screen readers) -->
+  <p>Redirection vers <a href="margo.html">margo.html</a>&nbsp;— si la redirection ne fonctionne pas, cliquez sur le lien.</p>
+
+  <noscript>
+    <p>JavaScript désactivé : cliquez sur <a href="margo.html">margo.html</a> pour accéder à l'application.</p>
+  </noscript>
+</body>
+</html>

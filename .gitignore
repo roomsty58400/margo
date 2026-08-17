@@ -1,0 +1,8 @@
+# Genere automatiquement par publier-github.bat - ne pas publier ces fichiers
+apiki.env
+*.env
+archives/
+Thumbs.db
+.DS_Store
+_to_delete/
+desktop.ini
