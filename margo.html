@@ -344,10 +344,6 @@
      vers la carte des bornes de recharge électrique Chargemap. */
   .charge-map-btn{top:14%;left:14%;color:#f97316;}
   .charge-map-btn:hover{transform:translateY(-3px) scale(1.08) rotate(6deg);}
-  /* Éclair jaune superposé au centre de l'icône prise (elle-même orange via
-     .charge-map-btn{color}) : positionné en absolu par-dessus, plus petit,
-     dans sa propre couleur indépendante de l'icône prise dessous. */
-  .charge-zap-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:.55em;height:.55em;color:#facc15;}
   /* Même style de bouton, dans les deux coins BAS de la fleur cette fois :
      urgences/santé en bas à gauche, dépannage véhicule en bas à droite. */
   .emergency-btn{bottom:14%;left:14%;color:#dc2626;}
@@ -1313,7 +1309,7 @@
         <div class="flower-wrap">
           <div class="flower-frame corner-btns-hidden" id="flowerFrame">
             <div class="flower" id="flower"></div>
-            <button type="button" class="charge-map-btn insect-corner-btn no-print" id="chargeMapBtn" title="Afficher les bornes de recharge pour voitures électriques à proximité"><svg class="icon-inline" aria-hidden="true"><use href="#icon-plug"></use></svg><svg class="icon-inline charge-zap-overlay" aria-hidden="true"><use href="#icon-zap"></use></svg></button>
+            <button type="button" class="charge-map-btn insect-corner-btn no-print" id="chargeMapBtn" title="Afficher les bornes de recharge pour voitures électriques à proximité"><svg class="icon-inline" aria-hidden="true"><use href="#icon-plug"></use></svg></button>
             <button type="button" class="snail-guide-btn insect-corner-btn no-print" id="snailGuideBtn" title="Itinéraire suggéré par l'office de tourisme"><svg class="icon-inline" aria-hidden="true"><use href="#icon-turtle"></use></svg></button>
             <button type="button" class="emergency-btn insect-corner-btn no-print" id="emergencyBtn" title="Hôpitaux, urgences & pharmacies à proximité"><svg class="icon-inline" aria-hidden="true"><use href="#icon-ambulance"></use></svg></button>
             <button type="button" class="repair-btn insect-corner-btn no-print" id="repairBtn" title="Garages, réparation & pneus à proximité"><svg class="icon-inline" aria-hidden="true"><use href="#icon-wrench"></use></svg></button>
