@@ -381,7 +381,7 @@
      visuelle quelle que soit la taille du cadre — c'est ce que le commentaire
      v2.78 ci-dessus visait déjà pour le reste du cœur de fleur, oubli sur ce
      seul élément. */
-  .flower-center::before{content:'';position:absolute;top:-11%;left:50%;transform:translateX(-50%);width:22%;height:22%;border-radius:50%;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M20%2010c0%204.993-5.539%2010.193-7.399%2011.799a1%201%200%200%201-1.202%200C9.539%2020.193%204%2014.993%204%2010a8%208%200%200%201%2016%200%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2210%22%20r%3D%223%22/%3E%3C/svg%3E") no-repeat center/55% 55%, linear-gradient(145deg,var(--secondary),#3ecf6e);box-shadow:0 8px 16px -4px rgba(13,122,58,.55), inset 0 1px 0 rgba(255,255,255,.45);border:3px solid #fff;min-width:22px;min-height:22px;}
+  .flower-center::before{content:'';position:absolute;top:-23%;left:50%;transform:translateX(-50%);width:22%;height:22%;border-radius:50%;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M20%2010c0%204.993-5.539%2010.193-7.399%2011.799a1%201%200%200%201-1.202%200C9.539%2020.193%204%2014.993%204%2010a8%208%200%200%201%2016%200%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2210%22%20r%3D%223%22/%3E%3C/svg%3E") no-repeat center/55% 55%, linear-gradient(145deg,var(--secondary),#3ecf6e);box-shadow:0 8px 16px -4px rgba(13,122,58,.55), inset 0 1px 0 rgba(255,255,255,.45);border:3px solid #fff;min-width:22px;min-height:22px;}
   /* v2.81 : white-space:nowrap ajouté — avec le cercle central plus petit
      (cadre 428→350px), "LIEU DE DÉPART" passait sur 2 lignes ; comme
      .flower-center centre son contenu verticalement (justify-content:center),
@@ -883,7 +883,7 @@
      désormais une rangée flex normale, dernière du flux dans #screen-lieu
      (flex:0 0 auto, voir plus haut) : toujours visible sous les 3 colonnes,
      ne peut plus jamais recouvrir quoi que ce soit. */
-  .ot-carousel-wrap{flex:0 0 auto;margin:0;background:#fff;padding:.4rem 0;box-shadow:0 -6px 18px -8px rgba(16,19,43,.22);border-top:1px solid rgba(16,19,43,.08);}
+  .ot-carousel-wrap{flex:0 0 auto;margin:0;background:var(--light);padding:.4rem 0;box-shadow:0 -6px 18px -8px rgba(16,19,43,.22);border-top:1px solid rgba(16,19,43,.08);}
   /* padding vertical : laisse la place à l'effet de survol (translateY) des
      badges sans que leur bordure/ombre du haut ne soit rognée par le
      overflow:hidden du carrousel. */
@@ -2476,9 +2476,9 @@ function buildFlower(){
   const center = document.createElement('div');
   center.className = 'flower-center';
   center.innerHTML = `
-    <label for="inputVille">Lieu de départ</label>
+    <label for="inputVille">Destination</label>
     <div class="ville-suggest-wrap">
-      <input type="text" id="inputVille" placeholder="Ville ou adresse précise *" autocomplete="off">
+      <input type="text" id="inputVille" placeholder="Ville *" autocomplete="off">
       <ul class="ville-suggest-list" id="villeSuggestList" hidden></ul>
     </div>
     <p class="voice-feedback no-print" id="voiceFeedback" hidden></p>
