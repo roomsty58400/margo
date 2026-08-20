@@ -84,6 +84,22 @@ generateurititourist/
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v2.84 — Nouvelle catégorie Transport (6ᵉ groupe) : Taxis, Gares, Métro, Tramway, Vélo
+- Ajout d'un 6ᵉ groupe de catégories "🚌 Transport" (couleur dédiée `#2563eb`, bleu), au même niveau que Lieux à visiter / Loisirs & sport / Hébergement / Restauration / Services pratiques : onglet, cartes, puces de filtre du bandeau de résultats et couleur des pins sur la carte suivent le même système que les groupes existants.
+- 5 nouvelles sous-catégories, câblées de bout en bout comme les autres (recherche réelle, mode démo, commande vocale) : 🚕 Taxis (Google `taxi_stand`, OSM `amenity=taxi`), 🚉 Gares (Google `train_station`, OSM `railway=station`/`railway=halt`), Ⓜ️ Métro (Google `subway_station`, OSM `station=subway`/`railway=subway_entrance`), 🚊 Tramway (Google `light_rail_station`, OSM `railway=tram_stop`) et 🚲 Vélo (pas de type Google dédié aux stations de location en libre-service, repli sur `bicycle_store` ; OSM `amenity=bicycle_rental`).
+- 3 nouvelles icônes dessinées pour l'occasion (train, métro en médaillon "M", tramway avec pantographe) ; Taxis et Vélo réutilisent les pictogrammes voiture/vélo déjà présents ailleurs dans l'appli.
+
+### v2.83 — Loisirs & sport : Zoos et Parcs à thème ; couleurs des boutons de coin
+- Ajout de 2 catégories dans Loisirs & sport : 🐾 Zoos (type Google `zoo`, OSM `tourism=zoo`) et 🎡 Parcs à thème (type Google `amusement_park`, OSM `tourism=theme_park`).
+- Icônes des 4 boutons de coin de la fleur différenciées par couleur (au lieu du vert uniforme précédent) : 🚑 urgences en rouge, 🔧 dépannage en bleu, 🔌 bornes de recharge en orange avec un éclair jaune superposé au centre.
+
+### v2.82 — Hébergement : Campings et Aires de camping-cars
+- Ajout de 2 catégories dans Hébergement : ⛺ Campings (type Google `campground`, OSM `tourism=camp_site`) et 🚐 Aires de camping-cars (type Google `rv_park`, OSM `tourism=caravan_site`/`amenity=sanitary_dump_station`).
+
+### v2.81 — Fleur : libellé "Destination" + fond du carrousel des offices de tourisme
+- Cœur de la fleur : libellé renommé "Lieu de départ" → "Destination", champ ville simplifié en "Ville" (au lieu de "Ville ou adresse précise"). Badge 📍 remonté pour ne plus chevaucher le nouveau libellé.
+- Fond du carrousel des offices de tourisme partenaires (bas d'écran) : blanc → vert clair (`var(--light)`), pour se fondre dans le dégradé de fond de la page au lieu de trancher en bande blanche.
+
 ### v2.80 — Nouvelles catégories : Cinémas, Théâtres, Gîtes & Airbnb ; retrait de Golfs
 - Ajout de 3 catégories dans le groupe Loisirs & sport / Hébergement : 🎬 Cinémas (type Google `movie_theater`), 🎟️ Théâtres (type Google `performing_arts_theater`) et 🏡 Gîtes & Airbnb (pas de type Google dédié aux locations entre particuliers, repli sur `cottage`, même logique que "Bureaux de tabac" → `convenience_store`). Mots-clés de commande vocale, données de démonstration et générateur de noms mis à jour en conséquence ; "théâtre"/"spectacle" retirés des mots-clés de "Sites culturels" pour éviter un double déclenchement avec la nouvelle catégorie Théâtres.
 - Retrait complet de la catégorie ⛳ Golfs (définition, mapping Google Places, mots-clés vocaux, lieux de démonstration Paris/Bourges, générateur de noms).
