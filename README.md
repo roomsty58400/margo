@@ -84,6 +84,12 @@ generateurititourist/
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v2.86 — margo-opt.html : consolidation du catalogue de catégories (variante expérimentale)
+- Nouveau fichier `margo-opt.html`, une variante de `margo.html` créée pour explorer une architecture plus évolutive : les ~6 tables par catégorie auparavant dupliquées à la main (`CATEGORY_TO_GOOGLE_TYPE`, `CATEGORY_TO_OSM_TAGS`, `VOICE_CATEGORY_KEYWORDS`, `VISIT_DURATION`, `TEMPLATES`) sont désormais un seul champ chacune sur l'entrée `CATEGORY_DEFS` de la catégorie, les tables legacy étant générées automatiquement à partir de ce catalogue unique. Objectif : qu'ajouter une future catégorie ne demande plus qu'une seule modification (au lieu de ~6 endroits à ne pas oublier).
+- Ajout de `checkCategoryDefsConsistency()`, une auto-vérification exécutée au chargement qui avertit dans la console si une catégorie visible a un champ manquant (garde-fou contre le type d'oubli silencieux repéré lors du diagnostic de recherche).
+- Corrige aussi les 2 points faibles identifiés par ce diagnostic : `VISIT_DURATION` complété pour stations-service/tabac/banque (auparavant absents, repli silencieux sur une valeur générique), et `searchAllCategoriesOverpass()` bascule maintenant sur les données de démonstration en cas d'échec réseau total (même filet de sécurité que le chemin Google Places), au lieu d'afficher silencieusement « 0 lieux trouvés ».
+- Vérifié fonctionnellement identique à `margo.html` (comportement, données, rendu visuel) via des tests automatisés (Playwright) comparant les deux fichiers. `margo-opt.html` n'est PAS branché sur le manifest PWA ni référencé par `index.html` : c'est une base de travail/référence, pas un remplacement en production tant qu'il n'a pas été testé en conditions réelles.
+
 ### v2.85 — Suppression du doublon margo-premium.html
 - Suppression de `margo-premium.html`, copie strictement identique de `margo.html` maintenue manuellement en parallèle depuis plusieurs versions. Fichier orphelin : non référencé par `index.html`, `manifest.json`, `sw.js` ni aucune page du dépôt — sa suppression n'a aucun impact sur le site en ligne (GitHub Pages ne sert que `margo.html`).
 
