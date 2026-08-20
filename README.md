@@ -84,6 +84,9 @@ generateurititourist/
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v2.85 — Suppression du doublon margo-premium.html
+- Suppression de `margo-premium.html`, copie strictement identique de `margo.html` maintenue manuellement en parallèle depuis plusieurs versions. Fichier orphelin : non référencé par `index.html`, `manifest.json`, `sw.js` ni aucune page du dépôt — sa suppression n'a aucun impact sur le site en ligne (GitHub Pages ne sert que `margo.html`).
+
 ### v2.84 — Nouvelle catégorie Transport (6ᵉ groupe) : Taxis, Gares, Métro, Tramway, Vélo
 - Ajout d'un 6ᵉ groupe de catégories "🚌 Transport" (couleur dédiée `#2563eb`, bleu), au même niveau que Lieux à visiter / Loisirs & sport / Hébergement / Restauration / Services pratiques : onglet, cartes, puces de filtre du bandeau de résultats et couleur des pins sur la carte suivent le même système que les groupes existants.
 - 5 nouvelles sous-catégories, câblées de bout en bout comme les autres (recherche réelle, mode démo, commande vocale) : 🚕 Taxis (Google `taxi_stand`, OSM `amenity=taxi`), 🚉 Gares (Google `train_station`, OSM `railway=station`/`railway=halt`), Ⓜ️ Métro (Google `subway_station`, OSM `station=subway`/`railway=subway_entrance`), 🚊 Tramway (Google `light_rail_station`, OSM `railway=tram_stop`) et 🚲 Vélo (pas de type Google dédié aux stations de location en libre-service, repli sur `bicycle_store` ; OSM `amenity=bicycle_rental`).
