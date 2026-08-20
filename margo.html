@@ -270,12 +270,17 @@
        forçait un scroll de toute la page avant même d'atteindre le texte
        "Renseigne d'abord..." sous la fleur. On ajoute donc un second plafond
        basé sur la hauteur d'écran (vh), qui prend le dessus dès que la
-       fenêtre est plus basse que large. */
-    .flower-frame{max-width:min(360px,52vh);}
+       fenêtre est plus basse que large.
+       v2.81 : plafonds réduits (360→300px / 52→44vh) en cohérence avec le
+       nouveau .flower-frame desktop (voir plus bas, 428→350px) — voir cette
+       note pour le pourquoi (rapprocher les 4 boutons de coin du cercle
+       central pour redonner de la hauteur au panneau de sous-catégories,
+       masqué/écrasé par le carrousel OT en dessous). */
+    .flower-frame{max-width:min(300px,44vh);}
     .mobile-jump-row{display:block;}
   }
   @media (max-width:480px){
-    .flower-frame{max-width:min(270px,45vh);}
+    .flower-frame{max-width:min(225px,38vh);}
   }
 
   /* --- Flower input --- */
@@ -285,7 +290,19 @@
      300px cassait l'équilibre visuel avec le reste de l'écran). .flower
      passe à width:100% de ce cadre, qui sert aussi à positionner les
      boutons de coin en absolu quelle que soit la taille réelle de la fleur. */
-  .flower-frame{position:relative;width:428px;max-width:100%;margin:0 auto;}
+  /* v2.81 : 428→350px — depuis le retrait de l'ancien anneau de pétales
+     (v2.44), les 4 boutons de coin (.insect-corner-btn) flottaient très loin
+     du cercle central avec un cadre de cette taille, gaspillant de la
+     hauteur que .cat-picker (sous-catégories, plus bas) aurait bien besoin de
+     récupérer — le carrousel OT (.ot-carousel-wrap) réservant désormais sa
+     propre rangée fixe (v2.74), toute hauteur perdue ici se répercute
+     directement sur la place dispo pour les cartes de sous-catégories, au
+     point qu'elles peuvent finir quasi invisibles (scale JS, voir
+     alignFlowerColumnBottom) juste au-dessus du carrousel. Cadre resserré de
+     ~18%, et boutons de coin rapprochés du centre en conséquence (voir
+     .insect-corner-btn top/right/bottom/left plus bas) tout en gardant une
+     marge de sécurité avec le cercle central (.flower-center, 37%). */
+  .flower-frame{position:relative;width:350px;max-width:100%;margin:0 auto;}
   .flower{position:relative;width:100%;aspect-ratio:1/1;margin:0;}
   /* Raccourcis mobile/tablette pour éviter d'avoir à faire défiler
      manuellement entre la fleur et les résultats (masqués sur desktop où les
@@ -316,17 +333,22 @@
     font-size:1.7rem;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;padding:0;z-index:6;
     transition:transform .18s ease, box-shadow .18s ease;}
   .insect-corner-btn:hover{box-shadow:0 14px 26px -9px rgba(13,122,58,.52), 0 3px 6px -1px rgba(16,19,43,.18), inset 0 0 0 3px #fff, inset 0 -4px 7px -2px rgba(13,122,58,.1);}
-  .snail-guide-btn{top:10%;right:10%;}
+  /* v2.81 : 10%→14% — rapproche les 4 boutons du cercle central (voir note
+     sur .flower-frame plus haut) ; marge de sécurité vérifiée par calcul
+     (distance centre-à-centre vs somme des rayons) sur tous les paliers de
+     taille du cadre, y compris le plus petit (media 480px) — jamais de
+     recouvrement avec .flower-center. */
+  .snail-guide-btn{top:14%;right:14%;}
   .snail-guide-btn:hover{transform:translateY(-3px) scale(1.08) rotate(-6deg);}
   /* Même bouton "escargot", en miroir dans le coin haut-gauche : raccourci
      vers la carte des bornes de recharge électrique Chargemap. */
-  .charge-map-btn{top:10%;left:10%;}
+  .charge-map-btn{top:14%;left:14%;}
   .charge-map-btn:hover{transform:translateY(-3px) scale(1.08) rotate(6deg);}
   /* Même style de bouton, dans les deux coins BAS de la fleur cette fois :
      urgences/santé en bas à gauche, dépannage véhicule en bas à droite. */
-  .emergency-btn{bottom:10%;left:10%;}
+  .emergency-btn{bottom:14%;left:14%;}
   .emergency-btn:hover{transform:translateY(-3px) scale(1.08) rotate(-6deg);}
-  .repair-btn{bottom:10%;right:10%;}
+  .repair-btn{bottom:14%;right:14%;}
   .repair-btn:hover{transform:translateY(-3px) scale(1.08) rotate(6deg);}
   /* :active défini après les :hover spécifiques (même spécificité), pour que
      l'effet d'appui (translateY(-1px) scale(.96)) l'emporte visuellement même
@@ -351,8 +373,23 @@
       radial-gradient(circle at 50% 42%,#ffffff 0%,#f2fbf5 48%,#e0f3e7 100%);
     box-shadow:0 22px 42px -14px rgba(13,122,58,.42),0 0 0 5px #fff,0 0 0 9px rgba(13,122,58,.15),0 0 0 14px rgba(13,122,58,.05);
     border:1px solid rgba(13,122,58,.16);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.22rem;z-index:5;padding:.4rem;text-align:center;}
-  .flower-center::before{content:'';position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:32px;height:32px;border-radius:50%;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M20%2010c0%204.993-5.539%2010.193-7.399%2011.799a1%201%200%200%201-1.202%200C9.539%2020.193%204%2014.993%204%2010a8%208%200%200%201%2016%200%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2210%22%20r%3D%223%22/%3E%3C/svg%3E") no-repeat center/16px 16px, linear-gradient(145deg,var(--secondary),#3ecf6e);box-shadow:0 8px 16px -4px rgba(13,122,58,.55), inset 0 1px 0 rgba(255,255,255,.45);border:3px solid #fff;}
-  .flower-center strong, .flower-center label{display:block;font-size:clamp(.8rem,2.4vw,1rem);color:var(--primary);font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:.5rem;}
+  /* v2.81 : badge en % de .flower-center (au lieu de px fixes 32/-16) —
+     depuis le resserrage de .flower-frame (428→350px, voir plus haut), un
+     badge de taille fixe protubérait proportionnellement bien plus dans un
+     cercle central devenu plus petit, jusqu'à chevaucher le libellé "LIEU DE
+     DÉPART" en dessous. En %, le badge garde exactement la même proportion
+     visuelle quelle que soit la taille du cadre — c'est ce que le commentaire
+     v2.78 ci-dessus visait déjà pour le reste du cœur de fleur, oubli sur ce
+     seul élément. */
+  .flower-center::before{content:'';position:absolute;top:-11%;left:50%;transform:translateX(-50%);width:22%;height:22%;border-radius:50%;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%222.4%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M20%2010c0%204.993-5.539%2010.193-7.399%2011.799a1%201%200%200%201-1.202%200C9.539%2020.193%204%2014.993%204%2010a8%208%200%200%201%2016%200%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2210%22%20r%3D%223%22/%3E%3C/svg%3E") no-repeat center/55% 55%, linear-gradient(145deg,var(--secondary),#3ecf6e);box-shadow:0 8px 16px -4px rgba(13,122,58,.55), inset 0 1px 0 rgba(255,255,255,.45);border:3px solid #fff;min-width:22px;min-height:22px;}
+  /* v2.81 : white-space:nowrap ajouté — avec le cercle central plus petit
+     (cadre 428→350px), "LIEU DE DÉPART" passait sur 2 lignes ; comme
+     .flower-center centre son contenu verticalement (justify-content:center),
+     la ligne en plus remontait le bloc entier et le faisait chevaucher le
+     badge du dessus malgré le badge maintenant en %. Testé à toutes les
+     tailles de cadre (428→225px) : le libellé continue de tenir sur une seule
+     ligne partout, aucun débordement visible hors du cercle. */
+  .flower-center strong, .flower-center label{display:block;font-size:clamp(.8rem,2.4vw,1rem);color:var(--primary);font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:.5rem;white-space:nowrap;}
   .flower-center input{width:82%;padding:.35rem .5rem;border:1.5px solid #dbe2ec;border-radius:10px;background:#fff;box-shadow:inset 0 1px 3px rgba(16,19,43,.07);font-size:clamp(.56rem,1.6vw,.62rem);text-align:center;transition:border-color .15s, box-shadow .15s;}
   .flower-center input:focus{outline:none;border-color:var(--secondary);box-shadow:inset 0 1px 3px rgba(16,19,43,.05), 0 0 0 3px rgba(13,122,58,.15);}
   .flower-center .btn.small{margin-top:.2rem;padding:.3rem .7rem;font-size:.65rem;}
@@ -512,6 +549,15 @@
      de l'écran 1, en plus petit). Positions des pétales calculées en JS
      (buildGpsAppFlower) avec les mêmes maths polaires que buildFlower(). --- */
   .gps-app-modal-dest{font-size:.78rem;color:var(--gray-500);margin-bottom:.4rem;}
+  /* Note affichée uniquement pour la variante "itinéraire complet" (voir
+     openItineraryGpsAppModal) : prévient que seul Google Maps (pétale
+     centrale) suit toutes les étapes dans l'ordre, les autres applis
+     n'ouvrant que la destination finale (limitation de leurs liens publics,
+     voir buildGpsAppUrl). Évite la mauvaise surprise de choisir Waze/Sygic/
+     etc. en pensant reproduire le même itinéraire multi-étapes. */
+  .gps-app-modal-note{font-size:.72rem;color:var(--gray-500);background:var(--light);border-radius:8px;padding:.5rem .6rem;margin:0 0 .6rem;display:flex;align-items:flex-start;gap:.4rem;line-height:1.4;}
+  .gps-app-modal-note svg{flex-shrink:0;margin-top:.1rem;}
+  .gps-app-modal-note strong{color:var(--gray-700,#333);}
   .gps-app-flower{position:relative;width:230px;height:230px;max-width:100%;aspect-ratio:1/1;margin:.8rem auto;}
   .gps-app-petal{position:absolute;width:19%;height:19%;min-width:56px;min-height:56px;border-radius:50%;border:2px solid #fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;cursor:pointer;box-shadow:0 4px 12px -2px rgba(16,19,43,.3);transition:transform .15s, box-shadow .15s;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff;padding:.2rem;text-align:center;}
   .gps-app-petal:hover{transform:translate(-50%,-50%) scale(1.09);box-shadow:0 6px 16px -2px rgba(16,19,43,.4);}
@@ -1169,6 +1215,7 @@
     <button type="button" class="modal-close" id="gpsAppModalClose" aria-label="Fermer"><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg></button>
     <h3 class="modal-drag-handle" id="gpsAppModalHandle" style="margin-bottom:.2rem;"><svg class="icon-inline" aria-hidden="true"><use href="#icon-map-pin"></use></svg> Ouvrir avec…</h3>
     <p class="gps-app-modal-dest" id="gpsAppModalDest"></p>
+    <p class="gps-app-modal-note" id="gpsAppModalNote" hidden><svg class="icon-inline" aria-hidden="true"><use href="#icon-info"></use></svg> <span><strong>Seule Google Maps</strong> (pétale du centre) suit les <strong id="gpsAppModalNoteStepCount"></strong> étapes dans l'ordre. Les autres applis ci-dessous ouvrent directement la <strong>destination finale</strong> uniquement.</span></p>
     <div class="gps-app-flower" id="gpsAppFlower"></div>
   </div>
 </div>
@@ -4519,6 +4566,18 @@ const resetGpsAppModalPosition = makeModalDraggable(
 function openGpsAppModal(poi){
   gpsAppModalPoi = poi;
   document.getElementById('gpsAppModalDest').textContent = poi.name + ' — ' + poi.addr;
+  // La note "seule Google Maps suit toutes les étapes" ne s'affiche que pour
+  // la variante "itinéraire complet" (voir openItineraryGpsAppModal, seule
+  // à renseigner _mapsFullLink) : pour une étape unique, toutes les applis
+  // pointent de toute façon vers le même point, la précision serait inutile.
+  const noteEl = document.getElementById('gpsAppModalNote');
+  if(poi._mapsFullLink && state.itineraryChunks && state.itineraryChunks.length){
+    const stepCount = state.itineraryChunks.reduce((sum, chunk)=>sum+chunk.length, 0);
+    document.getElementById('gpsAppModalNoteStepCount').textContent = stepCount;
+    noteEl.hidden = false;
+  } else {
+    noteEl.hidden = true;
+  }
   buildGpsAppFlower();
   resetGpsAppModalPosition();
   document.getElementById('gpsAppModalOverlay').hidden = false;
@@ -6240,7 +6299,7 @@ if(!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && location.pro
    que la page tourne bien sur ce domaine précis — jamais en local, où
    apiki.env garde toujours la priorité. */
 const PUBLIC_DEMO_API_KEY = (location.hostname === 'roomsty58400.github.io')
-  ? 'AIzaSyA7Tj3WXzOANGNOVJKHQB2trX9K-b0WMd8'
+  ? '__PUBLIC_DEMO_API_KEY__'
   : null;
 
 let apiKeyAutoLoadPromise = (async ()=>{
