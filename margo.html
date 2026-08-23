@@ -1941,6 +1941,18 @@ function toInternalPOIFromOverpass(el, catKey, center){
   const {x, y} = projectLatLng(lat, lng, center);
   const streetAddr = [tags['addr:housenumber'], tags['addr:street']].filter(Boolean).join(' ');
   const addr = [streetAddr, tags['addr:postcode'], tags['addr:city']].filter(Boolean).join(', ') || '—';
+  // v2.97 : les lieux issus d'Overpass/OpenStreetMap n'ont jamais de photo
+  // native (contrairement à Google Places, voir toInternalPOI) — auparavant
+  // photoUrl restait donc toujours vide ici, MÊME quand une clé Google valide
+  // était configurée (cas du repli automatique OpenStreetMap suite à un échec
+  // Google Places, voir handleSearch). Corrigé : si une clé valide est
+  // disponible, on utilise le même repli Google Street View Static que pour
+  // les lieux Google (une vraie photo du lieu plutôt qu'un logo générique).
+  let photoUrl = null;
+  const apiKeyForPhoto = getApiKey();
+  if(apiKeyForPhoto){
+    photoUrl = `https://maps.googleapis.com/maps/api/streetview?size=320x220&location=${lat},${lng}&fov=85&key=${encodeURIComponent(apiKeyForPhoto)}`;
+  }
   return {
     id: 'osm_' + el.type + '_' + el.id,
     name,
@@ -1953,7 +1965,7 @@ function toInternalPOIFromOverpass(el, catKey, center){
     website: tags.website || tags['contact:website'] || '—',
     googleMapsURI: null,
     rating: null,
-    photoUrl: null,
+    photoUrl,
     lat, lng,
     x: round1(x), y: round1(y),
     dist: round1(Math.hypot(x,y))

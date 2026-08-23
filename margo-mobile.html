@@ -2657,6 +2657,18 @@ function toInternalPOIFromOverpass(el, catKey, center){
   const {x, y} = projectLatLng(lat, lng, center);
   const streetAddr = [tags['addr:housenumber'], tags['addr:street']].filter(Boolean).join(' ');
   const addr = [streetAddr, tags['addr:postcode'], tags['addr:city']].filter(Boolean).join(', ') || '—';
+  // v2.97 : les lieux issus d'Overpass/OpenStreetMap n'ont jamais de photo
+  // native (contrairement à Google Places, voir toInternalPOI) — auparavant
+  // photoUrl restait donc toujours vide ici, MÊME quand une clé Google valide
+  // était configurée (cas du repli automatique OpenStreetMap suite à un échec
+  // Google Places, voir handleSearch). Corrigé : si une clé valide est
+  // disponible, on utilise le même repli Google Street View Static que pour
+  // les lieux Google (une vraie photo du lieu plutôt qu'un logo générique).
+  let photoUrl = null;
+  const apiKeyForPhoto = getApiKey();
+  if(apiKeyForPhoto){
+    photoUrl = `https://maps.googleapis.com/maps/api/streetview?size=320x220&location=${lat},${lng}&fov=85&key=${encodeURIComponent(apiKeyForPhoto)}`;
+  }
   return {
     id: 'osm_' + el.type + '_' + el.id,
     name,
@@ -2669,7 +2681,7 @@ function toInternalPOIFromOverpass(el, catKey, center){
     website: tags.website || tags['contact:website'] || '—',
     googleMapsURI: null,
     rating: null,
-    photoUrl: null,
+    photoUrl,
     lat, lng,
     x: round1(x), y: round1(y),
     dist: round1(Math.hypot(x,y))
@@ -2746,10 +2758,14 @@ async function searchCategoryReal(def, centerLatLng, radiusKm){
 }
 
 /* Recherche réelle et gratuite pour une catégorie, via Overpass
-   (OpenStreetMap) : c'est le moteur de recherche PRINCIPAL de Margo depuis
-   qu'on a remplacé Google Places (quota bloqué) — voir searchAllCategoriesOverpass,
-   qui appelle cette fonction pour chaque catégorie sélectionnée, et
-   handleSearch qui ne passe plus du tout par searchCategoryReal/Google.
+   (OpenStreetMap) : c'est le moteur de repli automatique et gratuit de Margo,
+   utilisé par handleSearch quand aucune clé Google n'est configurée, OU quand
+   Google Places échoue pour une raison quelconque (quota, clé invalide...) —
+   voir searchAllCategoriesOverpass, qui appelle cette fonction pour chaque
+   catégorie sélectionnée. Depuis v2.80, Google Places (searchCategoryReal)
+   reste le moteur PRIORITAIRE dès qu'une clé valide est disponible (données
+   plus riches : photos natives, horaires, avis) ; ce commentaire disait
+   auparavant l'inverse (obsolète, corrigé).
    nwr(...) interroge nodes/ways/relations en une seule requête ("out center")
    pour couvrir aussi bien les lieux ponctuels (ex. un banc-titre "node"
    restaurant) que les lieux dessinés comme un contour (ex. un parking ou un
