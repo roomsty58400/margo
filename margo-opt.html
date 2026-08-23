@@ -6625,8 +6625,16 @@ if(!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && location.pro
    absent (cas normal sur GitHub Pages, qui ne publie jamais ce fichier) ET
    que la page tourne bien sur ce domaine précis — jamais en local, où
    apiki.env garde toujours la priorité. */
-const PUBLIC_DEMO_API_KEY = (location.hostname === 'roomsty58400.github.io')
+const PUBLIC_DEMO_API_KEY_RAW = (location.hostname === 'roomsty58400.github.io')
   ? '__PUBLIC_DEMO_API_KEY__'
+  : null;
+/* Garde-fou : voir le même correctif dans margo.html/margo-mobile.html —
+   ignore toute valeur qui n'a pas la forme d'une vraie clé Google ("AIza..."),
+   pour ne jamais envoyer le texte de substitution "__PUBLIC_DEMO_API_KEY__"
+   (jamais remplacé) à Google, ce qui pouvait afficher une carte cassée/vide
+   au lieu de retomber proprement sur le repli sans clé. */
+const PUBLIC_DEMO_API_KEY = (PUBLIC_DEMO_API_KEY_RAW && /^AIza[0-9A-Za-z_-]{10,}$/.test(PUBLIC_DEMO_API_KEY_RAW))
+  ? PUBLIC_DEMO_API_KEY_RAW
   : null;
 
 let apiKeyAutoLoadPromise = (async ()=>{

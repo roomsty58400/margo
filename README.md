@@ -98,6 +98,21 @@ generateurititourist/
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v2.95 — Écran Lieu (mobile) : suppression du message d'aide + libellé "Destination" réduit
+- Message d'aide "👆 Renseigne d'abord ton lieu de départ ci-dessus" (sous le sélecteur de catégories verrouillé) masqué à la demande — le grisé du sélecteur suffit comme indice visuel, sans texte en plus. Gardé dans le DOM (juste caché), aucune fonction JS modifiée.
+- Libellé "DESTINATION" (cœur de la fleur) encore réduit (`margo-mobile.html` uniquement).
+
+### v2.94 — Diagnostic général : carte cassée sur smartphone (cache PWA obsolète + clé API démo sur margo.html/margo-opt.html)
+- **Cause n°1, la plus probable (mise en cache PWA jamais invalidée)** : `sw-mobile.js` servait la coquille de l'application en "cache d'abord, mise à jour en arrière-plan" avec un nom de cache (`CACHE_NAME`) resté à `v1` depuis sa création, malgré plusieurs correctifs successifs de `margo-mobile.html` depuis (recherche, en-tête, saisie vocale, bandeau Roadbook...) : un appareil ayant déjà ouvert l'appli (surtout installée en PWA) pouvait donc continuer à afficher une ancienne version pendant plusieurs visites, avec des bugs déjà corrigés côté dépôt. `CACHE_NAME` passe à `v2` pour forcer chaque appareil à repartir d'un cache neuf ; un rappel est ajouté en commentaire pour penser à l'incrémenter à chaque futur correctif notable. `sw.js` (édition bureau), au même risque, passe de `v10` à `v11` par cohérence.
+- **Cause n°2, confirmée par le code (non corrigée jusqu'ici sur margo.html/margo-opt.html)** : `margo.html` et `margo-opt.html` avaient toujours la clé API "démo publique" non protégée (voir v2.89, correctif jusque-là appliqué à `margo-mobile.html` seulement) — un visiteur du site public leur envoyait donc le texte de substitution jamais remplacé (`__PUBLIC_DEMO_API_KEY__`) comme si c'était une vraie clé. Contrairement à une simple erreur réseau, Google charge alors son script normalement (pas d'exception JavaScript détectable) mais affiche une carte dégradée/vide avec une clé au mauvais format — ce qui peut correspondre à une carte qui "ne s'affiche plus". Même garde-fou que `margo-mobile.html` appliqué aux deux fichiers : la clé n'est utilisée que si elle a la forme d'une vraie clé Google (`AIza...`), sinon repli propre et immédiat sur la carte sans clé (embed public Google Maps).
+- Vérification : les 3 éditions (`margo.html`, `margo-opt.html`, `margo-mobile.html`) ainsi que `index.html` et `pages/mentions-legales.html` chargent sans erreur JavaScript non interceptée (testé en local, Playwright).
+
+### v2.93 — Mentions légales & RGPD : mise à jour (deux éditions, préférence d'appareil, cache PWA)
+- Section RGPD mise à jour pour couvrir les deux éditions (bureau et mobile/tablette) : même traitement des données pour les deux, mention de la saisie vocale (Web Speech API du navigateur, aucun service tiers propre à Margo) et du stockage local de la préférence d'édition (`?version=mobile`/`?version=desktop`).
+- Section Cookies complétée avec une explication du cache technique des éditions installables (PWA) — pas de collecte de données, simple mise en cache locale des fichiers de l'appli.
+- Bouton "← Retour à l'application" : pointait toujours vers `margo.html` (édition bureau), y compris depuis l'édition mobile ; revient désormais à l'onglet/l'édition d'origine quand c'est possible, ou vers `index.html` (détection automatique) sinon.
+- Ajout d'une date de dernière mise à jour en haut de page.
+
 ### v2.92 — Mobile : bandeau ROADBOOK — pastilles qui débordaient du cadre
 - **Bug corrigé** : dans l'écran ROADBOOK de `margo-mobile.html`, les pastilles de résumé (mode de transport, durée, distance, bouton "↺ Revenir à l'ordre optimisé") de la bannière restaient sur une seule ligne (`white-space:nowrap`, comportement hérité de `margo.html`) — avec les libellés français plus longs, elles débordaient du cadre arrondi de la bannière au lieu de s'y adapter.
 - Corrigé pour l'édition mobile uniquement : les pastilles s'empilent désormais en colonne, pleine largeur, avec retour à la ligne autorisé (`white-space:normal`) à l'intérieur de la bannière — plus aucun débordement, quelle que soit la longueur du texte.

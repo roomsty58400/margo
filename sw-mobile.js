@@ -7,9 +7,19 @@
    Places/Directions, Nominatim, Overpass, polices, QR codes, photos...) ne
    sont volontairement PAS interceptés : ils doivent toujours atteindre le
    réseau pour renvoyer des données à jour (et pour ne jamais mettre en cache
-   une clé API ou une réponse liée à un compte). */
+   une clé API ou une réponse liée à un compte).
 
-const CACHE_NAME = 'margo-mobile-shell-v1';
+   IMPORTANT — CACHE_NAME doit être incrémenté à chaque modification de
+   margo-mobile.html (ou des autres fichiers de CORE_ASSETS) : la stratégie
+   "cache d'abord, mise à jour en arrière-plan" ci-dessous sert toujours la
+   version déjà en cache en priorité, donc un appareil qui a ouvert l'appli
+   avant un correctif peut continuer à voir l'ancienne version pendant
+   plusieurs visites (ex. observé le 23/08 : résultats obsolètes puis carte
+   cassée sur un smartphone déjà installé, alors que le site en ligne était
+   déjà corrigé). Changer CACHE_NAME force chaque appareil à repartir d'un
+   cache neuf dès la prochaine visite en ligne. */
+
+const CACHE_NAME = 'margo-mobile-shell-v2';
 const CORE_ASSETS = [
   './margo-mobile.html',
   './manifest-mobile.json',
