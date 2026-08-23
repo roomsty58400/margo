@@ -3287,7 +3287,11 @@ async function handleSearch(opts){
   // pleinement fonctionnelle même quand Google est indisponible.
   try{
     if(apiKey){
-      localStorage.setItem('itineraire_google_api_key', apiKey);
+      // Garde-fou : on ne persiste une clé QUE si elle a la forme d'une
+      // vraie clé Google ("AIza..."), jamais avant de savoir si elle
+      // fonctionne réellement (voir la restauration au chargement, section
+      // INIT, pour l'explication complète du bug que ça évite).
+      if(/^AIza[0-9A-Za-z_-]{10,}$/.test(apiKey)) localStorage.setItem('itineraire_google_api_key', apiKey);
       try{
         await withTimeout(ensureGoogleMapsLoaded(apiKey), 12000, 'Chargement de Google Maps trop long (12 s) — clé invalide, quota dépassé, ou blocage réseau/extension de navigateur.');
         const cityQuery = `${state.ville}${state.cp ? (' '+state.cp) : ''}, ${state.pays}`;
@@ -6579,7 +6583,23 @@ document.getElementById('inputCP').addEventListener('input', scheduleCityPreview
 document.getElementById('inputPays').addEventListener('input', scheduleCityPreview);
 try{
   const savedKey = localStorage.getItem('itineraire_google_api_key');
-  if(savedKey) document.getElementById('apiKeyInput').value = savedKey;
+  // Garde-fou : une valeur qui n'a pas la forme d'une vraie clé Google
+  // ("AIza...") ne doit jamais être restaurée ni réutilisée. Bug vécu le
+  // 23/08 (édition mobile, même code ici) : avant le correctif de
+  // PUBLIC_DEMO_API_KEY (voir plus bas), le texte de substitution jamais
+  // remplacé "__PUBLIC_DEMO_API_KEY__" pouvait se retrouver enregistré ici
+  // lors d'une recherche (ancien code, sans ce garde-fou) — puis restauré
+  // indéfiniment à chaque ouverture sur cet appareil, y compris après la
+  // correction du bug d'origine. Résultat : Google Maps affichait sa propre
+  // erreur ("Google Maps ne s'est pas chargé correctement sur cette page")
+  // au lieu du repli normal sans clé. On purge toute valeur invalide dès
+  // qu'on la détecte, pour que l'appareil déjà touché se corrige tout seul
+  // à la prochaine ouverture, sans action de l'utilisateur.
+  if(savedKey && /^AIza[0-9A-Za-z_-]{10,}$/.test(savedKey)){
+    document.getElementById('apiKeyInput').value = savedKey;
+  } else if(savedKey){
+    localStorage.removeItem('itineraire_google_api_key');
+  }
 }catch(e){ /* localStorage indisponible (mode privé, etc.) : on ignore */ }
 
 /* Chargement automatique + FORCÉ de la clé depuis un fichier local

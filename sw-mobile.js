@@ -19,7 +19,7 @@
    déjà corrigé). Changer CACHE_NAME force chaque appareil à repartir d'un
    cache neuf dès la prochaine visite en ligne. */
 
-const CACHE_NAME = 'margo-mobile-shell-v2';
+const CACHE_NAME = 'margo-mobile-shell-v3';
 const CORE_ASSETS = [
   './margo-mobile.html',
   './manifest-mobile.json',
