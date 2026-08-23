@@ -6963,8 +6963,23 @@ if(!/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && location.pro
    absent (cas normal sur GitHub Pages, qui ne publie jamais ce fichier) ET
    que la page tourne bien sur ce domaine précis — jamais en local, où
    apiki.env garde toujours la priorité. */
-const PUBLIC_DEMO_API_KEY = (location.hostname === 'roomsty58400.github.io')
+const PUBLIC_DEMO_API_KEY_RAW = (location.hostname === 'roomsty58400.github.io')
   ? '__PUBLIC_DEMO_API_KEY__'
+  : null;
+/* Garde-fou (édition mobile) : la valeur ci-dessus n'a jamais été remplacée
+   par une vraie clé Google (elle est restée au texte de substitution
+   "__PUBLIC_DEMO_API_KEY__") — une recherche sur le site public partait donc
+   systématiquement à l'échec contre Google (clé invalide) avant de retomber,
+   de longues secondes plus tard (plusieurs délais d'attente empilés), sur
+   OpenStreetMap ou le mode démo : ça pouvait donner l'impression d'aucun
+   résultat si on n'attendait pas assez. On ignore donc toute valeur qui n'a
+   pas la forme d'une vraie clé Google ("AIza...", même motif que pour
+   apiki.env plus haut) : la recherche part alors directement et sans délai
+   sur OpenStreetMap (gratuit, sans clé). Le jour où une vraie clé restreinte
+   est renseignée ci-dessus, elle est automatiquement reconnue et utilisée
+   sans autre changement. */
+const PUBLIC_DEMO_API_KEY = (PUBLIC_DEMO_API_KEY_RAW && /^AIza[0-9A-Za-z_-]{10,}$/.test(PUBLIC_DEMO_API_KEY_RAW))
+  ? PUBLIC_DEMO_API_KEY_RAW
   : null;
 
 let apiKeyAutoLoadPromise = (async ()=>{
