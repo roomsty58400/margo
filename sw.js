@@ -7,7 +7,7 @@
    des données à jour (et pour ne jamais mettre en cache une clé API ou une
    réponse liée à un compte). */
 
-const CACHE_NAME = 'margo-shell-v14';
+const CACHE_NAME = 'margo-shell-v15';
 const CORE_ASSETS = [
   './margo.html',
   './manifest.json',

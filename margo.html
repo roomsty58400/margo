@@ -2183,27 +2183,59 @@ function parseVoiceCommand(transcript){
     VOICE_CATEGORY_KEYWORDS[key].some(kw => norm.includes(kw))
   );
 
-  // Cherche la ville juste après un mot déclencheur usuel ("depuis Nevers",
-  // "je pars de Nevers", "à Nevers"...) sur le texte original (pas encore
-  // normalisé) pour garder la casse d'origine.
-  let city = null;
-  const triggerMatch = transcript.match(
-    /\b(?:je\s+pars\s+de|je\s+veux\s+partir\s+de|partir\s+de|d[ée]part(?:\s+de)?|depuis|de\s+la\s+ville\s+de|de|à|a|au)\s+([a-zà-ÿçA-ZÀ-Ÿ][a-zà-ÿ' -]{1,40})/i
-  );
-  if(triggerMatch){
-    let raw = triggerMatch[1];
-    // Coupe la capture dès qu'un mot de liaison ou un mot-clé de catégorie
-    // apparaît (ex. "Nevers avec des musées" -> ne garde que "Nevers").
-    const stopWords = ['et', 'avec', 'pour', 'puis'];
-    const allKeywords = Object.values(VOICE_CATEGORY_KEYWORDS).flat();
-    const words = raw.trim().split(/\s+/);
+  // Coupe la capture dès qu'un mot de liaison ou un mot-clé de catégorie
+  // apparaît (ex. "Nevers avec des musées" -> ne garde que "Nevers"),
+  // factorisé pour être réutilisé aussi bien après un mot déclencheur
+  // (ci-dessous) que sur la phrase entière (voir repli plus bas).
+  const stopWords = ['et', 'avec', 'pour', 'puis'];
+  const allKeywords = Object.values(VOICE_CATEGORY_KEYWORDS).flat();
+  function extractCityWords(text){
+    const words = text.trim().split(/\s+/).filter(Boolean);
     const kept = [];
     for(const w of words){
       const wNorm = normalize(w);
       if(stopWords.includes(wNorm) || allKeywords.some(kw=>kw.startsWith(wNorm) || wNorm.startsWith(kw))) break;
       kept.push(w);
     }
-    if(kept.length) city = kept.join(' ').replace(/[.,;!?]+$/, '').trim();
+    return kept.join(' ').replace(/[.,;!?]+$/, '').trim();
+  }
+
+  let city = null;
+
+  // 1) Cherche la ville juste après un mot déclencheur usuel ("depuis Nevers",
+  // "je pars de Nevers", "à Nevers"...) sur le texte original (pas encore
+  // normalisé) pour garder la casse d'origine. "(?:^|\s)" plutôt que "\b" en
+  // tête : \b ne reconnaît pas "à" comme un caractère de mot (accentué), donc
+  // "à Bourges" ne matchait pas et retombait sur le repli ci-dessous en
+  // gardant le "à" par erreur dans le nom de ville capturé.
+  // v2.99 : ajout de "sur"/"vers"/"dans"/"proche de"/"près de" à la liste des
+  // mots déclencheurs — jusqu'ici seuls "à/a/au/de/depuis..." étaient
+  // reconnus, ce qui ratait des phrases naturelles où la catégorie est citée
+  // AVANT la ville, tournure très fréquente à l'oral (ex. "propose-moi des
+  // hôtels sur Nevers", "des restaurants dans Bourges") : le mot "sur" n'y
+  // était pas reconnu comme déclencheur, la ville retombait alors sur le
+  // repli ci-dessous qui part du DÉBUT de la phrase — capturant à tort
+  // "propose-moi des" (les mots avant le premier mot-clé de catégorie
+  // rencontré) au lieu de "Nevers".
+  const triggerMatch = transcript.match(
+    /(?:^|\s)(?:je\s+pars\s+de|je\s+veux\s+partir\s+de|partir\s+de|d[ée]part(?:\s+de)?|depuis|de\s+la\s+ville\s+de|proche\s+de|pr[eè]s\s+de|sur|vers|dans|de|à|a|au)\s+([a-zà-ÿçA-ZÀ-Ÿ][a-zà-ÿ' -]{1,40})/i
+  );
+  if(triggerMatch){
+    const extracted = extractCityWords(triggerMatch[1]);
+    if(extracted) city = extracted;
+  }
+
+  // 2) Repli : aucun mot déclencheur reconnu — cas fréquent au micro, où l'on
+  // dicte simplement le nom de la ville seul ("Paris", "Lyon musées et
+  // restaurants"...) sans tournure de phrase complète du type "je pars
+  // de...". Avant ce repli, une simple ville dictée seule tombait
+  // systématiquement en "phrase non reconnue" et demandait de reformuler une
+  // phrase complète — on prend maintenant directement le début de ce qui a
+  // été dicté comme ville (les catégories éventuellement citées ensuite
+  // restent détectées séparément ci-dessus).
+  if(!city){
+    const extracted = extractCityWords(transcript);
+    if(extracted) city = extracted;
   }
 
   return { city: city || null, categories };

@@ -2859,8 +2859,17 @@ function parseVoiceCommand(transcript){
   // tête : \b ne reconnaît pas "à" comme un caractère de mot (accentué), donc
   // "à Bourges" ne matchait pas et retombait sur le repli ci-dessous en
   // gardant le "à" par erreur dans le nom de ville capturé.
+  // v2.99 : ajout de "sur"/"vers"/"dans"/"proche de"/"près de" à la liste des
+  // mots déclencheurs — jusqu'ici seuls "à/a/au/de/depuis..." étaient
+  // reconnus, ce qui ratait des phrases naturelles où la catégorie est citée
+  // AVANT la ville, tournure très fréquente à l'oral (ex. "propose-moi des
+  // hôtels sur Nevers", "des restaurants dans Bourges") : le mot "sur" n'y
+  // était pas reconnu comme déclencheur, la ville retombait alors sur le
+  // repli ci-dessous qui part du DÉBUT de la phrase — capturant à tort
+  // "propose-moi des" (les mots avant le premier mot-clé de catégorie
+  // rencontré) au lieu de "Nevers".
   const triggerMatch = transcript.match(
-    /(?:^|\s)(?:je\s+pars\s+de|je\s+veux\s+partir\s+de|partir\s+de|d[ée]part(?:\s+de)?|depuis|de\s+la\s+ville\s+de|de|à|a|au)\s+([a-zà-ÿçA-ZÀ-Ÿ][a-zà-ÿ' -]{1,40})/i
+    /(?:^|\s)(?:je\s+pars\s+de|je\s+veux\s+partir\s+de|partir\s+de|d[ée]part(?:\s+de)?|depuis|de\s+la\s+ville\s+de|proche\s+de|pr[eè]s\s+de|sur|vers|dans|de|à|a|au)\s+([a-zà-ÿçA-ZÀ-Ÿ][a-zà-ÿ' -]{1,40})/i
   );
   if(triggerMatch){
     const extracted = extractCityWords(triggerMatch[1]);
