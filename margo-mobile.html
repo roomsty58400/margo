@@ -1028,7 +1028,16 @@
   .guide-hero-toolbar .btn.secondary{background:rgba(255,255,255,.16);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.4);color:#fff;box-shadow:none;}
   .guide-hero-toolbar .btn.secondary:hover{background:rgba(255,255,255,.28);}
   .guide-hero-toolbar .share-popover{color:var(--gray-600);}
-  @media (max-width:640px){ .guide-hero{flex-direction:column;align-items:stretch;} .guide-hero-action{justify-content:center;flex-wrap:wrap;} .guide-hero-toolbar .btn-row{justify-content:center;} }
+  /* v2.98 : .guide-hero-info a un flex-basis de 320px pensé pour la mise en
+     page desktop (flex-direction:row — largeur de départ du bloc texte à
+     côté du bloc boutons). Une fois la bannière basculée en colonne ci-dessous
+     (mobile/étroit), cette même valeur s'applique à l'axe principal devenu
+     vertical : le bloc texte (titre + pastilles) se retrouvait forcé à au
+     moins 320px de HAUTEUR même quand son contenu réel tenait sur moins de
+     place, créant un grand vide avant le bloc boutons juste en dessous.
+     Corrigé en repassant flex-basis à "auto" dès que la bannière est en
+     colonne, pour que sa hauteur suive son contenu réel. */
+  @media (max-width:640px){ .guide-hero{flex-direction:column;align-items:stretch;} .guide-hero-info{flex-basis:auto;} .guide-hero-action{justify-content:center;flex-wrap:wrap;} .guide-hero-toolbar .btn-row{justify-content:center;} }
   .mini-parcours{margin-bottom:1.8rem;}
   /* Titre + QR + lien "Ouvrir dans Maps" réunis dans un seul cadre (au lieu
      d'un bandeau titre suivi d'une rangée QR séparée plus bas) — utilisé
