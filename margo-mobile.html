@@ -1169,6 +1169,12 @@ button, .btn, .chip, .cat-tab, .cat-card, .radio-opt, a.website-link-check, .lan
    gauche (right:0, réglage d'origine, pas de correctif nécessaire ici).
    Reste dans le DOM (juste caché) : aucune fonction JS n'est modifiée. */
 #btnHome{display:none !important;}
+/* Message d'aide "Renseigne d'abord ton lieu de départ ci-dessus" (sous le
+   sélecteur de catégories verrouillé, écran Lieu) : masqué à la demande —
+   le cadenas visuel du sélecteur grisé suffit, pas besoin de texte en plus.
+   Reste dans le DOM (juste caché) : openFlowerPetals()/closeFlowerPetals()
+   continuent de piloter son attribut hidden sans effet visuel ici. */
+#catPickerHint{display:none !important;}
 
 /* --- 1b. Bandeau d'en-tête compact ---
    Sur un téléphone étroit, le bandeau d'origine (bouton Accueil texte + gros
@@ -1251,7 +1257,7 @@ button, .btn, .chip, .cat-tab, .cat-card, .radio-opt, a.website-link-check, .lan
    white-space:nowrap, voir margo-opt.html), un vrai souci de lisibilité. */
 .flower-frame{max-width:min(320px,44vh);}
 @media (max-width:480px){ .flower-frame{max-width:min(280px,40vh);} }
-.flower-center strong, .flower-center label{font-size:clamp(.68rem,2.1vw,.86rem);}
+.flower-center strong, .flower-center label{font-size:clamp(.56rem,1.7vw,.68rem);}
 /* Les raccourcis "Voir les résultats" / "Retour à la sélection" de
    margo-opt.html (pensés pour un empilement en un seul long défilement) sont
    remplacés par les onglets ci-dessous : on les masque plutôt que de les
@@ -1393,12 +1399,21 @@ button, .btn, .chip, .cat-tab, .cat-card, .radio-opt, a.website-link-check, .lan
 .order-list li{font-size:.84rem;padding:.4rem .8rem;}
 .order-list li.endpoint{font-size:1.05rem;}
 .guide-hero h1{font-size:1.4rem;}
-/* Les 3 pastilles "Optimisé par / Durée / Distance" (texte volontairement
-   complet, non abrégé) tiennent difficilement sur une seule ligne à largeur
-   de téléphone et retombent donc chacune sur sa propre ligne — resserrées
-   ici pour limiter les dégâts sur la hauteur totale de la bannière. */
+/* Les pastilles (Optimisé par / Durée / Distance, et "Ordre personnalisé...")
+   utilisent un texte volontairement complet, non abrégé — trop long pour
+   tenir sur une seule ligne à largeur de téléphone. Le CSS d'origine les
+   empêche de retourner à la ligne (white-space:nowrap, pensé pour un usage
+   desktop où la place ne manque pas) : chaque pastille gardait alors sa
+   pleine largeur de texte et débordait du cadre arrondi de la bannière au
+   lieu de rester dedans. Corrigé ci-dessous : le texte peut à nouveau
+   retourner à la ligne DANS la pastille, et chaque pastille prend toute la
+   largeur disponible (une par ligne) plutôt que de se serrer plusieurs par
+   rangée — plus lisible et jamais en dépassement, quelle que soit la
+   longueur du texte. */
 .guide-hero{padding:1.1rem 1.3rem;}
-.guide-hero .summary-box .pill{font-size:.72rem;padding:.3rem .65rem;}
+.guide-hero .summary-box{flex-direction:column;align-items:stretch;gap:.4rem;}
+.guide-hero .summary-box .pill{font-size:.72rem;padding:.4rem .65rem;white-space:normal;width:100%;box-sizing:border-box;text-align:left;}
+.guide-hero .summary-box .btn-reset-order{width:100%;}
 
 /* --- 6. Petites touches ludiques --- */
 /* Un fondu-glissé léger à chaque changement d'onglet ou d'écran plutôt qu'un
@@ -2794,27 +2809,50 @@ function parseVoiceCommand(transcript){
     VOICE_CATEGORY_KEYWORDS[key].some(kw => norm.includes(kw))
   );
 
-  // Cherche la ville juste après un mot déclencheur usuel ("depuis Nevers",
-  // "je pars de Nevers", "à Nevers"...) sur le texte original (pas encore
-  // normalisé) pour garder la casse d'origine.
-  let city = null;
-  const triggerMatch = transcript.match(
-    /\b(?:je\s+pars\s+de|je\s+veux\s+partir\s+de|partir\s+de|d[ée]part(?:\s+de)?|depuis|de\s+la\s+ville\s+de|de|à|a|au)\s+([a-zà-ÿçA-ZÀ-Ÿ][a-zà-ÿ' -]{1,40})/i
-  );
-  if(triggerMatch){
-    let raw = triggerMatch[1];
-    // Coupe la capture dès qu'un mot de liaison ou un mot-clé de catégorie
-    // apparaît (ex. "Nevers avec des musées" -> ne garde que "Nevers").
-    const stopWords = ['et', 'avec', 'pour', 'puis'];
-    const allKeywords = Object.values(VOICE_CATEGORY_KEYWORDS).flat();
-    const words = raw.trim().split(/\s+/);
+  // Coupe la capture dès qu'un mot de liaison ou un mot-clé de catégorie
+  // apparaît (ex. "Nevers avec des musées" -> ne garde que "Nevers"),
+  // factorisé pour être réutilisé aussi bien après un mot déclencheur
+  // (ci-dessous) que sur la phrase entière (voir repli plus bas).
+  const stopWords = ['et', 'avec', 'pour', 'puis'];
+  const allKeywords = Object.values(VOICE_CATEGORY_KEYWORDS).flat();
+  function extractCityWords(text){
+    const words = text.trim().split(/\s+/).filter(Boolean);
     const kept = [];
     for(const w of words){
       const wNorm = normalize(w);
       if(stopWords.includes(wNorm) || allKeywords.some(kw=>kw.startsWith(wNorm) || wNorm.startsWith(kw))) break;
       kept.push(w);
     }
-    if(kept.length) city = kept.join(' ').replace(/[.,;!?]+$/, '').trim();
+    return kept.join(' ').replace(/[.,;!?]+$/, '').trim();
+  }
+
+  let city = null;
+
+  // 1) Cherche la ville juste après un mot déclencheur usuel ("depuis Nevers",
+  // "je pars de Nevers", "à Nevers"...) sur le texte original (pas encore
+  // normalisé) pour garder la casse d'origine. "(?:^|\s)" plutôt que "\b" en
+  // tête : \b ne reconnaît pas "à" comme un caractère de mot (accentué), donc
+  // "à Bourges" ne matchait pas et retombait sur le repli ci-dessous en
+  // gardant le "à" par erreur dans le nom de ville capturé.
+  const triggerMatch = transcript.match(
+    /(?:^|\s)(?:je\s+pars\s+de|je\s+veux\s+partir\s+de|partir\s+de|d[ée]part(?:\s+de)?|depuis|de\s+la\s+ville\s+de|de|à|a|au)\s+([a-zà-ÿçA-ZÀ-Ÿ][a-zà-ÿ' -]{1,40})/i
+  );
+  if(triggerMatch){
+    const extracted = extractCityWords(triggerMatch[1]);
+    if(extracted) city = extracted;
+  }
+
+  // 2) Repli (édition mobile) : aucun mot déclencheur reconnu — cas très
+  // fréquent au micro, où l'on dicte simplement le nom de la ville seul
+  // ("Paris", "Lyon musées et restaurants"...) sans tournure de phrase
+  // complète du type "je pars de...". Avant ce repli, une simple ville
+  // dictée seule tombait systématiquement en "phrase non reconnue" et
+  // demandait de reformuler une phrase complète — on prend maintenant
+  // directement le début de ce qui a été dicté comme ville (les catégories
+  // éventuellement citées ensuite restent détectées séparément ci-dessus).
+  if(!city){
+    const extracted = extractCityWords(transcript);
+    if(extracted) city = extracted;
   }
 
   return { city: city || null, categories };

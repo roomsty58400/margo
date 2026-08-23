@@ -29,11 +29,17 @@
 <svg id="lucide-sprite" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></symbol></svg>
 
 <header class="app-header">
-  <a href="../margo.html" class="back-btn">← Retour à l'application</a>
+  <!-- Repli sans JS : index.html (édition bureau ou mobile détectée
+       automatiquement) ; avec JS, retour à l'onglet/l'édition d'origine
+       (bureau ou mobile) quand c'est possible, cette page étant ouverte
+       depuis les deux éditions. -->
+  <a href="../index.html" class="back-btn" onclick="if(window.history.length>1){window.history.back();return false;}">← Retour à l'application</a>
   <h1><svg class="icon-inline" aria-hidden="true"><use href="#icon-info"></use></svg> Informations, mentions légales &amp; RGPD</h1>
 </header>
 
 <main>
+
+  <p style="font-size:.8rem;color:#7a8598;text-align:right;margin:0 0 1rem;">Dernière mise à jour : 23/08/2026</p>
 
   <section>
     <h2>Mentions légales</h2>
@@ -47,19 +53,22 @@
 
   <section>
     <h2>Protection des données personnelles (RGPD)</h2>
+    <p>Margo est disponible en deux éditions — <strong>bureau</strong> (<code>margo.html</code>) et <strong>mobile/tablette</strong> (<code>margo-mobile.html</code>, interface adaptée au tactile) — servies automatiquement selon l'appareil détecté. Les deux fonctionnent avec exactement le même moteur et le même traitement des données : tout ce qui suit s'applique donc identiquement, quelle que soit l'édition utilisée.</p>
     <p>Ce générateur d'itinéraire touristique fonctionne principalement côté client (dans le navigateur) : les critères saisis (ville, catégories, rayon) sont utilisés pour interroger, selon le mode actif :</p>
     <ul>
       <li>des données de démonstration locales (mode démo, sans envoi à un service tiers autre que le géocodage gratuit OpenStreetMap/Nominatim) ;</li>
       <li>ou l'API Google Places / Google Maps (mode données réelles), si une clé API valide est configurée — dans ce cas, les requêtes sont envoyées directement à Google, conformément à leur propre politique de confidentialité.</li>
     </ul>
-    <p>Aucune donnée personnelle identifiante n'est collectée ni stockée par ce site pour son propre compte. La clé API Google, si renseignée, est conservée localement dans le navigateur de l'utilisateur (stockage local) et n'est jamais transmise à un serveur tiers autre que Google.</p>
+    <p>La saisie vocale (bouton micro, disponible sur les deux éditions) utilise la reconnaissance vocale native du navigateur (Web Speech API) : aucune clé ni service tiers propre à Margo n'est impliqué, le traitement audio est géré directement par le navigateur.</p>
+    <p>Aucune donnée personnelle identifiante n'est collectée ni stockée par ce site pour son propre compte. La clé API Google, si renseignée, est conservée localement dans le navigateur de l'utilisateur (stockage local) et n'est jamais transmise à un serveur tiers autre que Google. Le stockage local du navigateur mémorise aussi, le cas échéant, l'édition (bureau ou mobile) choisie manuellement via l'URL d'accès (<code>?version=mobile</code>/<code>?version=desktop</code>) — une simple préférence d'affichage, sans lien avec une identité.</p>
     <h3>Vos droits</h3>
     <p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition concernant vos données. Pour toute question, contactez <a href="mailto:topkapi-studio@gmail.com">topkapi-studio@gmail.com</a>.</p>
   </section>
 
   <section>
     <h2>Cookies</h2>
-    <p>Ce site n'utilise pas de cookies de suivi ou publicitaires. Seul le stockage local du navigateur peut être utilisé pour mémoriser certaines préférences techniques (ex. clé API).</p>
+    <p>Ce site n'utilise pas de cookies de suivi ou publicitaires. Seul le stockage local du navigateur peut être utilisé pour mémoriser certaines préférences techniques (ex. clé API, édition bureau/mobile choisie).</p>
+    <p>Chaque édition (bureau, mobile/tablette) peut être installée comme application (PWA) et fonctionne alors aussi hors-ligne pour son interface, grâce à un fichier technique de cache (<code>sw.js</code>/<code>manifest.json</code> pour l'édition bureau, <code>sw-mobile.js</code>/<code>manifest-mobile.json</code> pour l'édition mobile — deux caches indépendants). Ce mécanisme ne collecte et ne transmet aucune donnée personnelle : il se contente de conserver localement les fichiers de l'application pour un accès plus rapide et hors-ligne.</p>
   </section>
 
 </main>

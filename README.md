@@ -10,6 +10,7 @@
 
 ## Fonctionnalités notables
 
+- **📱 Édition mobile/tablette dédiée** (`margo-mobile.html`) : même moteur et mêmes fonctionnalités que la version bureau, mais interface repensée pour le tactile (résultats et fiches d'infos — adresse, horaires, tarif, téléphone, site — toujours visibles sans survol, bandeaux et pastilles réorganisés pour ne jamais déborder, saisie vocale de la ville simplifiée). L'URL racine du site (`index.html`) détecte automatiquement le type d'appareil et sert la bonne édition — voir [Hébergement public](#hébergement-public-github-pages).
 - **Deux modes de données** : mode démo (données générées localement, aucune clé requise) ou mode données réelles via l'API Google Places/Maps (nécessite une clé API, voir ci-dessous).
 - **Cartes interactives** (Google Maps si une clé est configurée) avec tracé réel de l'itinéraire (Directions API), flèches de sens de parcours, et pins départ/arrivée mis en valeur.
 - **🐌 Suggestion d'itinéraire local** : un bouton propose un itinéraire pensé par un office de tourisme partenaire proche, ou à défaut recherche l'office de tourisme réel le plus proche (Google Places puis repli gratuit OpenStreetMap/Overpass).
@@ -26,6 +27,7 @@
 1. Double-clique sur `lancer-app.bat` (Windows). Le script démarre un petit serveur local (`python -m http.server`) et ouvre `margo.html` dans le navigateur.
 2. Sans clé API : l'application fonctionne directement en **mode démo**.
 3. Pour activer les données réelles Google : clique sur le bouton 🔑 en haut de la fleur, ou place une clé dans un fichier `apiki.env` à la racine du dossier (chargée automatiquement au démarrage). La clé doit avoir accès à **Maps JavaScript API**, **Places API (New)** et **Geocoding API**, et être restreinte par référent HTTP dans Google Cloud Console.
+4. Pour tester l'édition mobile/tablette : double-clique sur `lancer-app-mobile.bat`, qui démarre le même serveur local et ouvre `margo-mobile.html` (interface tactile, voir [Fonctionnalités notables](#fonctionnalités-notables)).
 
 ## Installer Margo comme une appli sur smartphone (PWA)
 
@@ -41,7 +43,11 @@ Une fois installée, l'interface de l'appli (mais pas les données live comme le
 
 ## Hébergement public (GitHub Pages)
 
-`index.html` redirige automatiquement vers `margo.html` : une fois GitHub Pages activé sur le dépôt, l'URL racine fonctionne directement. Une fois en ligne, le site sera accessible à `https://roomsty58400.github.io/margo/`.
+`index.html` détecte automatiquement le type d'appareil (User-Agent, capacités tactiles, absence de souris/pointeur fin) et redirige vers la bonne édition : smartphone/tablette → `margo-mobile.html`, ordinateur → `margo.html`. Une fois GitHub Pages activé sur le dépôt, l'URL racine fonctionne directement, quel que soit l'appareil.
+
+Pour forcer manuellement une édition (par exemple sur une tablette tactile où l'édition bureau est préférée) : ajouter `?version=mobile` ou `?version=desktop` à l'URL — le choix est mémorisé (sur cet appareil) pour les prochaines visites. Ajouter `?version=auto` efface ce choix et repasse en détection automatique.
+
+Une fois en ligne, le site sera accessible à `https://roomsty58400.github.io/margo/`.
 
 Pour activer GitHub Pages (à faire une seule fois, sur github.com) :
 1. Va sur le dépôt → onglet **Settings** → section **Pages** (menu de gauche).
@@ -54,12 +60,16 @@ Pour activer GitHub Pages (à faire une seule fois, sur github.com) :
 ```
 generateurititourist/
 ├── margo.html                   L'application complète (HTML + CSS + JS en un seul fichier)
-├── index.html                   Redirige vers margo.html (pour l'URL racine sur GitHub Pages)
-├── manifest.json, sw.js         Fichiers PWA (installation écran d'accueil, usage hors-ligne)
-├── lancer-app.bat               Lance un serveur local et ouvre l'application
+├── margo-mobile.html            Édition mobile/tablette (interface tactile, même moteur que margo.html)
+├── index.html                   Détecte l'appareil et redirige vers margo.html ou margo-mobile.html
+├── manifest.json, sw.js         Fichiers PWA de l'édition bureau (installation écran d'accueil, usage hors-ligne)
+├── manifest-mobile.json, sw-mobile.js   Fichiers PWA de l'édition mobile (cache séparé de la version bureau)
+├── lancer-app.bat               Lance un serveur local et ouvre l'édition bureau
+├── lancer-app-mobile.bat        Lance un serveur local et ouvre l'édition mobile
 ├── publier-github.bat           Publie les changements sur le dépôt GitHub
 ├── apiki.env  (non versionné)   Clé API Google Maps, chargée automatiquement si présente
 ├── README.md, .gitignore
+├── MARGO_fiche_commerciale.pdf  Fiche commerciale/présentation du projet
 ├── assets/
 │   ├── images/                  margo-logo.png, margo.png, snail-route.gif
 │   └── icons/                   margo.ico, icon-192*.png, icon-512*.png, apple-touch-icon.png
@@ -70,19 +80,49 @@ generateurititourist/
 
 | Emplacement | Rôle |
 |---|---|
-| `margo.html` | L'application complète (HTML + CSS + JS en un seul fichier) |
-| `index.html` | Redirige vers `margo.html` (pour l'URL racine sur GitHub Pages) |
+| `margo.html` | L'application complète, édition bureau (HTML + CSS + JS en un seul fichier) |
+| `margo-mobile.html` | Édition mobile/tablette (interface tactile, même moteur que `margo.html`) |
+| `index.html` | Détecte l'appareil et redirige vers `margo.html` ou `margo-mobile.html` |
 | `pages/mentions-legales.html` | Page mentions légales / RGPD / cookies |
 | `assets/images/` | Logo (`margo-logo.png`, `margo.png`) et animation d'en-tête (`snail-route.gif`) |
 | `assets/icons/` | Favicon et icônes PWA (`margo.ico`, `icon-192*.png`, `icon-512*.png`, `apple-touch-icon.png`) |
-| `manifest.json`, `sw.js` | Fichiers PWA (installation sur écran d'accueil, usage hors-ligne) |
-| `lancer-app.bat` | Lance un serveur local et ouvre l'application |
+| `manifest.json`, `sw.js` | Fichiers PWA de l'édition bureau (installation sur écran d'accueil, usage hors-ligne) |
+| `manifest-mobile.json`, `sw-mobile.js` | Fichiers PWA de l'édition mobile (cache séparé de la version bureau) |
+| `lancer-app.bat` | Lance un serveur local et ouvre l'édition bureau |
+| `lancer-app-mobile.bat` | Lance un serveur local et ouvre l'édition mobile |
 | `publier-github.bat` | Publie les changements sur le dépôt GitHub |
 | `apiki.env` *(non versionné)* | Clé API Google Maps, chargée automatiquement si présente |
+| `MARGO_fiche_commerciale.pdf` | Fiche commerciale/présentation du projet |
 
 ## Historique des versions
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
+
+### v2.92 — Mobile : bandeau ROADBOOK — pastilles qui débordaient du cadre
+- **Bug corrigé** : dans l'écran ROADBOOK de `margo-mobile.html`, les pastilles de résumé (mode de transport, durée, distance, bouton "↺ Revenir à l'ordre optimisé") de la bannière restaient sur une seule ligne (`white-space:nowrap`, comportement hérité de `margo.html`) — avec les libellés français plus longs, elles débordaient du cadre arrondi de la bannière au lieu de s'y adapter.
+- Corrigé pour l'édition mobile uniquement : les pastilles s'empilent désormais en colonne, pleine largeur, avec retour à la ligne autorisé (`white-space:normal`) à l'intérieur de la bannière — plus aucun débordement, quelle que soit la longueur du texte.
+
+### v2.91 — Mobile : commande vocale — reconnaissance d'une ville dite seule
+- **Bug corrigé** : dicter uniquement un nom de ville (sans phrase complète du type "je pars de...") ne fonctionnait pas — la reconnaissance ne trouvait aucune expression déclencheuse et redemandait de reformuler.
+- Ajout d'un repli : si aucune formule déclencheuse ("je pars de", "depuis", "à"...) n'est reconnue dans le texte dicté, celui-ci est utilisé tel quel comme nom de ville (en écartant les éventuels mots de catégorie/liaison prononcés à la suite).
+- **Bug corrigé au passage** : la formule déclencheuse "à Bourges" échouait à cause d'une limite de mot (`\b`) qui ne reconnaît pas le "à" accentué en JavaScript — remplacée par une détection compatible avec les caractères accentués.
+
+### v2.90 — Mobile : en-tête — bouton Accueil masqué, traduction repositionnée
+- Le bouton "Accueil" (sans utilité particulière sur l'édition mobile, la réinitialisation étant déjà accessible autrement) est masqué dans la bannière — gardé dans le code/le DOM, juste invisible, au cas où il faille le remettre.
+- Le sélecteur de langue (traduction) reste positionné à droite de la bannière, à sa place d'origine.
+
+### v2.89 — Mobile : fix bug — clé API démo publique invalide sur GitHub Pages
+- **Bug corrigé** : sur `https://roomsty58400.github.io/`, la recherche de lieux ne renvoyait aucun résultat. Cause : la clé Google API "démo publique" auto-chargée pour le site hébergé était un marqueur de substitution jamais remplacé par une vraie clé (`__PUBLIC_DEMO_API_KEY__`), présent depuis longtemps dans `margo.html`/`margo-opt.html` mais jamais problématique tant qu'aucune clé n'était censée s'y trouver.
+- Ajout d'un garde-fou dans `margo-mobile.html` : ce marqueur n'est utilisé comme clé que s'il a effectivement la forme d'une vraie clé Google (`AIza...`) — sinon l'appli retombe proprement sur le mode démo (données locales) au lieu d'envoyer une requête vouée à échouer. Compatible avec l'ajout futur d'une vraie clé restreinte au domaine du site.
+
+### v2.88 — Mobile : fix bug — fiche d'infos (adresse, horaires, tarif...) invisible au toucher
+- **Bug corrigé** : dans la liste des résultats de `margo-mobile.html`, seuls la vignette photo et le nom de chaque lieu s'affichaient — l'adresse, les horaires, le tarif, le téléphone et le site web (`.info-details`) restaient invisibles. Cause : ce bloc reprenait tel quel le comportement "au survol de la souris" de `margo.html` (v2.47), inutilisable sur un écran tactile qui n'a pas de survol.
+- Corrigé pour l'édition mobile : ces informations sont désormais toujours visibles, affichées directement sous le nom de chaque lieu au lieu d'une bulle en survol.
+
+### v2.87 — Nouvelle édition mobile/tablette (margo-mobile.html) + détection automatique d'appareil
+- Nouveau fichier `margo-mobile.html` : même moteur et mêmes fonctionnalités que `margo.html`, avec une interface entièrement réadaptée au pilotage tactile (mise en page, tailles de zones cliquables, résultats et fiches d'infos toujours visibles sans survol). Fichiers PWA dédiés (`manifest-mobile.json`, `sw-mobile.js`, cache séparé de la version bureau) et script de lancement local (`lancer-app-mobile.bat`).
+- `index.html` réécrit : au lieu d'une redirection systématique vers `margo.html`, il détecte désormais le type d'appareil (User-Agent Client Hints, User-Agent classique avec cas particulier iPadOS 13+, puis capacités tactiles/absence de pointeur fin en dernier recours) et redirige vers `margo-mobile.html` ou `margo.html` en conséquence. Échappatoire manuelle via `?version=mobile`/`?version=desktop` (mémorisée) et `?version=auto` (réinitialise vers la détection automatique).
+- `margo.html` et `margo-opt.html` ne sont pas modifiés par cette évolution.
 
 ### v2.86 — margo-opt.html : consolidation du catalogue de catégories (variante expérimentale)
 - Nouveau fichier `margo-opt.html`, une variante de `margo.html` créée pour explorer une architecture plus évolutive : les ~6 tables par catégorie auparavant dupliquées à la main (`CATEGORY_TO_GOOGLE_TYPE`, `CATEGORY_TO_OSM_TAGS`, `VOICE_CATEGORY_KEYWORDS`, `VISIT_DURATION`, `TEMPLATES`) sont désormais un seul champ chacune sur l'entrée `CATEGORY_DEFS` de la catégorie, les tables legacy étant générées automatiquement à partir de ce catalogue unique. Objectif : qu'ajouter une future catégorie ne demande plus qu'une seule modification (au lieu de ~6 endroits à ne pas oublier).
