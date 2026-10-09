@@ -5,118 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Margo — la carte qui fleurit vos voyages : composez un itinéraire touristique sur-mesure autour d'un lieu de départ.">
   <meta name="theme-color" content="#10132b">
-  <!-- Repli sans JavaScript : toujours la version bureau (la version mobile
-       ne peut être choisie qu'en détectant l'appareil en JS, impossible ici). -->
+  <!-- Page d'accueil du site (https://roomsty58400.github.io/margo/) : redirige
+       vers l'application. L'édition mobile séparée (margo-mobile.html) a été
+       retirée : margo.html est désormais la seule édition, pour ordinateur
+       comme pour mobile. Repli sans JavaScript : le meta refresh ci-dessous. -->
   <meta http-equiv="refresh" content="0; url=margo.html">
   <title>Margo</title>
   <link rel="canonical" href="margo.html">
-  <!-- Indique aux moteurs de recherche qu'une version dédiée existe pour les
-       petits écrans, au même seuil (700px) que le mode "colonnes cote a cote"
-       de margo-mobile.html (voir #margoMobileStyles dans ce fichier). -->
-  <link rel="alternate" media="only screen and (max-width: 700px)" href="margo-mobile.html">
   <script>
-    /* ============================================================
-       Redirection automatique vers la bonne édition de Margo :
-       - margo-mobile.html : smartphone/tablette (pilotage tactile)
-       - margo.html         : ordinateur (pilotage souris/trackpad)
-
-       Le critère décisif n'est PAS "l'écran est-il petit ?" (un
-       moniteur peut être étroit ; une tablette en mode paysage peut
-       être large) mais "cet appareil se pilote-t-il au doigt, sans
-       souris ?". On combine donc plusieurs signaux, du plus fiable au
-       plus général, avec repli en cascade si un signal n'est pas
-       disponible sur le navigateur de la personne :
-
-       1. User-Agent Client Hints (navigator.userAgentData.mobile) —
-          fiable mais seulement sur Chrome/Edge/Android récents, et ne
-          distingue pas franchement les tablettes.
-       2. User-Agent classique (regex) — repli universel, y compris le
-          cas particulier de l'iPad qui, depuis iPadOS 13, se présente
-          comme un Mac de bureau (repéré via maxTouchPoints).
-       3. Capacités tactiles + absence de survol/pointeur fin
-          (matchMedia pointer/hover) — détecte aussi les appareils non
-          couverts par les deux signaux ci-dessus.
-
-       Un appareil est classé "mobile/tablette" dès qu'UN SEUL de ces
-       signaux le confirme.
-
-       Échappatoire manuelle : ajouter ?version=mobile ou
-       ?version=desktop à l'URL force la version choisie et mémorise
-       ce choix (localStorage) pour les prochaines visites — utile si
-       la détection automatique ne convient pas à quelqu'un (ex. tablette
-       tactile sur laquelle on préfère l'édition bureau). ?version=auto
-       efface ce choix mémorisé et repasse en détection automatique.
-       ============================================================ */
-    (function(){
-      var params = new URLSearchParams(location.search);
-      var forced = params.get('version');
-      var STORAGE_KEY = 'margoVersionPref';
-
-      function detectMobile(){
-        try{
-          if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean' && navigator.userAgentData.mobile) {
-            return true;
-          }
-        }catch(e){}
-
-        var ua = navigator.userAgent || navigator.vendor || '';
-        var uaLooksMobile = /Android|iPhone|iPod|iPad|IEMobile|BlackBerry|Opera Mini|Mobile|Windows Phone/i.test(ua);
-        var isIPadOS13Plus = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
-        if (uaLooksMobile || isIPadOS13Plus) return true;
-
-        try{
-          var touchCapable = (navigator.maxTouchPoints > 0) || ('ontouchstart' in window);
-          var coarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-          var noHover = window.matchMedia && window.matchMedia('(hover: none)').matches;
-          if (touchCapable && (coarsePointer || noHover)) return true;
-        }catch(e){}
-
-        return false;
-      }
-
-      var target;
-      if (forced === 'mobile' || forced === 'desktop') {
-        try{ localStorage.setItem(STORAGE_KEY, forced); }catch(e){}
-        target = forced === 'mobile' ? 'margo-mobile.html' : 'margo.html';
-      } else if (forced === 'auto') {
-        try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
-        target = detectMobile() ? 'margo-mobile.html' : 'margo.html';
-      } else {
-        var remembered = null;
-        try{ remembered = localStorage.getItem(STORAGE_KEY); }catch(e){}
-        if (remembered === 'mobile' || remembered === 'desktop') {
-          target = remembered === 'mobile' ? 'margo-mobile.html' : 'margo.html';
-        } else {
-          target = detectMobile() ? 'margo-mobile.html' : 'margo.html';
-        }
-      }
-
-      // Nettoie ?version=... de l'URL transmise (paramètre interne à cette
-      // redirection, sans intérêt pour la page cible) tout en conservant le
-      // reste de la query string, le hash, et le chemin relatif (compatible
-      // avec un déploiement en sous-dossier, ex. GitHub Pages).
-      params.delete('version');
-      var qs = params.toString();
-      var finalUrl = target + (qs ? '?' + qs : '') + location.hash;
-
-      try {
-        location.replace(finalUrl);
-      } catch (e) {
-        // repli : le meta refresh ci-dessus prendra le relais (vers margo.html)
-      }
-    })();
+    // Conserve la query string et le hash éventuels (liens partagés), avec un
+    // chemin relatif compatible avec le sous-dossier GitHub Pages.
+    try { location.replace('margo.html' + location.search + location.hash); } catch (e) { /* le meta refresh prend le relais */ }
   </script>
 </head>
 <body>
-  <!-- Repli visible (et pour les moteurs de recherche / lecteurs d'écran) -->
-  <p>
-    Redirection vers Margo&nbsp;— si la redirection ne fonctionne pas, choisissez :
-    <a href="margo.html">version bureau</a> ·
-    <a href="margo-mobile.html">version mobile/tablette</a>.
-  </p>
-
-  <noscript>
-    <p>JavaScript désactivé : cliquez sur <a href="margo.html">margo.html</a> (version bureau) pour accéder à l'application.</p>
-  </noscript>
+  <p>Redirection vers Margo&nbsp;— si rien ne se passe, ouvrez <a href="margo.html">margo.html</a>.</p>
 </body>
 </html>

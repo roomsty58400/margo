@@ -1,102 +1,89 @@
 # Margo — Générateur d'itinéraire touristique
 
-**Margo** est une application web (une seule page HTML, sans installation ni base de données) qui génère un itinéraire touristique sur-mesure autour d'un lieu de départ : elle propose des lieux à visiter par catégorie, permet de composer un parcours, l'optimise selon le mode de transport choisi, puis produit un guide final imprimable avec cartes, QR codes et liens Google Maps.
+**Margo** est une application web (une seule page HTML, sans installation ni base de données) qui génère un itinéraire touristique sur-mesure autour d'une ville de destination : elle propose des lieux à visiter par catégorie, permet de composer un parcours, l'optimise, peut faire rédiger un roadbook par l'IA, puis produit un roadbook final imprimable avec cartes, QR codes et liens Google Maps / Waze.
 
-## Fonctionnement en 3 écrans
+Site en ligne : **https://roomsty58400.github.io/margo/**
 
-1. **Lieu & sélection** — L'utilisateur saisit une ville (avec autocomplétion) et un rayon de recherche, puis choisit des catégories de lieux autour d'une fleur interactive (musées, sites historiques, cinémas, théâtres, restaurants, hôtels, gîtes, offices de tourisme...). Les lieux correspondants s'affichent sur une carte et dans une liste à cocher.
-2. **Roadbook** — L'utilisateur choisit le mode de transport (marche, vélo, voiture, transport en commun) et ajuste le point de départ et d'arrivée directement dans la liste des étapes. L'itinéraire est calculé et prévisualisé sur une carte, avec possibilité de réordonner les étapes manuellement (glisser-déposer) ou d'ajouter un lieu directement trouvé sur la carte.
-3. **Guide** — Le guide final est généré : une carte par mini-parcours (Google Maps limite un itinéraire à 10 étapes, l'appli découpe donc automatiquement au-delà), une fiche par étape (adresse, horaires, prix, téléphone, site web, photo), un lien "Ouvrir dans Maps" et un QR code pour l'ouvrir directement sur mobile. Le guide peut être imprimé, exporté en HTML ou Markdown, ou partagé par SMS / WhatsApp / email.
+## Fonctionnement en 2 écrans
+
+1. **① Lieu & sélection** — L'utilisateur saisit une ville (autocomplétion, ou commande vocale) au centre d'une fleur interactive, puis choisit des catégories de lieux (musées, sites historiques, cinémas, théâtres, restaurants, hôtels, gîtes, offices de tourisme...). Les lieux trouvés s'affichent sur la carte et dans une liste à cocher, avec un curseur de rayon et un filtre « Coups de cœur Office de Tourisme ». Le bouton **IA Roadbook** fait rédiger un roadbook par l'IA à partir de la liste proposée.
+2. **② ROADBOOK** — Le roadbook final : une carte par mini-parcours (Google Maps limite un itinéraire à 10 étapes, l'appli découpe donc automatiquement au-delà), une fiche par étape (adresse, horaires, prix, téléphone, site web, photo, QR code, liens Maps / Waze / autre appli GPS), le texte du Roadbook IA s'il a été validé, et le départ/arrivée modifiables. Les étapes se réordonnent par glisser-déposer ou se retirent. Le roadbook peut être imprimé (PDF), exporté en HTML ou Markdown, ou partagé par SMS / WhatsApp / email.
 
 ## Fonctionnalités notables
 
-- **📱 Édition mobile/tablette dédiée** (`margo-mobile.html`) : même moteur et mêmes fonctionnalités que la version bureau, mais interface repensée pour le tactile (résultats et fiches d'infos — adresse, horaires, tarif, téléphone, site — toujours visibles sans survol, bandeaux et pastilles réorganisés pour ne jamais déborder, saisie vocale de la ville simplifiée). L'URL racine du site (`index.html`) détecte automatiquement le type d'appareil et sert la bonne édition — voir [Hébergement public](#hébergement-public-github-pages).
-- **Deux modes de données** : mode démo (données générées localement, aucune clé requise) ou mode données réelles via l'API Google Places/Maps (nécessite une clé API, voir ci-dessous).
-- **Cartes interactives** (Google Maps si une clé est configurée) avec tracé réel de l'itinéraire (Directions API), flèches de sens de parcours, et pins départ/arrivée mis en valeur.
-- **🐌 Suggestion d'itinéraire local** : un bouton propose un itinéraire pensé par un office de tourisme partenaire proche, ou à défaut recherche l'office de tourisme réel le plus proche (Google Places puis repli gratuit OpenStreetMap/Overpass).
-- **🔌 Bornes de recharge électrique** : affiche une carte des bornes à proximité (Open Charge Map) directement dans l'application.
-- **Multilingue** : traduction du site via un sélecteur de langue (widget Google Traduction piloté par un menu déroulant maison).
-- **RGPD / mentions légales** : page dédiée (`pages/mentions-legales.html`) accessible depuis le pied de page.
-- **🎤 Salles de concert, ⚡ Bornes électriques, 🎬 Cinémas, 🎟️ Théâtres, 🏡 Gîtes & Airbnb** et de nombreuses autres catégories de lieux, sélectionnables directement sur la fleur.
-- **🔄 Convertisseur Google Maps → Waze** et bouton Waze par étape dans le guide (Waze ne gère qu'une seule destination à la fois, contrairement à Google Maps).
-- **Suggestions "à proximité"** dans le guide : complète l'itinéraire avec des lieux trouvés mais pas encore ajoutés, à moins d'1 km d'une étape existante.
-- **🎤 Commande vocale** : dicter la ville de départ et les catégories à cocher (ex. *"je pars de Nevers avec des musées et des restaurants"*) via le bouton micro à côté du champ Ville. Basé sur la reconnaissance vocale native du navigateur (Web Speech API) : aucune clé ni service tiers, le bouton n'apparaît que si le navigateur la supporte (Chrome, Edge, Safari récents — pas Firefox).
+- **✨ IA Roadbook (gratuit)** : un roadbook rédigé (introduction, étapes commentées, temps de visite, conseils pratiques) par **Google Gemini** à partir des lieux proposés — les lieux cochés y figurent obligatoirement. Génération en direct avec bande de progression, bouton « Valider le Roadbook » qui l'insère dans l'écran ROADBOOK (et dans les exports), copie ou téléchargement en Markdown. Clé Gemini gratuite (voir ci-dessous) ; sans clé, « Copier le prompt » permet de le coller dans Gemini, ChatGPT ou Claude. Repli automatique sur un autre modèle Gemini si l'un est saturé.
+- **Recherche de lieux réelle** : Google Places quand une clé Google est configurée (données plus riches : photos, horaires, prix), avec repli automatique et gratuit sur OpenStreetMap (Overpass, avec serveur de secours) — message explicite si le service ne répond pas.
+- **Cartes interactives** (Google Maps si une clé est configurée, zoom direct à la molette) avec tracé réel de l'itinéraire, flèches de sens de parcours, et pins départ/arrivée mis en valeur. Si la clé Google est refusée (quota, restriction), bascule automatique sur des cartes Google sans clé au lieu d'une carte blanche.
+- **4 boutons autour de la ville**, centrés sur la destination :
+  - **🔌 Bornes de recharge** : les bornes s'affichent en pins orange sur la carte principale (un second clic les masque) et la page Chargemap.com de la ville s'ouvre dans une fenêtre séparée ;
+  - **🐌 Itinéraire local** : site de l'office de tourisme le plus proche (ou d'un office partenaire) et TripAdvisor ;
+  - **🚑 Urgences** : hôpitaux, pharmacies, médecins en pins sur une carte interactive (adresse, téléphone, itinéraire) ;
+  - **🔧 Dépannage** : garages, pneus, pare-brise, dépannage, même principe.
+- **🔄 Convertisseur Google Maps → Waze** et bouton Waze par étape (Waze ne gère qu'une seule destination à la fois).
+- **Suggestions « à proximité »** dans le roadbook : lieux trouvés mais pas encore ajoutés, à moins d'1 km d'une étape.
+- **🎤 Commande vocale** : dicter la ville et les catégories (ex. *"des musées et des restaurants à Nevers"*) via le bouton micro du champ Ville (Web Speech API du navigateur : Chrome, Edge, Safari récents — pas Firefox).
+- **Multilingue** : traduction du site via un sélecteur de langue (widget Google Traduction).
+- **Application installable (PWA)** et **RGPD / mentions légales** (`pages/mentions-legales.html`, accessible depuis le pied de page).
 
 ## Lancer l'application en local
 
-1. Double-clique sur `lancer-app.bat` (Windows). Le script démarre un petit serveur local (`python -m http.server`) et ouvre `margo.html` dans le navigateur.
-2. Sans clé API : l'application fonctionne directement en **mode démo**.
-3. Pour activer les données réelles Google : clique sur le bouton 🔑 en haut de la fleur, ou place une clé dans un fichier `apiki.env` à la racine du dossier (chargée automatiquement au démarrage). La clé doit avoir accès à **Maps JavaScript API**, **Places API (New)** et **Geocoding API**, et être restreinte par référent HTTP dans Google Cloud Console.
-4. Pour tester l'édition mobile/tablette : double-clique sur `lancer-app-mobile.bat`, qui démarre le même serveur local et ouvre `margo-mobile.html` (interface tactile, voir [Fonctionnalités notables](#fonctionnalités-notables)).
+1. Double-clique sur `lancer-app.bat` (Windows). Le script démarre un petit serveur local (`python -m http.server`) sur le **port 8000** et ouvre `http://localhost:8000/margo.html`. Garde ce port : la clé Google est restreinte à cette adresse (le script ne passe sur 8001+ que si un autre serveur occupe vraiment le port 8000).
+2. **Clé Google (optionnelle)** : bouton 🔑 en haut de la fleur, ou fichier `apiki.env` à la racine du dossier (chargé automatiquement). La clé doit avoir accès à **Maps JavaScript API**, **Places API (New)** et **Geocoding API**, et être restreinte par référent HTTP. Sans clé, la recherche passe par OpenStreetMap (gratuit).
+3. **Clé Gemini pour l'IA Roadbook (gratuite)** : à créer sur [aistudio.google.com/apikey](https://aistudio.google.com/apikey) (compte Google, sans carte bancaire), puis soit la coller dans la fenêtre IA Roadbook (gardée dans le navigateur), soit la placer dans un fichier `AQ.env` à la racine (chargée automatiquement en local, jamais affichée). Avec l'offre gratuite, Google peut utiliser les textes envoyés pour améliorer ses produits.
+
+Les fichiers `*.env` sont exclus du dépôt Git (`.gitignore`) : ils ne sont jamais publiés.
 
 ## Installer Margo comme une appli sur smartphone (PWA)
 
 Margo est une **Progressive Web App** : pas besoin de fichier `.apk`, elle s'installe directement depuis le navigateur et s'ouvre ensuite en plein écran, avec sa propre icône sur l'écran d'accueil.
 
-Condition : le site doit être servi via une URL `http://` ou `https://` (via `lancer-app.bat` en local, ou une fois hébergé en ligne — par exemple avec GitHub Pages sur ce dépôt). Une simple ouverture du fichier `margo.html` en double-clic (`file://`) ne permet pas l'installation.
+Condition : le site doit être servi via une URL `http://` ou `https://` (via `lancer-app.bat` en local, ou en ligne avec GitHub Pages). Une simple ouverture du fichier `margo.html` en double-clic (`file://`) ne permet pas l'installation.
 
-- **Android (Chrome)** : ouvrir le site → menu ⋮ → *Installer l'application* (ou un bandeau "Ajouter à l'écran d'accueil" apparaît automatiquement).
+- **Android (Chrome)** : ouvrir le site → menu ⋮ → *Installer l'application*.
 - **iPhone/iPad (Safari)** : ouvrir le site → bouton Partager → *Sur l'écran d'accueil*.
 - **Ordinateur (Chrome/Edge)** : icône d'installation ⊕ dans la barre d'adresse.
 
-Une fois installée, l'interface de l'appli (mais pas les données live comme les résultats Google Maps) reste accessible même sans réseau, grâce au service worker (`sw.js`).
+Une fois installée, l'interface reste accessible même sans réseau, grâce au service worker (`sw.js`). La page est rechargée depuis le serveur à chaque ouverture (la copie en cache ne sert qu'hors connexion), donc chaque mise à jour est visible immédiatement.
 
 ## Hébergement public (GitHub Pages)
 
-`index.html` détecte automatiquement le type d'appareil (User-Agent, capacités tactiles, absence de souris/pointeur fin) et redirige vers la bonne édition : smartphone/tablette → `margo-mobile.html`, ordinateur → `margo.html`. Une fois GitHub Pages activé sur le dépôt, l'URL racine fonctionne directement, quel que soit l'appareil.
+`index.html` redirige vers `margo.html`, la seule édition (ordinateur comme mobile). Le site est accessible à `https://roomsty58400.github.io/margo/`.
 
-Pour forcer manuellement une édition (par exemple sur une tablette tactile où l'édition bureau est préférée) : ajouter `?version=mobile` ou `?version=desktop` à l'URL — le choix est mémorisé (sur cet appareil) pour les prochaines visites. Ajouter `?version=auto` efface ce choix et repasse en détection automatique.
+Pour publier les changements : double-clique sur `publier-github.bat` (ou `git add` / `git commit` / `git push`). Le site est à jour 1 à 2 minutes après le push.
 
-Une fois en ligne, le site sera accessible à `https://roomsty58400.github.io/margo/`.
-
-Pour activer GitHub Pages (à faire une seule fois, sur github.com) :
-1. Va sur le dépôt → onglet **Settings** → section **Pages** (menu de gauche).
-2. Sous *Build and deployment* → *Source*, choisis **Deploy from a branch**.
-3. Branche : **main**, dossier : **/ (root)** → **Save**.
-4. Attends 1 à 2 minutes, puis ouvre `https://roomsty58400.github.io/margo/`.
+Pour activer GitHub Pages (à faire une seule fois, sur github.com) : dépôt → **Settings** → **Pages** → *Source* : **Deploy from a branch** → branche **main**, dossier **/ (root)** → **Save**.
 
 ## Structure du dossier
 
 ```
-generateurititourist/
+MARGO/
 ├── margo.html                   L'application complète (HTML + CSS + JS en un seul fichier)
-├── margo-mobile.html            Édition mobile/tablette (interface tactile, même moteur que margo.html)
-├── index.html                   Détecte l'appareil et redirige vers margo.html ou margo-mobile.html
-├── manifest.json, sw.js         Fichiers PWA de l'édition bureau (installation écran d'accueil, usage hors-ligne)
-├── manifest-mobile.json, sw-mobile.js   Fichiers PWA de l'édition mobile (cache séparé de la version bureau)
-├── lancer-app.bat               Lance un serveur local et ouvre l'édition bureau
-├── lancer-app-mobile.bat        Lance un serveur local et ouvre l'édition mobile
+├── index.html                   Page d'accueil du site : redirige vers margo.html
+├── manifest.json, sw.js         Fichiers PWA (installation écran d'accueil, usage hors-ligne)
+├── lancer-app.bat               Lance un serveur local (port 8000) et ouvre l'application
 ├── publier-github.bat           Publie les changements sur le dépôt GitHub
 ├── apiki.env  (non versionné)   Clé API Google Maps, chargée automatiquement si présente
+├── AQ.env     (non versionné)   Clé API Gemini (IA Roadbook), chargée automatiquement si présente
 ├── README.md, .gitignore
 ├── MARGO_fiche_commerciale.pdf  Fiche commerciale/présentation du projet
 ├── assets/
-│   ├── images/                  margo-logo.png, margo.png, snail-route.gif
+│   ├── images/                  margo-logo.png, margo.png, snail-route.svg, snail-route.gif
 │   └── icons/                   margo.ico, icon-192*.png, icon-512*.png, apple-touch-icon.png
-├── pages/
-│   └── mentions-legales.html    Mentions légales / RGPD / cookies
-└── archives/  (non versionné)   Sauvegardes locales
+└── pages/
+    └── mentions-legales.html    Mentions légales / RGPD / cookies
 ```
-
-| Emplacement | Rôle |
-|---|---|
-| `margo.html` | L'application complète, édition bureau (HTML + CSS + JS en un seul fichier) |
-| `margo-mobile.html` | Édition mobile/tablette (interface tactile, même moteur que `margo.html`) |
-| `index.html` | Détecte l'appareil et redirige vers `margo.html` ou `margo-mobile.html` |
-| `pages/mentions-legales.html` | Page mentions légales / RGPD / cookies |
-| `assets/images/` | Logo (`margo-logo.png`, `margo.png`) et animation d'en-tête (`snail-route.gif`) |
-| `assets/icons/` | Favicon et icônes PWA (`margo.ico`, `icon-192*.png`, `icon-512*.png`, `apple-touch-icon.png`) |
-| `manifest.json`, `sw.js` | Fichiers PWA de l'édition bureau (installation sur écran d'accueil, usage hors-ligne) |
-| `manifest-mobile.json`, `sw-mobile.js` | Fichiers PWA de l'édition mobile (cache séparé de la version bureau) |
-| `lancer-app.bat` | Lance un serveur local et ouvre l'édition bureau |
-| `lancer-app-mobile.bat` | Lance un serveur local et ouvre l'édition mobile |
-| `publier-github.bat` | Publie les changements sur le dépôt GitHub |
-| `apiki.env` *(non versionné)* | Clé API Google Maps, chargée automatiquement si présente |
-| `MARGO_fiche_commerciale.pdf` | Fiche commerciale/présentation du projet |
 
 ## Historique des versions
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
+
+### v3.00 — IA Roadbook (Gemini), cartes des 4 boutons centrées sur la ville, fiabilité (9 octobre 2026)
+- **IA Roadbook** : bouton à gauche de « Coups de cœur Office de Tourisme » ; roadbook rédigé par Google Gemini (offre gratuite) à partir de la liste proposée, génération en direct avec bande de progression, repli automatique entre modèles Gemini (`gemini-3.7-flash`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`) en cas de saturation, y compris en cours de rédaction. Clé chargée automatiquement depuis `AQ.env` en local (fenêtre directe, réglages masqués). Bouton **Valider le Roadbook** : le texte est inséré dans l'écran ROADBOOK, l'impression et les exports HTML/Markdown, et les lieux cités sont cochés si aucun ne l'était.
+- **Boutons autour de la ville** : cartes centrées sur la ville de destination (coordonnées transmises à la carte, géocodage à la volée si besoin) ; Urgences et Dépannage deviennent des cartes interactives (zoom molette direct) avec pastilles par type de lieu et pins Google Places (repli OpenStreetMap) ; bornes de recharge en pins orange sur la carte principale + page Chargemap de la ville en fenêtre séparée.
+- **Corrections** : bulle de comptage restée affichée après décochage d'une sous-catégorie ; titre « MINI-PARCOURS » illisible (désormais blanc) ; police de la ville au centre du cercle réduite ; ville enregistrée avec son pays (« Nevers, France » → libellés « Nevers, France, France » et lien Chargemap erroné) ; pays/code postal d'une ville précédente conservés lors du choix d'une nouvelle suggestion ; carte restée sur l'ancienne ville quand le lieu saisi est introuvable (désormais message « Lieu introuvable » et catégories reverrouillées) ; carte blanche quand la clé Google est refusée (bascule automatique sur les cartes sans clé) ; message trompeur « Aucun lieu » quand OpenStreetMap est en panne ; Roadbook IA d'une ville précédente réapparaissant sur un nouveau parcours ; boutons inutilisables dans le fichier HTML exporté.
+- **Lancement local** : `lancer-app.bat` ne passe plus à tort sur le port 8001 (où la clé Google ne fonctionne pas) à cause de connexions récemment fermées sur le port 8000.
+- **PWA** : la page est désormais chargée depuis le réseau en priorité (les mises à jour s'affichent immédiatement) ; les fichiers de clés `.env` ne sont plus jamais mis en cache.
+- **Édition mobile séparée retirée** (`margo-mobile.html`, `manifest-mobile.json`, `sw-mobile.js`, `lancer-app-mobile.bat`) ainsi que la variante expérimentale `margo-opt.html` : `margo.html` est la seule édition, `index.html` redirige vers elle.
 
 ### v2.99 — Commande vocale : reconnaissance "catégorie + ville" dans l'ordre naturel ("des hôtels sur Nevers")
 - La commande vocale reconnaissait déjà une ville ET des catégories dans une même phrase et lançait automatiquement la recherche (les résultats correspondants s'affichent directement) — mais seulement quand la ville était introduite par l'un des mots déclencheurs reconnus (« à », « de », « depuis »...). Une tournure très naturelle à l'oral, où la catégorie est citée AVANT la ville avec « sur » (ex. *"propose-moi des hôtels sur Nevers"*), n'était pas reconnue : « sur » ne faisait pas partie des mots déclencheurs, et la phrase retombait sur le repli qui part du début de la phrase — capturant à tort "propose-moi des" comme nom de ville au lieu de "Nevers".

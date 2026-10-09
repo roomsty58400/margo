@@ -53,22 +53,23 @@
 
   <section>
     <h2>Protection des données personnelles (RGPD)</h2>
-    <p>Margo est disponible en deux éditions — <strong>bureau</strong> (<code>margo.html</code>) et <strong>mobile/tablette</strong> (<code>margo-mobile.html</code>, interface adaptée au tactile) — servies automatiquement selon l'appareil détecté. Les deux fonctionnent avec exactement le même moteur et le même traitement des données : tout ce qui suit s'applique donc identiquement, quelle que soit l'édition utilisée.</p>
-    <p>Ce générateur d'itinéraire touristique fonctionne principalement côté client (dans le navigateur) : les critères saisis (ville, catégories, rayon) sont utilisés pour interroger, selon le mode actif :</p>
+    <p>Ce générateur d'itinéraire touristique fonctionne côté client (dans le navigateur) : il n'a pas de serveur propre et ne conserve aucune donnée. Les critères saisis (ville, catégories, rayon) sont envoyés directement par le navigateur aux services suivants, selon les fonctions utilisées :</p>
     <ul>
-      <li>des données de démonstration locales (mode démo, sans envoi à un service tiers autre que le géocodage gratuit OpenStreetMap/Nominatim) ;</li>
-      <li>ou l'API Google Places / Google Maps (mode données réelles), si une clé API valide est configurée — dans ce cas, les requêtes sont envoyées directement à Google, conformément à leur propre politique de confidentialité.</li>
+      <li><strong>OpenStreetMap</strong> (Nominatim pour la localisation de la ville, Overpass pour la recherche de lieux) — services gratuits et ouverts ;</li>
+      <li><strong>Google Maps / Google Places</strong>, si une clé API Google est configurée : cartes, recherche de lieux, photos et itinéraires, conformément à la politique de confidentialité de Google ;</li>
+      <li><strong>Google Gemini</strong>, uniquement si l'utilisateur lance l'<strong>IA Roadbook</strong> avec sa propre clé Gemini : la liste des lieux proposés (noms, adresses, horaires, prix, catégories), la ville et le mode de déplacement sont envoyés à Google pour rédiger le roadbook. Avec l'offre gratuite de Gemini, Google peut utiliser ces textes pour améliorer ses produits. Aucune donnée personnelle n'est incluse dans cette demande ;</li>
+      <li><strong>Open Charge Map</strong> et <strong>Chargemap.com</strong> (bornes de recharge), <strong>TripAdvisor</strong> et les sites des offices de tourisme, uniquement à l'ouverture des liens ou fenêtres correspondants.</li>
     </ul>
-    <p>La saisie vocale (bouton micro, disponible sur les deux éditions) utilise la reconnaissance vocale native du navigateur (Web Speech API) : aucune clé ni service tiers propre à Margo n'est impliqué, le traitement audio est géré directement par le navigateur.</p>
-    <p>Aucune donnée personnelle identifiante n'est collectée ni stockée par ce site pour son propre compte. La clé API Google, si renseignée, est conservée localement dans le navigateur de l'utilisateur (stockage local) et n'est jamais transmise à un serveur tiers autre que Google. Le stockage local du navigateur mémorise aussi, le cas échéant, l'édition (bureau ou mobile) choisie manuellement via l'URL d'accès (<code>?version=mobile</code>/<code>?version=desktop</code>) — une simple préférence d'affichage, sans lien avec une identité.</p>
+    <p>La saisie vocale (bouton micro) utilise la reconnaissance vocale native du navigateur (Web Speech API) : aucune clé ni service tiers propre à Margo n'est impliqué, le traitement audio est géré directement par le navigateur.</p>
+    <p>Aucune donnée personnelle identifiante n'est collectée ni stockée par ce site pour son propre compte. Les clés API (Google, Gemini), si renseignées, sont conservées localement dans le navigateur de l'utilisateur (stockage local) et ne sont transmises qu'au service concerné (Google). Un bouton « Oublier la clé » permet d'effacer la clé Gemini à tout moment.</p>
     <h3>Vos droits</h3>
     <p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition concernant vos données. Pour toute question, contactez <a href="mailto:topkapi-studio@gmail.com">topkapi-studio@gmail.com</a>.</p>
   </section>
 
   <section>
     <h2>Cookies</h2>
-    <p>Ce site n'utilise pas de cookies de suivi ou publicitaires. Seul le stockage local du navigateur peut être utilisé pour mémoriser certaines préférences techniques (ex. clé API, édition bureau/mobile choisie).</p>
-    <p>Chaque édition (bureau, mobile/tablette) peut être installée comme application (PWA) et fonctionne alors aussi hors-ligne pour son interface, grâce à un fichier technique de cache (<code>sw.js</code>/<code>manifest.json</code> pour l'édition bureau, <code>sw-mobile.js</code>/<code>manifest-mobile.json</code> pour l'édition mobile — deux caches indépendants). Ce mécanisme ne collecte et ne transmet aucune donnée personnelle : il se contente de conserver localement les fichiers de l'application pour un accès plus rapide et hors-ligne.</p>
+    <p>Ce site n'utilise pas de cookies de suivi ou publicitaires. Seul le stockage local du navigateur peut être utilisé pour mémoriser certaines préférences techniques (ex. clés API, résultats de recherche mis en cache).</p>
+    <p>Margo peut être installée comme application (PWA) et son interface fonctionne alors aussi hors-ligne, grâce à un fichier technique de cache (<code>sw.js</code>/<code>manifest.json</code>). Ce mécanisme ne collecte et ne transmet aucune donnée personnelle : il conserve seulement localement les fichiers de l'application ; les fichiers de clés API ne sont jamais mis en cache.</p>
   </section>
 
 </main>

@@ -6,3 +6,8 @@ Thumbs.db
 .DS_Store
 _to_delete/
 desktop.ini
+
+# Fichiers personnels / autres projets (jamais publies)
+code cleanfox.txt
+Claude outputs/
+bourgou*.html

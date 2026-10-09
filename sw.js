@@ -7,7 +7,7 @@
    des données à jour (et pour ne jamais mettre en cache une clé API ou une
    réponse liée à un compte). */
 
-const CACHE_NAME = 'margo-shell-v15';
+const CACHE_NAME = 'margo-shell-v17';
 const CORE_ASSETS = [
   './margo.html',
   './manifest.json',
@@ -47,6 +47,27 @@ self.addEventListener('fetch', event => {
   // l'appli) passent par le cache ; tout le reste (APIs tierces, données
   // dynamiques) part directement sur le réseau, sans passer par le SW.
   if(req.method !== 'GET' || url.origin !== self.location.origin){
+    return;
+  }
+  // Fichiers de clés (apiki.env, AQ.env) : jamais mis en cache.
+  if(url.pathname.endsWith('.env')){
+    return;
+  }
+
+  // Page HTML : réseau d'abord, pour que chaque modification de l'appli
+  // soit visible dès le rechargement (avec "cache d'abord", l'ancienne
+  // version restait affichée jusqu'au rechargement suivant). Le cache ne
+  // sert plus que de repli hors-ligne.
+  if(req.mode === 'navigate' || url.pathname.endsWith('.html')){
+    event.respondWith(
+      fetch(req).then(res => {
+        if(res && res.ok){
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
+        }
+        return res;
+      }).catch(() => caches.match(req, { ignoreSearch: true }))
+    );
     return;
   }
 

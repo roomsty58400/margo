@@ -302,7 +302,7 @@
      ~18%, et boutons de coin rapprochés du centre en conséquence (voir
      .insect-corner-btn top/right/bottom/left plus bas) tout en gardant une
      marge de sécurité avec le cercle central (.flower-center, 37%). */
-  .flower-frame{position:relative;width:350px;max-width:100%;margin:0 auto;}
+  .flower-frame{position:relative;width:300px;max-width:100%;margin:0 auto;}
   .flower{position:relative;width:100%;aspect-ratio:1/1;margin:0;}
   /* Raccourcis mobile/tablette pour éviter d'avoir à faire défiler
      manuellement entre la fleur et les résultats (masqués sur desktop où les
@@ -344,6 +344,8 @@
      vers la carte des bornes de recharge électrique Chargemap. */
   .charge-map-btn{top:14%;left:14%;color:#f97316;}
   .charge-map-btn:hover{transform:translateY(-3px) scale(1.08) rotate(6deg);}
+  /* Bornes affichées sur la carte principale : bouton prise "allumé" */
+  .charge-map-btn.on{background:linear-gradient(135deg,#fb923c,#f97316);color:#fff;}
   /* Même style de bouton, dans les deux coins BAS de la fleur cette fois :
      urgences/santé en bas à gauche, dépannage véhicule en bas à droite. */
   .emergency-btn{bottom:14%;left:14%;color:#dc2626;}
@@ -389,11 +391,31 @@
      badge du dessus malgré le badge maintenant en %. Testé à toutes les
      tailles de cadre (428→225px) : le libellé continue de tenir sur une seule
      ligne partout, aucun débordement visible hors du cercle. */
-  .flower-center strong, .flower-center label{display:block;font-size:clamp(.8rem,2.4vw,1rem);color:var(--primary);font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:.5rem;white-space:nowrap;}
-  .flower-center input{width:82%;padding:.35rem .5rem;border:1.5px solid #dbe2ec;border-radius:10px;background:#fff;box-shadow:inset 0 1px 3px rgba(16,19,43,.07);font-size:clamp(.56rem,1.6vw,.62rem);text-align:center;transition:border-color .15s, box-shadow .15s;}
+  .flower-center strong, .flower-center label{display:block;font-size:clamp(.68rem,1.9vw,.82rem);color:var(--primary);font-weight:800;text-transform:uppercase;letter-spacing:.03em;margin-top:.5rem;white-space:nowrap;}
+  .flower-center label.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+  /* v2.82 : "DESTINATION" posé en arc sur le pourtour du cercle central (au
+     lieu d'un libellé plat au-dessus du champ) — reprend le style d'un
+     tampon/sceau et fait écho au thème floral de l'appli (texte qui suit la
+     courbe du cœur de fleur, comme une inscription autour d'un pétale
+     central). Positionné en overlay exactement sur la boîte de
+     .flower-center (même %, mêmes top/left/transform) pour que le tracé
+     colle pile au bord visible du cercle ; pointer-events:none pour ne
+     jamais intercepter les clics sur le champ ville en dessous. */
+  .flower-center-ring{position:absolute;top:50%;left:50%;width:160%;height:160%;transform:translate(-50%,-50%);pointer-events:none;z-index:6;overflow:visible;}
+  .flower-center-ring text{font-size:12px;font-weight:800;letter-spacing:4.2px;fill:var(--primary);text-transform:uppercase;}
+  .flower-center input{width:82%;padding:.4rem .5rem;border:1.5px solid #dbe2ec;border-radius:10px;background:#fff;box-shadow:inset 0 1px 3px rgba(16,19,43,.07);font-size:clamp(.68rem,1.9vw,.82rem);text-align:center;transition:border-color .15s, box-shadow .15s;}
   .flower-center input:focus{outline:none;border-color:var(--secondary);box-shadow:inset 0 1px 3px rgba(16,19,43,.05), 0 0 0 3px rgba(13,122,58,.15);}
+  /* v2.84 : #inputVille redevient le vrai point d'entree visuel de la fleur —
+     nettement plus grand/gras que les autres champs (masques de toute facon)
+     du cercle, avec une bordure plus marquee et un focus plus visible, pour
+     que l'oeil aille naturellement s'y poser en premier.
+     Police réduite : clamp(1.05rem,3.4vw,1.4rem) → clamp(.7rem,2vw,.85rem),
+     pour que les noms de ville longs tiennent mieux dans le cercle. */
+  .flower-center #inputVille{width:88%;padding:.45rem .5rem;border-width:2.25px;border-radius:12px;font-size:clamp(.7rem,2vw,.85rem);font-weight:700;color:var(--primary);box-shadow:inset 0 1px 3px rgba(16,19,43,.07), 0 3px 10px -4px rgba(13,122,58,.25);}
+  .flower-center #inputVille:focus{border-width:2.25px;box-shadow:inset 0 1px 3px rgba(16,19,43,.05), 0 0 0 4px rgba(13,122,58,.18);}
+  .flower-center #inputVille::placeholder{color:#9fb0c3;font-weight:700;}
   .flower-center .btn.small{margin-top:.2rem;padding:.3rem .7rem;font-size:.65rem;}
-  .ville-suggest-wrap{position:relative;width:82%;}
+  .ville-suggest-wrap{position:relative;width:92%;}
   .ville-suggest-wrap input{width:100%;padding-right:1.9rem;}
   .ville-suggest-list{position:absolute;top:100%;left:0;right:0;margin-top:2px;background:#fff;border:1px solid var(--gray-300);border-radius:var(--radius-sm);max-height:150px;overflow-y:auto;z-index:20;box-shadow:var(--shadow-md);list-style:none;text-align:left;}
   .ville-suggest-item{padding:.35rem .5rem;font-size:.6rem;cursor:pointer;color:var(--primary);border-bottom:1px solid var(--gray-200);}
@@ -535,7 +557,7 @@
   /* Même souci de spécificité pour les boutons Retour/Recommencer du guide :
      .btn{display:inline-block} gagnait contre l'attribut hidden malgré le
      hidden posé en HTML, les rendant visibles à tort. */
-  #btnRestart[hidden], #btnExportMd[hidden]{display:none!important;}
+  #btnRestart[hidden], #btnExportMd[hidden], #aiRoadbookStop[hidden]{display:none!important;}
   /* --- Popup (fenêtre modale) pour la clé API Google --- */
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:200;padding:1rem;}
   .modal-overlay[hidden]{display:none;}
@@ -619,6 +641,11 @@
   .chip{padding:.45rem 1rem;border-radius:16px;border:1.5px solid var(--petal-visite);font-size:.8rem;font-weight:700;cursor:pointer;background:#fff;color:var(--petal-visite);box-shadow:0 2px 7px -2px rgba(16,19,43,.12);transition:transform .12s, box-shadow .12s;}
   .chip:hover{transform:translateY(-1px);box-shadow:0 5px 12px -3px rgba(16,19,43,.22);}
   .chip.on{background:var(--petal-visite);color:#fff;}
+  .poi-search-chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem;}
+  .poi-search-map{width:100%;height:520px;border-radius:12px;overflow:hidden;}
+  .poi-search-map[hidden]{display:none;}
+  .poi-search-info{font-size:.76rem;color:var(--gray-500);margin-top:.4rem;min-height:1em;}
+  @media (max-width:640px){ .poi-search-map{height:360px;} }
   .chip.resto{border-color:var(--petal-resto);color:var(--petal-resto);}
   .chip.resto.on{background:var(--petal-resto);color:#fff;}
   .chip.loisir{border-color:var(--petal-loisir);color:var(--petal-loisir);}
@@ -700,6 +727,54 @@
   .tree-branch > summary:hover{background:#f2f6fa;}
   .tree-branch-label{display:inline-flex;align-items:center;}
   .tree-branch > summary #btnOtOnly{font-weight:600;font-size:.78rem;padding:.35rem .7rem;}
+  /* Bouton "IA Roadbook" placé à gauche de "Coups de cœur Office de
+     Tourisme" : les deux boutons sont regroupés dans .tree-branch-actions
+     pour rester collés côte à côte à droite du titre (le summary est en
+     justify-content:space-between). Cadre en dégradé pour le distinguer
+     des filtres : il n'en est pas un, il ouvre la génération IA. */
+  .tree-branch-actions{display:inline-flex;align-items:center;gap:.4rem;flex-wrap:wrap;}
+  .tree-branch > summary #btnAiRoadbook{font-weight:700;font-size:.78rem;padding:.35rem .75rem;color:#fff;border:none;
+    background:linear-gradient(120deg,#7c3aed 0%,var(--secondary) 100%);box-shadow:0 3px 10px -3px rgba(124,58,237,.55);}
+  .tree-branch > summary #btnAiRoadbook:hover{filter:brightness(1.08);}
+  /* Fenêtre "IA Roadbook" */
+  .ai-roadbook-key-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.3rem 0 .4rem;}
+  .ai-roadbook-key-row input{flex:1 1 220px;padding:.45rem .6rem;border:1.5px solid #dbe2ec;border-radius:8px;}
+  .ai-roadbook-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0;}
+  .ai-roadbook-actions[hidden]{display:none;}
+  .ai-roadbook-status{font-size:.78rem;color:var(--gray-500);margin:.3rem 0;}
+  /* Bande de progression pendant la génération IA Roadbook : même dégradé
+     que le bouton "IA Roadbook", avec un reflet qui défile pour montrer que
+     ça travaille même quand la barre avance lentement. */
+  .ai-roadbook-progress{position:relative;height:8px;border-radius:999px;background:var(--gray-200);overflow:hidden;margin:.2rem 0 .7rem;}
+  .ai-roadbook-progress[hidden]{display:none;}
+  .ai-roadbook-progress-bar{position:relative;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#7c3aed 0%,var(--secondary) 100%);transition:width .4s ease;overflow:hidden;}
+  .ai-roadbook-progress-bar::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.45) 50%,transparent 100%);transform:translateX(-100%);animation:aiRoadbookShine 1.4s linear infinite;}
+  @keyframes aiRoadbookShine{to{transform:translateX(100%);}}
+  @media (prefers-reduced-motion:reduce){ .ai-roadbook-progress-bar{transition:none;} .ai-roadbook-progress-bar::after{animation:none;} }
+  /* Mode direct (une clé est disponible) : la partie réglages du haut est
+     masquée et la génération démarre dès l'ouverture de la fenêtre. */
+  #aiRoadbookModalBox.ai-roadbook-direct #aiRoadbookIntro,
+  #aiRoadbookModalBox.ai-roadbook-direct #aiRoadbookKeyBlock,
+  #aiRoadbookModalBox.ai-roadbook-direct #aiRoadbookGenerate,
+  #aiRoadbookModalBox.ai-roadbook-direct #aiRoadbookCopyPrompt{display:none!important;}
+  .ai-roadbook-output{border:1px solid var(--gray-200);border-radius:12px;padding:1rem 1.1rem;background:#fbfdfc;color:var(--gray-700,#334155);font-size:.84rem;line-height:1.5;max-height:52vh;overflow-y:auto;}
+  .ai-roadbook-output[hidden]{display:none;}
+  .ai-roadbook-output h1, .ai-roadbook-output h2, .ai-roadbook-output h3{color:var(--primary);margin:.9rem 0 .35rem;line-height:1.25;}
+  .ai-roadbook-output h1{font-size:1.1rem;margin-top:0;}
+  .ai-roadbook-output h2{font-size:.98rem;}
+  .ai-roadbook-output h3{font-size:.88rem;}
+  .ai-roadbook-output p{margin:.35rem 0;}
+  .ai-roadbook-output ul, .ai-roadbook-output ol{margin:.3rem 0 .5rem 1.2rem;}
+  /* Cadre "Roadbook IA" dans l'écran ② ROADBOOK (texte validé) */
+  .ai-roadbook-guide{background:#fff;padding:1.2rem 1.3rem;border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);margin-bottom:1.2rem;font-size:.86rem;line-height:1.55;border-left:4px solid #7c3aed;}
+  .ai-roadbook-guide-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;margin-bottom:.4rem;}
+  .ai-roadbook-guide-head h2{margin:0;font-size:1rem;}
+  .ai-roadbook-guide h1, .ai-roadbook-guide h2, .ai-roadbook-guide h3{color:var(--primary);line-height:1.25;}
+  .ai-roadbook-guide .ai-roadbook-guide-body h1{font-size:1.05rem;margin:.6rem 0 .3rem;}
+  .ai-roadbook-guide .ai-roadbook-guide-body h2{font-size:.95rem;margin:.8rem 0 .3rem;}
+  .ai-roadbook-guide .ai-roadbook-guide-body h3{font-size:.88rem;margin:.6rem 0 .25rem;}
+  .ai-roadbook-guide p{margin:.35rem 0;}
+  .ai-roadbook-guide ul, .ai-roadbook-guide ol{margin:.3rem 0 .5rem 1.2rem;}
   .tree-category{margin:.3rem 0 .3rem .3rem;padding-left:.4rem;}
   .tree-category > summary{padding:.4rem .3rem;font-size:.85rem;font-weight:600;color:var(--secondary);border-radius:4px;}
   .tree-category > summary:hover{background:#f7fbff;}
@@ -1022,7 +1097,7 @@
      Google Maps à 10 étapes), le cas à un seul mini-parcours étant déjà
      intégré dans .guide-hero ci-dessus. */
   .mini-info-card{background:linear-gradient(120deg,var(--primary) 0%,var(--secondary) 100%);color:#fff;padding:.9rem 1.1rem;border-radius:14px 14px 0 0;display:flex;align-items:center;justify-content:space-between;gap:.9rem;flex-wrap:wrap;}
-  .mini-info-card h2{font-size:.95rem;margin-bottom:.35rem;}
+  .mini-info-card h2{font-size:.95rem;margin-bottom:.35rem;color:#fff;}
   .mini-info-card .mini-info-hint{font-size:.72rem;opacity:.85;margin-top:.35rem;}
   .mini-info-card img{border-radius:4px;background:#fff;padding:2px;flex-shrink:0;}
   .mini-body{background:#fff;border-radius:0 0 var(--radius-sm) var(--radius-sm);overflow:hidden;box-shadow:var(--shadow-sm);}
@@ -1204,6 +1279,41 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="aiRoadbookModalOverlay" hidden>
+  <div class="modal-box modal-box-wide" id="aiRoadbookModalBox" role="dialog" aria-modal="true" aria-label="IA Roadbook">
+    <button type="button" class="modal-close" id="aiRoadbookModalClose" aria-label="Fermer"><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg></button>
+    <h3 style="margin-bottom:.4rem;"><svg class="icon-inline" aria-hidden="true"><use href="#icon-sparkles"></use></svg> IA Roadbook</h3>
+    <p id="aiRoadbookIntro" style="margin-bottom:.5rem;"></p>
+    <div id="aiRoadbookKeyBlock">
+      <label for="aiRoadbookKeyInput"><strong>Clé API Gemini (gratuite)</strong></label>
+      <div class="ai-roadbook-key-row">
+        <input type="password" id="aiRoadbookKeyInput" placeholder="AQ... ou AIza..." autocomplete="off" aria-label="Clé API Gemini">
+        <button type="button" class="btn small secondary" id="aiRoadbookForgetKey"><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg> Oublier la clé</button>
+      </div>
+      <p class="api-key-help" style="font-size:.74rem;">
+        Clé gratuite à créer sur <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a> (compte Google, sans carte bancaire).
+        Elle reste uniquement dans ce navigateur et n'est envoyée qu'à l'API Gemini de Google. Avec l'offre gratuite, Google peut utiliser les textes envoyés pour améliorer ses produits.
+        Sans clé : « Copier le prompt » puis collez-le dans Gemini, ChatGPT ou Claude.
+      </p>
+    </div>
+    <div class="ai-roadbook-actions">
+      <button type="button" class="btn small" id="aiRoadbookGenerate"><svg class="icon-inline" aria-hidden="true"><use href="#icon-sparkles"></use></svg> Générer le roadbook</button>
+      <button type="button" class="btn small secondary" id="aiRoadbookStop" hidden><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg> Arrêter</button>
+      <button type="button" class="btn small secondary" id="aiRoadbookCopyPrompt"><svg class="icon-inline" aria-hidden="true"><use href="#icon-clipboard"></use></svg> Copier le prompt</button>
+    </div>
+    <p class="ai-roadbook-status" id="aiRoadbookStatus" aria-live="polite"></p>
+    <div class="ai-roadbook-progress" id="aiRoadbookProgress" role="progressbar" aria-label="Progression de la génération" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden>
+      <div class="ai-roadbook-progress-bar" id="aiRoadbookProgressBar"></div>
+    </div>
+    <div class="ai-roadbook-output" id="aiRoadbookOutput" hidden></div>
+    <div class="ai-roadbook-actions" id="aiRoadbookResultActions" hidden>
+      <button type="button" class="btn small" id="aiRoadbookValidate" title="Ajouter ce texte au ROADBOOK et l'ouvrir"><svg class="icon-inline" aria-hidden="true"><use href="#icon-check"></use></svg> Valider le Roadbook</button>
+      <button type="button" class="btn small secondary" id="aiRoadbookCopy"><svg class="icon-inline" aria-hidden="true"><use href="#icon-clipboard"></use></svg> Copier le texte</button>
+      <button type="button" class="btn small secondary" id="aiRoadbookDownload"><svg class="icon-inline" aria-hidden="true"><use href="#icon-download"></use></svg> Télécharger (.md)</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="wazeConvertModalOverlay" hidden>
   <div class="modal-box" role="dialog" aria-modal="true" aria-label="Convertir un lien Google Maps en lien Waze">
     <button type="button" class="modal-close" id="wazeConvertModalClose" aria-label="Fermer"><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg></button>
@@ -1255,10 +1365,17 @@
     <button type="button" class="modal-close" id="emergencyModalClose" aria-label="Fermer"><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg></button>
     <h3 style="margin-bottom:.4rem;"><svg class="icon-inline" aria-hidden="true"><use href="#icon-ambulance"></use></svg> Urgences, hôpitaux &amp; pharmacies</h3>
     <p style="font-size:.78rem;color:var(--gray-500);margin-bottom:.6rem;">
-      Recherche Google Maps autour du lieu de départ renseigné.
+      Recherche Google Maps autour de la ville de destination.
       <a href="#" target="_blank" rel="noopener noreferrer" id="emergencyExternalLink">Ouvrir dans Google Maps</a>
     </p>
+    <div class="poi-search-chips" id="emergencyChips">
+      <button type="button" class="chip on" data-q="hôpital" data-osm="amenity=hospital|amenity=clinic">Hôpitaux &amp; urgences</button>
+      <button type="button" class="chip" data-q="pharmacie" data-osm="amenity=pharmacy">Pharmacies</button>
+      <button type="button" class="chip" data-q="médecin" data-osm="amenity=doctors|healthcare=doctor">Médecins</button>
+    </div>
     <iframe id="emergencyMapFrame" src="" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms" referrerpolicy="no-referrer" style="width:100%;height:520px;border:0;border-radius:12px;"></iframe>
+    <div id="emergencyMapDiv" class="poi-search-map" hidden></div>
+    <p class="poi-search-info" id="emergencyMapInfo"></p>
   </div>
 </div>
 
@@ -1267,10 +1384,18 @@
     <button type="button" class="modal-close" id="repairModalClose" aria-label="Fermer"><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg></button>
     <h3 style="margin-bottom:.4rem;"><svg class="icon-inline" aria-hidden="true"><use href="#icon-wrench"></use></svg> Garages &amp; réparation automobile</h3>
     <p style="font-size:.78rem;color:var(--gray-500);margin-bottom:.6rem;">
-      Garages, concessions, pneus, pare-brise, carrosserie — recherche Google Maps autour du lieu de départ renseigné.
+      Garages, pneus, pare-brise, dépannage — recherche Google Maps autour de la ville de destination.
       <a href="#" target="_blank" rel="noopener noreferrer" id="repairExternalLink">Ouvrir dans Google Maps</a>
     </p>
+    <div class="poi-search-chips" id="repairChips">
+      <button type="button" class="chip on" data-q="garage automobile" data-osm="shop=car_repair">Garages</button>
+      <button type="button" class="chip" data-q="pneus" data-osm="shop=tyres|service:vehicle:tyres=yes">Pneus</button>
+      <button type="button" class="chip" data-q="pare-brise" data-osm="service:vehicle:glass=yes|name~pare-brise|name~carglass|name~mondial pare|name~glass">Pare-brise</button>
+      <button type="button" class="chip" data-q="dépannage remorquage" data-osm="service:vehicle:towing=yes|service:vehicle:breakdown_repair=yes|name~dépannage|name~remorquage">Dépannage</button>
+    </div>
     <iframe id="repairMapFrame" src="" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms" referrerpolicy="no-referrer" style="width:100%;height:520px;border:0;border-radius:12px;"></iframe>
+    <div id="repairMapDiv" class="poi-search-map" hidden></div>
+    <p class="poi-search-info" id="repairMapInfo"></p>
   </div>
 </div>
 
@@ -1598,6 +1723,30 @@ function checkWebsiteLinksIn(container){
 
 /* ============ GOOGLE PLACES API (optionnel, données réelles) ============ */
 let googleMapsReady = false;
+/* Clé refusée par Google APRÈS chargement du script (restriction de
+   référent HTTP — ex. appli ouverte sur un autre port que 8000 —, quota
+   dépassé, API non activée...) : Google appelle alors window.gm_authFailure
+   et laisse les cartes entièrement blanches, sans erreur JavaScript. On
+   bascule donc sur les cartes de repli (iframe Google sans clé), comme si
+   aucune clé n'était configurée. La recherche de lieux, elle, se replie déjà
+   sur OpenStreetMap quand Places échoue (voir handleSearch). */
+let googleMapsAuthFailed = false;
+window.gm_authFailure = function(){
+  if(googleMapsAuthFailed) return;
+  googleMapsAuthFailed = true;
+  console.warn('Clé Google Maps refusée par Google (référent, quota ou API non activée) : repli sur les cartes sans clé.');
+  updateApiModeLabel();
+  if(typeof chargersShown !== 'undefined' && chargersShown) hideChargersOnMainMap();
+  const guideActive = document.getElementById('screen-guide').classList.contains('active');
+  if(guideActive && state.itineraryChunks && state.itineraryChunks.length) renderGuide();
+  else if(state.centerLatLng) renderLieuMap();
+  else renderFranceOverviewMap();
+  ['emergency','repair'].forEach(prefix=>{
+    if(document.getElementById(prefix + 'ModalOverlay').hidden) return;
+    const chip = document.querySelector('#' + prefix + 'Chips .chip.on');
+    if(chip) showPoiSearch(prefix, chip);
+  });
+};
 let lastLoadedApiKey = null; // clé utilisée pour le chargement en cours (voir ensureGoogleMapsLoaded)
 let GMPlace = null, GMSearchNearbyRankPreference = null, GMGeocoder = null;
 let GMMap = null, GMAdvancedMarkerElement = null, GMInfoWindow = null, GMPinElement = null;
@@ -1755,10 +1904,22 @@ async function fetchVilleSuggestionsGoogle(query, apiKey){
   return (suggestions || []).map(s=>{
     const pred = s.placePrediction;
     const text = (pred && pred.text && pred.text.text) || (pred && pred.text) || '';
-    // Le texte complet (ville seule OU adresse précise) est conservé tel
-    // quel : c'est lui qui sera géocodé, qu'il s'agisse d'une ville ou d'une
-    // adresse complète.
-    return { label: text, ville: text.trim(), cp:'', pays:'', source:'google' };
+    // Ville seule ("Nevers, France") : on sépare le nom de la ville et le
+    // pays — sinon state.ville valait "Nevers, France", d'où des libellés
+    // "Nevers, France, France" et un lien Chargemap "nevers-france-FR"
+    // inexistant. Adresse précise : texte complet conservé tel quel, c'est
+    // lui qui sera géocodé.
+    const types = (pred && pred.types) || [];
+    const isCity = types.some(t=>['locality','postal_town','administrative_area_level_3','administrative_area_level_4'].includes(t));
+    const mainText = pred && pred.mainText && pred.mainText.text;
+    if(isCity && mainText){
+      const secondary = (pred.secondaryText && pred.secondaryText.text) || '';
+      const pays = secondary.split(',').pop().trim();
+      return { label: text, ville: mainText.trim(), cp:'', pays, source:'google' };
+    }
+    // Adresse : le pays est le dernier élément du texte Google ("…, France").
+    const parts = text.split(',');
+    return { label: text, ville: text.trim(), cp:'', pays: parts.length > 1 ? parts.pop().trim() : '', source:'google' };
   }).filter(s=>s.ville);
 }
 
@@ -2068,9 +2229,21 @@ async function searchCategoryOverpass(def, centerLatLng, radiusKm){
     .map(f => `nwr(around:${radiusMeters},${centerLatLng.lat},${centerLatLng.lng})[${f}];`)
     .join('\n  ');
   const query = `[out:json][timeout:15];\n(\n  ${clauses}\n);\nout center 25;`;
-  const res = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(query) });
-  if(!res.ok) throw new Error('Overpass HTTP ' + res.status);
-  const data = await res.json();
+  // Serveur public souvent saturé (504/429, ou réponse qui n'arrive jamais) :
+  // 15 s max par serveur, puis serveur miroir (voir OVERPASS_ENDPOINTS).
+  let data = null, lastErr = null;
+  for(const endpoint of OVERPASS_ENDPOINTS){
+    const ctl = new AbortController();
+    const timer = setTimeout(()=>ctl.abort(), 15000);
+    try{
+      const res = await fetch(endpoint, { method: 'POST', body: 'data=' + encodeURIComponent(query), signal: ctl.signal });
+      if(!res.ok) throw new Error('Overpass HTTP ' + res.status);
+      data = await res.json();
+      break;
+    }catch(err){ lastErr = err; }
+    finally{ clearTimeout(timer); }
+  }
+  if(!data) throw lastErr || new Error('Overpass indisponible');
   return (data.elements || [])
     .map(el => toInternalPOIFromOverpass(el, def.key, centerLatLng))
     .filter(Boolean);
@@ -2095,7 +2268,9 @@ function updateApiModeLabel(){
   // plus riches), avec repli automatique et TOUJOURS réel (plus jamais de
   // lieux fictifs) sur OpenStreetMap/Overpass sinon — voir handleSearch.
   const hasKey = !!getApiKey();
-  document.getElementById('apiModeLabel').textContent = hasKey ? 'mode Google Places (avec repli OpenStreetMap)' : 'mode OpenStreetMap (gratuit)';
+  document.getElementById('apiModeLabel').textContent = googleMapsAuthFailed
+    ? 'clé Google refusée — mode OpenStreetMap (gratuit)'
+    : (hasKey ? 'mode Google Places (avec repli OpenStreetMap)' : 'mode OpenStreetMap (gratuit)');
 }
 
 /* ============ CATEGORIES ============ */
@@ -2527,6 +2702,9 @@ const state = {
   // recalcul d'itinéraire (buildItinerary), le temps du nouveau raffinement.
   distancesRefinedReal:false,
   otOnly:false,
+  // Texte (Markdown) du roadbook rédigé par l'IA, validé via "Valider le
+  // Roadbook" : affiché dans l'écran ② ROADBOOK et repris dans les exports.
+  aiRoadbook:'',
   meta:{project:'', author:'', date:''},
   itineraryChunks:[]
 };
@@ -2585,9 +2763,14 @@ function buildFlower(){
   const center = document.createElement('div');
   center.className = 'flower-center';
   center.innerHTML = `
-    <label for="inputVille">Destination</label>
+    <label for="inputVille" class="sr-only">Destination</label>
+    <svg class="flower-center-ring" viewBox="-30 -30 160 160" aria-hidden="true" focusable="false">
+      <path id="destArcPath" d="M -12,50 A 62,62 0 0 1 112,50" fill="none"></path>
+      <text text-anchor="end"><textPath href="#destArcPath" startOffset="43%">DESTIN</textPath></text>
+      <text text-anchor="start"><textPath href="#destArcPath" startOffset="57%">ATION</textPath></text>
+    </svg>
     <div class="ville-suggest-wrap">
-      <input type="text" id="inputVille" placeholder="Ville *" autocomplete="off">
+      <input type="text" id="inputVille" placeholder="Ville:" autocomplete="off">
       <ul class="ville-suggest-list" id="villeSuggestList" hidden></ul>
     </div>
     <p class="voice-feedback no-print" id="voiceFeedback" hidden></p>
@@ -2597,7 +2780,12 @@ function buildFlower(){
          métadonnées du guide, sans obliger l'utilisateur à le saisir
          lui-même dans le cœur de la fleur. -->
     <input type="text" id="inputCP" placeholder="Code postal" aria-label="Code postal" hidden>
-    <input type="text" id="inputPays" placeholder="Pays" aria-label="Pays" value="France">
+    <!-- v2.83 : champ Pays masqué à la demande de l'utilisateur — ne laisser
+         que le champ Ville dans le cercle central. Conservé dans le DOM
+         (comme #inputCP ci-dessus) car scheduleCityPreview/buildItinerary
+         lisent sa valeur ; par défaut "France", toujours modifiable par
+         l'autocomplétion de ville qui le renseigne automatiquement. -->
+    <input type="text" id="inputPays" placeholder="Pays" aria-label="Pays" value="France" hidden>
     <button type="button" id="voiceCmdBtn" class="voice-cmd-btn no-print" title="Commande vocale : dites votre ville et vos catégories" hidden><span class="voice-snail-emoji"><svg class="icon-inline" aria-hidden="true"><use href="#icon-turtle"></use></svg></span><span class="voice-mic-emoji"><svg class="icon-inline" aria-hidden="true"><use href="#icon-mic"></use></svg></span></button>
   `;
   flower.appendChild(center);
@@ -2638,6 +2826,9 @@ let expandedFlowerGroup = null;
    catégorie elle-même : c'est justement ce compteur qui aide à décider de
    la cocher). Affiché en badge sur chaque carte de sous-catégorie. */
 function subcatCountFor(catKey){
+  // Sous-catégorie décochée : ses lieux sont masqués de la liste et de la
+  // carte (voir poiIsVisible), donc pas de bulle de comptage non plus.
+  if(!state.selectedCategories.has(catKey)) return 0;
   return state.allPOIs.filter(p=>p.cat===catKey && (p.dist<=state.radiusKm || p.manuallyAdded) && (!state.otOnly || p.suggereParOT)).length;
 }
 
@@ -2766,6 +2957,7 @@ function toggleCategory(key){
   if(nowSelected) state.selectedCategories.add(key);
   else state.selectedCategories.delete(key);
   syncCategorySelectionUI();
+  refreshExpandedFlowerGroupCounts();
   validateScreen1();
   const ville = document.getElementById('inputVille').value.trim();
   if(nowSelected && ville){
@@ -2850,8 +3042,11 @@ function setupVilleAutocomplete(input, listEl){
     const it = currentItems[i];
     if(!it) return;
     input.value = it.ville;
-    if(it.cp) document.getElementById('inputCP').value = it.cp;
-    if(it.pays) document.getElementById('inputPays').value = it.pays;
+    // Toujours écrasés (même vides) : sinon le code postal ou le pays d'une
+    // ville choisie AVANT restaient attachés à la nouvelle (ex. Bruxelles
+    // puis "Place Carnot, Nevers" géocodé en Belgique).
+    document.getElementById('inputCP').value = it.cp || '';
+    document.getElementById('inputPays').value = it.pays || '';
     hideList();
     resetVilleAutocompleteSession();
     validateScreen1();
@@ -3025,10 +3220,12 @@ async function searchAllCategoriesOverpass(){
   state.centerLatLng = center;
   const catsToSearch = CATEGORY_DEFS.filter(def => state.selectedCategories.has(def.key) && !def.hiddenFromFlower);
   try{
+    let failedCats = 0;
     const resultsByCategory = await mapWithConcurrency(catsToSearch, 3, def =>
-      withTimeout(searchCategoryOverpass(def, center, MAX_RADIUS_KM), 15000, 'Recherche de « ' + def.label + ' » trop longue (15 s).')
-        .catch(err=>{ console.error('Erreur catégorie OpenStreetMap', def.key, err); return []; })
+      withTimeout(searchCategoryOverpass(def, center, MAX_RADIUS_KM), 35000, 'Recherche de « ' + def.label + ' » trop longue (35 s).')
+        .catch(err=>{ failedCats++; console.error('Erreur catégorie OpenStreetMap', def.key, err); return []; })
     );
+    state.searchServiceDown = catsToSearch.length > 0 && failedCats === catsToSearch.length;
     state.allPOIs = resultsByCategory.flat();
     markOfficeTourismeSuggestions(state.allPOIs, state.ville);
     state.dataSource = 'osm';
@@ -3058,6 +3255,7 @@ async function handleSearch(opts){
   const originalLabel = btn.textContent;
   btn.disabled = true;
   btn.textContent = 'Recherche...';
+  state.searchServiceDown = false;
 
   // v2.80 : Google Places redevient le moteur PRIORITAIRE quand une clé est
   // configurée (données plus riches : photos, horaires, prix, avis) — mais
@@ -3069,7 +3267,7 @@ async function handleSearch(opts){
   // maintenant sur de vraies données OpenStreetMap, donc l'appli reste
   // pleinement fonctionnelle même quand Google est indisponible.
   try{
-    if(apiKey){
+    if(apiKey && !googleMapsAuthFailed){ // clé refusée par Google : directement OpenStreetMap
       // Garde-fou : on ne persiste une clé QUE si elle a la forme d'une
       // vraie clé Google ("AIza..."), jamais avant de savoir si elle
       // fonctionne réellement (voir la restauration au chargement, section
@@ -3379,6 +3577,10 @@ async function renderLieuMap(){
       // sans avoir à maintenir Ctrl (comportement par défaut de Google sinon).
       const map = new GMMap(mapEl, { center: state.centerLatLng, zoom: 13, mapId: 'DEMO_MAP_ID', gestureHandling: 'greedy' });
       currentMapInstance = map;
+      // Bornes de recharge affichées (bouton prise) : les remettre sur la
+      // nouvelle carte (nouvelle ville, nouvelle recherche...).
+      chargerMarkers = [];
+      if(chargersShown) showChargersOnMainMap();
       const infoWindow = new GMInfoWindow();
       // Google Maps stoppe la propagation des clics à l'intérieur d'une
       // InfoWindow (pour éviter qu'un clic dans la fiche n'atteigne aussi la
@@ -3642,7 +3844,24 @@ function renderResults(){
         updateMapMarkersVisibility();
         refreshExpandedFlowerGroupCounts();
       });
-      branchSummary.appendChild(otBtn);
+      // Bouton "IA Roadbook" juste à gauche de "Coups de cœur" : ouvre la
+      // fenêtre de génération d'un roadbook rédigé par l'IA à partir de la
+      // liste des lieux proposés (voir section IA ROADBOOK plus bas).
+      const aiBtn = document.createElement('button');
+      aiBtn.type = 'button';
+      aiBtn.id = 'btnAiRoadbook';
+      aiBtn.className = 'btn small';
+      aiBtn.title = "Faire rédiger par l'IA un roadbook à partir des lieux proposés";
+      aiBtn.innerHTML = '<svg class="icon-inline" aria-hidden="true"><use href="#icon-sparkles"></use></svg> IA Roadbook';
+      aiBtn.addEventListener('click', e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        openAiRoadbookModal();
+      });
+      const actions = document.createElement('span');
+      actions.className = 'tree-branch-actions';
+      actions.append(aiBtn, otBtn);
+      branchSummary.appendChild(actions);
     }
     branch.appendChild(branchSummary);
 
@@ -3749,7 +3968,11 @@ function renderResults(){
   });
 
   if(!anyShown){
-    container.innerHTML = '<p class="tree-empty">Aucun lieu dans ce rayon pour les catégories choisies. Élargissez le rayon ou changez de catégorie.</p>';
+    // Service de recherche en panne (toutes les catégories en erreur) : ne
+    // pas laisser croire qu'il n'existe aucun lieu.
+    container.innerHTML = state.searchServiceDown
+      ? '<p class="tree-empty">Le service de recherche de lieux (OpenStreetMap) ne répond pas pour le moment. Relancez la recherche dans quelques instants.</p>'
+      : '<p class="tree-empty">Aucun lieu dans ce rayon pour les catégories choisies. Élargissez le rayon ou changez de catégorie.</p>';
   }
   updateSelCount();
   checkWebsiteLinksIn(container);
@@ -3997,8 +4220,9 @@ document.getElementById('stepper').addEventListener('click', e=>{
   } else if(step===2){
     if(reachable){
       computeItineraryPreview();
-      renderGuide();
+      // Écran affiché AVANT renderGuide : voir handleGenerateGuide.
       showScreen('screen-guide');
+      renderGuide();
     } else {
       document.getElementById('btnToOptions').click();
     }
@@ -4012,8 +4236,11 @@ function handleGenerateGuide(){
   // Les champs Métadonnées (projet/auteur/date) ont été supprimés de l'UI
   // avec le cadre de gauche ; state.meta garde sa dernière valeur connue.
   computeItineraryPreview(); // s'assure que state.itineraryChunks/depart/arrivee reflètent la dernière saisie
-  renderGuide();
+  // Écran affiché AVANT renderGuide : une carte Google créée dans un écran
+  // encore masqué (taille 0) ne charge ni fond de carte ni pins — seul le
+  // tracé apparaissait, sur un fond vide.
   showScreen('screen-guide');
+  renderGuide();
 }
 
 /* ============ CONSTRUCTION ITINERAIRE ============ */
@@ -4865,6 +5092,21 @@ function renderGuide(){
     </div>
   `;
 
+  // Roadbook rédigé par l'IA et validé depuis la fenêtre "IA Roadbook" :
+  // affiché juste sous la bannière (rendu Markdown sûr, voir
+  // aiRoadbookMarkdownToHtml), donc repris aussi par l'impression et
+  // l'export HTML qui partent de #guideContent.
+  if(state.aiRoadbook){
+    html += `
+    <div class="ai-roadbook-guide">
+      <div class="ai-roadbook-guide-head">
+        <h2><svg class="icon-inline" aria-hidden="true"><use href="#icon-sparkles"></use></svg> Roadbook IA</h2>
+        <button type="button" class="btn small secondary no-print" id="btnRemoveAiRoadbook"><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg> Retirer</button>
+      </div>
+      <div class="ai-roadbook-guide-body">${aiRoadbookMarkdownToHtml(state.aiRoadbook)}</div>
+    </div>`;
+  }
+
   state.itineraryChunks.forEach((chunk, ci)=>{
     const ep = endpoints[ci];
     const dirLink = mapsDirectionsLink(ep.origin, ep.destination, ep.waypoints);
@@ -4957,6 +5199,11 @@ function renderGuide(){
 
   guideContentEl.innerHTML = html;
   checkWebsiteLinksIn(guideContentEl);
+  const btnRemoveAiRoadbook = document.getElementById('btnRemoveAiRoadbook');
+  if(btnRemoveAiRoadbook) btnRemoveAiRoadbook.addEventListener('click', ()=>{
+    state.aiRoadbook = '';
+    renderGuide();
+  });
 
   const guideHeroToolbarSlot = document.getElementById('guideHeroToolbarSlot');
   if(guideHeroToolbarSlot && guideBtnRowEl) guideHeroToolbarSlot.appendChild(guideBtnRowEl);
@@ -5547,7 +5794,10 @@ document.getElementById('btnExportHtml').addEventListener('click', async ()=>{
     // sans clé), qui lui fonctionne dans n'importe quel navigateur.
     const clone = document.getElementById('guideContent').cloneNode(true);
     clone.querySelectorAll('.drag-handle').forEach(el => el.remove());
-    clone.querySelectorAll('.gps-app-choice-btn, .guide-remove-step, .chip-add-nearby').forEach(el => el.remove());
+    clone.querySelectorAll('.gps-app-choice-btn, .guide-remove-step, .chip-add-nearby, #btnRemoveAiRoadbook').forEach(el => el.remove());
+    // Barre d'actions de l'appli (HTML, Imprimer, Autre appli, Partager...) :
+    // boutons sans effet dans un fichier exporté sans le JS de l'appli.
+    clone.querySelectorAll('#guideBtnRow, .guide-hero-toolbar').forEach(el => el.remove());
     clone.querySelectorAll('[draggable="true"]').forEach(el => el.removeAttribute('draggable'));
     clone.querySelectorAll('#guideDepartInput, #guideArriveeInput').forEach(input => {
       const span = document.createElement('span');
@@ -5588,6 +5838,7 @@ document.getElementById('btnExportMd').addEventListener('click', ()=>{
   md += `**Généré le :** ${new Date().toLocaleDateString('fr-FR')}\n\n`;
   md += `**Transport :** ${travelModeLabel()} · **Optimisation :** ${state.optimizeMode} · **Rayon :** ${state.radiusKm} km\n\n`;
   md += `**Départ :** ${dedupeTrailingCountry(state.depart || state.ville)} · **Arrivée :** ${dedupeTrailingCountry(state.arrivee || state.depart || state.ville)}\n\n---\n\n`;
+  if(state.aiRoadbook) md += `## Roadbook IA\n\n${state.aiRoadbook.trim()}\n\n---\n\n`;
   const mdEndpoints = chunkEndpoints();
   state.itineraryChunks.forEach((chunk, ci)=>{
     const ep = mdEndpoints[ci];
@@ -5627,7 +5878,7 @@ async function tryEnableGoogleMapsForDisplay(){
   // chargement de la page, avant que ce chargement local n'ait abouti).
   try{ await withTimeout(apiKeyAutoLoadPromise, 3000, ''); }catch(err){ /* on continue avec ce qui est disponible */ }
   const apiKey = getApiKey();
-  if(!apiKey) return false;
+  if(!apiKey || googleMapsAuthFailed) return false;
   try{
     await ensureGoogleMapsLoaded(apiKey);
     // google.maps.Marker (utilisé pour tous les pins, voir legacyMarkerVisuals)
@@ -5746,6 +5997,10 @@ function resetForm(){
   state.depart = ''; state.arrivee = '';
   state.dataSource = 'mock'; state.centerLatLng = null;
   state.radiusKm = 2;
+  // Roadbook IA validé et bornes de recharge affichées : propres à la
+  // ville précédente, à ne pas retrouver sur un nouveau parcours.
+  state.aiRoadbook = ''; aiRoadbookText = '';
+  if(typeof hideChargersOnMainMap === 'function' && chargersShown) hideChargersOnMainMap();
   state.itineraryChunks = [];
   // v2.68 : resetForm() vidait bien state.selectedIds mais n'appelait jamais
   // updateSelCount() — le cadre "X lieu sélectionné + Générer le ROADBOOK"
@@ -5784,14 +6039,43 @@ async function previewCityOnMap(){
     renderFranceOverviewMap();
     return;
   }
+  // Nouvelle ville : le Roadbook IA validé pour l'ancienne n'a plus lieu
+  // d'être (il réapparaissait sinon dans le ROADBOOK de la nouvelle ville).
+  if(normalize(ville) !== normalize(state.ville || '')){ state.aiRoadbook = ''; aiRoadbookText = ''; }
   state.ville = ville; state.cp = cp; state.pays = pays;
   state.allPOIs = [];
   state.dataSource = 'mock'; // pas encore de vraie recherche : simple aperçu gratuit
+  // Position de l'ancienne ville effacée tout de suite : sinon, pendant le
+  // géocodage (ou s'il échoue), carte et boutons de coin restaient centrés
+  // sur la ville précédente.
+  state.centerLatLng = null;
+  const token = (previewCityOnMap.token = (previewCityOnMap.token || 0) + 1);
   try{
-    state.centerLatLng = await withTimeout(geocodeCityFree(ville, cp, pays), 6000, 'Géocodage trop long');
+    const center = await withTimeout(geocodeCityFree(ville, cp, pays), 6000, 'Géocodage trop long');
+    if(token !== previewCityOnMap.token) return; // saisie modifiée entretemps
+    state.centerLatLng = center;
+    setCityNotFound(false);
+    openFlowerPetals(); // lieu trouvé : catégories et boutons de coin accessibles
     await renderLieuMap();
   }catch(err){
+    if(token !== previewCityOnMap.token) return;
     console.warn('Aperçu de carte impossible', err);
+    // Lieu introuvable : retour à la carte de France et catégories
+    // reverrouillées, avec un message clair plutôt qu'une carte figée sur
+    // l'ancienne ville.
+    renderFranceOverviewMap();
+    setCityNotFound(true);
+  }
+}
+function setCityNotFound(notFound){
+  const hint = document.getElementById('catPickerHint');
+  if(!hint) return;
+  if(!hint.dataset.defaultHtml) hint.dataset.defaultHtml = hint.innerHTML;
+  if(notFound){
+    closeFlowerPetals();
+    hint.innerHTML = '<svg class="icon-inline" aria-hidden="true"><use href="#icon-info"></use></svg> Lieu introuvable : vérifie l\'orthographe ou choisis une suggestion de la liste.';
+  }else{
+    hint.innerHTML = hint.dataset.defaultHtml;
   }
 }
 function scheduleCityPreview(){
@@ -6064,6 +6348,7 @@ async function resolveOtSuggestionHtml(requestToken){
 async function openSnailModal(){
   const body = document.getElementById('snailModalBody');
   document.getElementById('snailModalOverlay').hidden = false;
+  await ensureDestinationCenter();
   if(!state.ville || !state.centerLatLng){
     body.innerHTML = `<p>Renseigne d'abord un lieu de départ dans la fleur (et lance la recherche) pour obtenir une suggestion d'itinéraire adaptée à la zone.</p>`;
     return;
@@ -6101,6 +6386,427 @@ document.addEventListener('keydown', e=>{
   if(e.key === 'Escape' && !document.getElementById('snailModalOverlay').hidden) closeSnailModal();
 });
 
+/* ============ IA ROADBOOK ============
+   Bouton "IA Roadbook" (liste des résultats, à gauche de "Coups de cœur
+   Office de Tourisme") : Gemini (Google) rédige un roadbook à partir des
+   lieux proposés. Choix de Gemini Flash pour son offre gratuite (clé
+   créée sur aistudio.google.com, sans carte bancaire). L'appli n'a pas de
+   serveur (page statique), donc l'appel part directement du navigateur
+   avec la clé de l'utilisateur, gardée dans localStorage comme la clé
+   Google Maps. Sans clé, "Copier le prompt" permet de le coller dans
+   n'importe quel assistant IA. Appel REST en streaming (SSE) via fetch,
+   sans bibliothèque à charger. */
+const AI_ROADBOOK_KEY_STORAGE = 'margo_gemini_api_key';
+// Modèles essayés dans l'ordre : si l'un est saturé (503, y compris en
+// plein flux) ou a épuisé son quota gratuit (429), on passe au suivant —
+// les quotas gratuits sont comptés par modèle. Mesures oct. 2026 avec une
+// clé gratuite : 3.7-flash en réflexion "low" ≈ 20 s, 3.5-flash-lite ≈ 3 s,
+// 3.8-flash souvent saturé (503) d'où sa dernière place.
+const AI_ROADBOOK_MODELS = [
+  { id: 'gemini-3.7-flash', thinkingLevel: 'low' },
+  { id: 'gemini-3.5-flash-lite' },
+  { id: 'gemini-3.8-flash', thinkingLevel: 'low' }
+];
+const aiRoadbookEndpoint = model => `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`;
+const AI_ROADBOOK_MAX_PLACES = 60;
+let aiRoadbookAbort = null;
+// Clé Gemini chargée automatiquement depuis "AQ.env" (même principe que
+// apiki.env pour la clé Google Maps) : uniquement en local, jamais affichée
+// ni écrite dans le DOM ou le localStorage. *.env est exclu du dépôt Git
+// (.gitignore), donc ce fichier n'est jamais publié sur GitHub Pages.
+let aiRoadbookAutoKey = null;
+if(/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)){
+  fetch('AQ.env')
+    .then(res=>res.ok ? res.text() : '')
+    .then(text=>{
+      const key = (text || '').trim().split(/\r?\n/)[0].trim();
+      if(/^[0-9A-Za-z._-]{20,}$/.test(key)) aiRoadbookAutoKey = key;
+    })
+    .catch(()=>{ /* fichier absent : saisie manuelle classique */ });
+}
+let aiRoadbookText = '';
+
+// Lieux proposés dans la liste (mêmes filtres que renderResults) ; les lieux
+// cochés passent en tête, puis les coups de cœur OT, puis par distance.
+function aiRoadbookPlaces(){
+  return state.allPOIs
+    .filter(poiIsVisible)
+    .sort((a,b)=>
+      (state.selectedIds.has(b.id)?1:0) - (state.selectedIds.has(a.id)?1:0)
+      || (b.suggereParOT?1:0) - (a.suggereParOT?1:0)
+      || (a.dist||0) - (b.dist||0))
+    .slice(0, AI_ROADBOOK_MAX_PLACES);
+}
+
+function buildAiRoadbookPrompt(){
+  const places = aiRoadbookPlaces();
+  const known = v => v && v!=='—' && !/non communiqué/i.test(v);
+  const lines = places.map((p,i)=>{
+    const parts = [
+      `${i+1}. ${p.name} — ${(CAT_LABEL[p.cat] && CAT_LABEL[p.cat].label) || p.cat}`,
+      p.addr ? `adresse : ${dedupeTrailingCountry(p.addr)}` : '',
+      typeof p.dist === 'number' ? `à ${String(p.dist.toFixed(1)).replace('.', ',')} km du centre` : '',
+      known(p.hours) ? `horaires : ${p.hours}` : '',
+      known(p.price) ? `prix : ${p.price}` : '',
+      state.selectedIds.has(p.id) ? 'CHOISI PAR LE VISITEUR' : '',
+      p.suggereParOT ? "coup de cœur de l'office de tourisme" : ''
+    ].filter(Boolean);
+    return parts.join(' · ');
+  });
+  const nbSel = places.filter(p=>state.selectedIds.has(p.id)).length;
+  const lieu = `${state.ville}${state.cp ? ' ('+state.cp+')' : ''}, ${state.pays}`;
+  return `Tu es un guide touristique local. Rédige en français un roadbook de visite pour ${lieu}, à partir de la liste de lieux ci-dessous, proposée par l'application Margo.
+
+Contexte du visiteur :
+- Mode de déplacement : ${travelModeLabel()}
+- Rayon de recherche : ${state.radiusKm} km autour du centre
+${state.meta.date ? `- Date de visite : ${state.meta.date}\n` : ''}${nbSel ? `- Le visiteur a déjà choisi ${nbSel} lieu(x), marqués « CHOISI PAR LE VISITEUR » : ils doivent tous figurer dans le roadbook.\n` : ''}
+Ce que le roadbook doit contenir :
+1. Un titre et une courte introduction sur la ville (2 à 3 phrases).
+2. Un parcours en étapes numérotées, dans un ordre logique de proximité, en t'appuyant uniquement sur les lieux de la liste (n'en invente aucun). Pour chaque étape : le nom du lieu, pourquoi il vaut la visite, un temps de visite conseillé et un conseil pratique.
+3. Si la liste est longue, propose un découpage en demi-journées ou journées.
+4. Une courte rubrique de conseils pratiques pour terminer.
+
+Reste factuel : si tu ne connais pas un lieu, décris-le sobrement à partir de sa catégorie sans inventer d'histoire, d'horaires ni de prix. Ne recopie pas les mentions internes de la liste (« CHOISI PAR LE VISITEUR », distances au centre) dans le texte. Réponds uniquement avec le roadbook, en Markdown simple (titres #, ##, listes, **gras**).
+
+Lieux proposés (${places.length}) :
+${lines.join('\n')}`;
+}
+
+// Mini-rendu Markdown (titres, listes, gras/italique, paragraphes) : le
+// texte est échappé AVANT toute mise en forme, donc aucun HTML venant de la
+// réponse de l'IA n'est jamais interprété.
+function aiRoadbookMarkdownToHtml(md){
+  const inline = s => escapeHtml(s)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, '$1<em>$2</em>');
+  let html = '', list = null;
+  const closeList = ()=>{ if(list){ html += `</${list}>`; list = null; } };
+  md.split(/\r?\n/).forEach(raw=>{
+    const line = raw.trimEnd();
+    let m;
+    if((m = line.match(/^(#{1,3})\s+(.*)$/))){
+      closeList();
+      html += `<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`;
+    }else if((m = line.match(/^\s*[-*•]\s+(.*)$/))){
+      if(list !== 'ul'){ closeList(); html += '<ul>'; list = 'ul'; }
+      html += `<li>${inline(m[1])}</li>`;
+    }else if((m = line.match(/^\s*\d+[.)]\s+(.*)$/))){
+      if(list !== 'ol'){ closeList(); html += '<ol>'; list = 'ol'; }
+      html += `<li>${inline(m[1])}</li>`;
+    }else if(line.trim()===''){
+      closeList();
+    }else if(/^\s*(---|\*\*\*)\s*$/.test(line)){
+      closeList(); html += '<hr>';
+    }else{
+      closeList();
+      html += `<p>${inline(line)}</p>`;
+    }
+  });
+  closeList();
+  return html;
+}
+
+function setAiRoadbookStatus(msg, isError){
+  const el = document.getElementById('aiRoadbookStatus');
+  el.textContent = msg || '';
+  el.className = isError ? 'api-key-status-err' : 'ai-roadbook-status';
+}
+
+/* Progression estimée (Gemini ne donne aucun pourcentage) :
+   - attente avant le premier mot (réflexion du modèle, 20-40 s) : la barre
+     tend doucement vers 40 % ;
+   - rédaction : de 40 à 95 % selon le texte déjà reçu, comparé à une
+     longueur attendue proportionnelle au nombre de lieux ;
+   - 100 % à la fin, puis la barre disparaît. Elle ne recule jamais (y
+     compris quand on bascule sur un modèle de secours). */
+let aiRoadbookProgressTimer = null;
+let aiRoadbookProgressValue = 0;
+function setAiRoadbookProgress(value){
+  aiRoadbookProgressValue = Math.max(aiRoadbookProgressValue, Math.min(100, value));
+  document.getElementById('aiRoadbookProgressBar').style.width = aiRoadbookProgressValue + '%';
+  document.getElementById('aiRoadbookProgress').setAttribute('aria-valuenow', String(Math.round(aiRoadbookProgressValue)));
+}
+function startAiRoadbookProgress(){
+  const t0 = Date.now();
+  const expectedChars = Math.min(9000, 600 + 220 * aiRoadbookPlaces().length);
+  aiRoadbookProgressValue = 0;
+  setAiRoadbookProgress(2);
+  document.getElementById('aiRoadbookProgress').hidden = false;
+  clearInterval(aiRoadbookProgressTimer);
+  aiRoadbookProgressTimer = setInterval(()=>{
+    const waited = (Date.now() - t0) / 1000;
+    const waitPart = 40 * (1 - Math.exp(-waited / 15));
+    const writePart = aiRoadbookText ? 40 + 55 * Math.min(1, aiRoadbookText.length / expectedChars) : 0;
+    setAiRoadbookProgress(Math.max(waitPart, writePart));
+  }, 250);
+}
+function stopAiRoadbookProgress(success){
+  clearInterval(aiRoadbookProgressTimer);
+  aiRoadbookProgressTimer = null;
+  const el = document.getElementById('aiRoadbookProgress');
+  if(!success){ el.hidden = true; return; }
+  setAiRoadbookProgress(100);
+  setTimeout(()=>{ if(!aiRoadbookProgressTimer) el.hidden = true; }, 700);
+}
+
+function setAiRoadbookBusy(busy){
+  document.getElementById('aiRoadbookGenerate').disabled = busy;
+  document.getElementById('aiRoadbookStop').hidden = !busy;
+  document.getElementById('aiRoadbookKeyInput').disabled = busy;
+}
+
+function renderAiRoadbookOutput(){
+  const out = document.getElementById('aiRoadbookOutput');
+  out.hidden = !aiRoadbookText;
+  out.innerHTML = aiRoadbookMarkdownToHtml(aiRoadbookText);
+  document.getElementById('aiRoadbookResultActions').hidden = !aiRoadbookText || !!aiRoadbookAbort;
+}
+
+function openAiRoadbookModal(){
+  const n = aiRoadbookPlaces().length;
+  const nbSel = aiRoadbookPlaces().filter(p=>state.selectedIds.has(p.id)).length;
+  document.getElementById('aiRoadbookIntro').innerHTML = n
+    ? `Gemini va rédiger un roadbook pour <strong>${escapeHtml(state.ville)}</strong> à partir des <strong>${n}</strong> lieu(x) proposé(s) dans la liste${nbSel ? `, en incluant les ${nbSel} lieu(x) que vous avez coché(s)` : ''}.`
+    : 'Aucun lieu dans la liste pour le moment : lancez d\'abord une recherche.';
+  document.getElementById('aiRoadbookGenerate').disabled = !n;
+  document.getElementById('aiRoadbookCopyPrompt').disabled = !n;
+  let saved = '';
+  try{ saved = localStorage.getItem(AI_ROADBOOK_KEY_STORAGE) || ''; }catch(err){ /* stockage indisponible */ }
+  const keyInput = document.getElementById('aiRoadbookKeyInput');
+  if(!keyInput.value) keyInput.value = saved;
+  renderAiRoadbookKeyBlock();
+  renderAiRoadbookOutput();
+  // Clé disponible (AQ.env ou déjà enregistrée) : on masque les réglages et
+  // on lance directement la génération. Sinon, formulaire complet.
+  const direct = !!n && !!(aiRoadbookAutoKey || keyInput.value.trim());
+  document.getElementById('aiRoadbookModalBox').classList.toggle('ai-roadbook-direct', direct);
+  document.getElementById('aiRoadbookModalOverlay').hidden = false;
+  if(direct && !aiRoadbookAbort) generateAiRoadbook();
+}
+
+// Clé auto-chargée depuis AQ.env : le champ de saisie est remplacé par un
+// simple statut (la clé n'apparaît jamais à l'écran), avec possibilité de
+// repasser à la saisie manuelle.
+function renderAiRoadbookKeyBlock(){
+  const block = document.getElementById('aiRoadbookKeyBlock');
+  let auto = document.getElementById('aiRoadbookAutoKeyRow');
+  if(!aiRoadbookAutoKey){
+    if(auto) auto.remove();
+    [...block.children].forEach(el=>{ el.style.display = ''; });
+    return;
+  }
+  [...block.children].forEach(el=>{ if(el.id !== 'aiRoadbookAutoKeyRow') el.style.display = 'none'; });
+  if(!auto){
+    auto = document.createElement('p');
+    auto.id = 'aiRoadbookAutoKeyRow';
+    auto.innerHTML = '<svg class="icon-inline" aria-hidden="true"><use href="#icon-lock"></use></svg> Clé Gemini chargée automatiquement depuis AQ.env (masquée). <button type="button" class="btn small secondary">Utiliser une autre clé…</button>';
+    auto.querySelector('button').addEventListener('click', ()=>{
+      aiRoadbookAutoKey = null;
+      renderAiRoadbookKeyBlock();
+    });
+    block.appendChild(auto);
+  }
+}
+
+function closeAiRoadbookModal(){
+  if(aiRoadbookAbort) aiRoadbookAbort.abort();
+  document.getElementById('aiRoadbookModalOverlay').hidden = true;
+}
+
+/* Un essai de génération sur un modèle donné, en streaming (SSE : une
+   ligne "data: {json}" par morceau). Renvoie {ok:true, finishReason,
+   blocked} ou {ok:false, status, apiMsg} — y compris quand Gemini coupe le
+   flux en cours de route avec une erreur (503 "high demand" fréquent). */
+async function streamAiRoadbookFromModel(model, apiKey, prompt){
+  const generationConfig = { maxOutputTokens: 16000 };
+  if(model.thinkingLevel) generationConfig.thinkingConfig = { thinkingLevel: model.thinkingLevel };
+  const res = await fetch(aiRoadbookEndpoint(model.id), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig }),
+    signal: aiRoadbookAbort.signal
+  });
+  if(!res.ok){
+    let apiMsg = '';
+    try{ apiMsg = ((await res.json()).error || {}).message || ''; }catch(err){ /* corps non JSON */ }
+    return { ok: false, status: res.status, apiMsg };
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '', finishReason = '', blocked = '', streamError = null;
+  const handleLine = line=>{
+    // Erreur éventuellement renvoyée hors format SSE (JSON brut multi-lignes)
+    if(!line.startsWith('data:')){
+      const m = line.match(/"code":\s*(\d{3})/);
+      if(m && !streamError) streamError = { code: Number(m[1]) };
+      return;
+    }
+    let chunk;
+    try{ chunk = JSON.parse(line.slice(5)); }catch(err){ return; }
+    if(chunk.error){ streamError = chunk.error; return; }
+    if(chunk.promptFeedback && chunk.promptFeedback.blockReason) blocked = chunk.promptFeedback.blockReason;
+    const cand = (chunk.candidates || [])[0];
+    if(!cand) return;
+    if(cand.finishReason) finishReason = cand.finishReason;
+    const parts = (cand.content && cand.content.parts) || [];
+    const text = parts.filter(p=>!p.thought).map(p=>p.text || '').join('');
+    if(text){
+      aiRoadbookText += text;
+      renderAiRoadbookOutput();
+    }
+  };
+  for(;;){
+    const { value, done } = await reader.read();
+    if(done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split(/\r?\n/);
+    buffer = lines.pop();
+    lines.forEach(handleLine);
+  }
+  handleLine(buffer);
+  if(streamError) return { ok: false, status: streamError.code || 503, apiMsg: streamError.message || '' };
+  return { ok: true, finishReason, blocked };
+}
+
+async function generateAiRoadbook(){
+  const manualKey = document.getElementById('aiRoadbookKeyInput').value.trim();
+  const apiKey = aiRoadbookAutoKey || manualKey;
+  if(!apiKey){
+    setAiRoadbookStatus('Collez votre clé API Gemini (gratuite), ou utilisez « Copier le prompt ».', true);
+    return;
+  }
+  if(!aiRoadbookAutoKey){
+    try{ localStorage.setItem(AI_ROADBOOK_KEY_STORAGE, manualKey); }catch(err){ /* stockage indisponible */ }
+  }
+
+  setAiRoadbookBusy(true);
+  aiRoadbookText = '';
+  aiRoadbookAbort = new AbortController();
+  renderAiRoadbookOutput();
+  setAiRoadbookStatus('Gemini rédige votre roadbook…');
+  startAiRoadbookProgress();
+  let succeeded = false;
+
+  try{
+    const prompt = buildAiRoadbookPrompt();
+    let result = null;
+    for(const model of AI_ROADBOOK_MODELS){
+      aiRoadbookText = '';
+      renderAiRoadbookOutput();
+      result = await streamAiRoadbookFromModel(model, apiKey, prompt);
+      // Saturation / quota de ce modèle (avant ou pendant le flux) : on
+      // essaie le suivant. Toute autre erreur (clé refusée...) serait
+      // identique sur les autres modèles.
+      if(result.ok || ![503, 429, 404, 500].includes(result.status)) break;
+      setAiRoadbookStatus('Gemini est très sollicité : essai avec un autre modèle…');
+    }
+    if(!result.ok){
+      const { status, apiMsg } = result;
+      if(status === 400 && /api key/i.test(apiMsg) || status === 401 || status === 403){
+        setAiRoadbookStatus('Clé API Gemini refusée : vérifiez-la sur aistudio.google.com/apikey.', true);
+        // Réaffiche les réglages pour pouvoir saisir une autre clé.
+        document.getElementById('aiRoadbookModalBox').classList.remove('ai-roadbook-direct');
+      }else if(status === 429){
+        setAiRoadbookStatus('Limite gratuite de Gemini atteinte pour le moment : réessayez dans une minute.', true);
+      }else if(status === 503 || status === 500){
+        setAiRoadbookStatus('Gemini est très sollicité en ce moment : réessayez dans quelques instants.', true);
+      }else{
+        setAiRoadbookStatus(`Erreur de l'API Gemini (${status})${apiMsg ? ' : '+apiMsg : ''}`, true);
+      }
+      return;
+    }
+
+    const { finishReason, blocked } = result;
+    succeeded = !!aiRoadbookText;
+    if(blocked || (!aiRoadbookText && finishReason && finishReason !== 'STOP')){
+      setAiRoadbookStatus("Gemini n'a pas pu générer ce roadbook. Réessayez ou modifiez la liste de lieux.", true);
+    }else if(finishReason === 'MAX_TOKENS'){
+      setAiRoadbookStatus('Roadbook généré (tronqué : liste de lieux très longue).');
+    }else{
+      setAiRoadbookStatus('Roadbook généré par Gemini.');
+    }
+  }catch(err){
+    if(err.name === 'AbortError'){
+      setAiRoadbookStatus('Génération arrêtée.');
+    }else{
+      setAiRoadbookStatus('Connexion à Gemini impossible : vérifiez votre connexion internet.', true);
+    }
+  }finally{
+    stopAiRoadbookProgress(succeeded);
+    aiRoadbookAbort = null;
+    setAiRoadbookBusy(false);
+    renderAiRoadbookOutput();
+  }
+}
+
+async function copyTextToClipboard(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    return true;
+  }catch(err){
+    return false;
+  }
+}
+
+/* "Valider le Roadbook" : copie le texte de l'IA dans l'écran ② ROADBOOK.
+   Le ROADBOOK a besoin d'au moins un lieu coché : si aucun ne l'est, on
+   coche les lieux de la liste que l'IA cite dans son texte (comparaison
+   sans accents ni casse), puis on passe par le même bouton "Générer le
+   ROADBOOK →" que le parcours normal. */
+function validateAiRoadbook(){
+  if(!aiRoadbookText) return;
+  state.aiRoadbook = aiRoadbookText;
+  if(state.selectedIds.size === 0){
+    const norm = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const text = norm(aiRoadbookText);
+    aiRoadbookPlaces().forEach(p=>{
+      if(p.name && text.includes(norm(p.name))) setPoiSelected(p.id, true);
+    });
+  }
+  if(state.selectedIds.size === 0){
+    setAiRoadbookStatus("Roadbook IA enregistré. Cochez au moins un lieu dans la liste puis cliquez sur « Générer le ROADBOOK ».");
+    return;
+  }
+  closeAiRoadbookModal();
+  document.getElementById('btnToOptions').click();
+}
+
+document.getElementById('aiRoadbookValidate').addEventListener('click', validateAiRoadbook);
+document.getElementById('aiRoadbookGenerate').addEventListener('click', generateAiRoadbook);
+document.getElementById('aiRoadbookStop').addEventListener('click', ()=>{ if(aiRoadbookAbort) aiRoadbookAbort.abort(); });
+document.getElementById('aiRoadbookCopyPrompt').addEventListener('click', async ()=>{
+  const ok = await copyTextToClipboard(buildAiRoadbookPrompt());
+  setAiRoadbookStatus(ok ? 'Prompt copié : collez-le dans Gemini, ChatGPT ou Claude.' : 'Copie impossible dans ce navigateur.', !ok);
+});
+document.getElementById('aiRoadbookCopy').addEventListener('click', async ()=>{
+  const ok = await copyTextToClipboard(aiRoadbookText);
+  setAiRoadbookStatus(ok ? 'Roadbook copié.' : 'Copie impossible dans ce navigateur.', !ok);
+});
+document.getElementById('aiRoadbookDownload').addEventListener('click', ()=>{
+  const blob = new Blob([aiRoadbookText], {type:'text/markdown;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `roadbook-ia-${(state.ville||'margo').toLowerCase().replace(/[^a-z0-9]+/gi,'-')}.md`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+});
+document.getElementById('aiRoadbookForgetKey').addEventListener('click', ()=>{
+  try{ localStorage.removeItem(AI_ROADBOOK_KEY_STORAGE); }catch(err){ /* stockage indisponible */ }
+  document.getElementById('aiRoadbookKeyInput').value = '';
+  setAiRoadbookStatus('Clé supprimée de ce navigateur.');
+});
+document.getElementById('aiRoadbookModalClose').addEventListener('click', closeAiRoadbookModal);
+document.getElementById('aiRoadbookModalOverlay').addEventListener('click', e=>{
+  if(e.target.id === 'aiRoadbookModalOverlay') closeAiRoadbookModal();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && !document.getElementById('aiRoadbookModalOverlay').hidden) closeAiRoadbookModal();
+});
+
 /* ============ Bouton prise électrique : bornes de recharge à proximité ============ */
 // Open Charge Map (openchargemap.org) : registre communautaire ouvert des
 // bornes de recharge, mêmes données que Chargemap mais embarquable en iframe
@@ -6109,11 +6815,15 @@ document.addEventListener('keydown', e=>{
 // directement dans la page (pas de mode embed public documenté). Le lien
 // "Ouvrir sur Chargemap.com" reste proposé à côté, pour l'utilisateur qui
 // préfère spécifiquement ce service.
-function openChargeMapModal(){
+async function openChargeMapModal(){
   const frame = document.getElementById('chargeMapFrame');
-  let src = 'https://map.openchargemap.io/?mode=embedded';
-  if(state.centerLatLng){
-    src += `&latitude=${state.centerLatLng.lat}&longitude=${state.centerLatLng.lng}`;
+  document.getElementById('chargeMapModalOverlay').hidden = false;
+  // Sans latitude/longitude, Open Charge Map demande la position de
+  // l'utilisateur au lieu de se centrer sur la ville de destination.
+  const center = await ensureDestinationCenter();
+  let src = 'https://map.openchargemap.io/?mode=embedded&languagecode=fr';
+  if(center){
+    src += `&latitude=${center.lat}&longitude=${center.lng}`;
   }
   frame.src = src;
   const externalLink = document.getElementById('chargeMapExternalLink');
@@ -6128,7 +6838,116 @@ function closeChargeMapModal(){
   // carte tierce continuer à tourner/géolocaliser en arrière-plan).
   document.getElementById('chargeMapFrame').src = '';
 }
-document.getElementById('chargeMapBtn').addEventListener('click', openChargeMapModal);
+/* Bouton prise : (1) ouvre Chargemap.com dans une fenêtre séparée, sur la
+   page de la ville de destination (le site refuse d'être affiché dans une
+   iframe, et son paramètre ?q= est ignoré) ; (2) affiche les bornes de
+   recharge (OpenStreetMap, gratuit) en pins orange sur la carte principale
+   de l'écran ①. Un second clic masque les bornes. Sans carte Google
+   interactive (pas de clé), repli sur l'ancienne fenêtre Open Charge Map. */
+const CHARGEMAP_COUNTRY = {france:'FR', belgique:'BE', suisse:'CH', allemagne:'DE', espagne:'ES', italie:'IT', luxembourg:'LU', 'pays-bas':'NL', portugal:'PT', autriche:'AT', 'royaume-uni':'GB'};
+function chargemapCityUrl(){
+  const ville = state.ville || document.getElementById('inputVille').value.trim();
+  const slug = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const cc = CHARGEMAP_COUNTRY[slug(state.pays || 'France')];
+  return (ville && cc) ? `https://chargemap.com/fr-fr/cities/${slug(ville)}-${cc}` : 'https://chargemap.com/fr-fr/map';
+}
+function openChargemapPopup(){
+  const w = Math.min(1000, screen.availWidth - 80), h = Math.min(820, screen.availHeight - 80);
+  const left = Math.max(0, screen.availWidth - w - 20), top = 40;
+  const win = window.open(chargemapCityUrl(), 'margoChargemap', `popup=yes,width=${w},height=${h},left=${left},top=${top}`);
+  if(win){ try{ win.opener = null; win.focus(); }catch(err){ /* fenêtre d'un autre site */ } }
+  return !!win;
+}
+
+let chargersShown = false;
+let chargerMarkers = [];
+let chargerInfoWindow = null;
+function setChargerStatus(msg){
+  const container = document.getElementById('lieuMapContainer');
+  let el = document.getElementById('chargerStatus');
+  if(!msg){ if(el) el.remove(); return; }
+  if(!el){
+    el = document.createElement('p');
+    el.id = 'chargerStatus';
+    el.className = 'map-fallback';
+    container.appendChild(el);
+  }
+  el.innerHTML = '<svg class="icon-inline" aria-hidden="true"><use href="#icon-plug"></use></svg> ' + msg;
+}
+function clearChargerMarkers(){
+  chargerMarkers.forEach(m=>m.setMap(null));
+  chargerMarkers = [];
+}
+function chargerPopupHtml(p){
+  const t = p.tags || {};
+  const sockets = Object.keys(t).filter(k=>/^socket:[^:]+$/.test(k))
+    .map(k=>`${k.slice(7).replace(/_/g,' ')}${/^\d+$/.test(t[k]) ? ' ×'+t[k] : ''}`).join(', ');
+  const rows = [
+    t.operator || t.network ? `Opérateur : ${escapeHtml(t.operator || t.network)}` : '',
+    t.capacity ? `Points de charge : ${escapeHtml(t.capacity)}` : '',
+    sockets ? `Prises : ${escapeHtml(sockets)}` : '',
+    t.fee ? `Payant : ${t.fee === 'no' ? 'non' : 'oui'}` : '',
+    t.opening_hours ? `Horaires : ${escapeHtml(t.opening_hours)}` : '',
+    p.addr ? escapeHtml(p.addr) : ''
+  ].filter(Boolean).map(r=>`<br>${r}`).join('');
+  const dir = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
+  return `<div style="font-size:.8rem;max-width:240px;"><strong>${escapeHtml(p.name || 'Borne de recharge')}</strong>${rows}`
+    + `<br><a href="${dir}" target="_blank" rel="noopener noreferrer">Itinéraire</a></div>`;
+}
+async function showChargersOnMainMap(){
+  const map = currentMapInstance;
+  if(!map || !window.google || !(map instanceof google.maps.Map)) return false;
+  const center = await ensureDestinationCenter();
+  if(!center) return false;
+  const token = (showChargersOnMainMap.token = (showChargersOnMainMap.token || 0) + 1);
+  const isStale = ()=> token !== showChargersOnMainMap.token || !chargersShown || currentMapInstance !== map;
+  clearChargerMarkers();
+  setChargerStatus('Recherche des bornes de recharge…');
+  let places, source;
+  try{ ({ places, source } = await fetchPoiPlaces(center, { includedTypes: ['electric_vehicle_charging_station'] }, 'amenity=charging_station', 200, isStale)); }
+  catch(err){
+    if(!isStale()) setChargerStatus('La recherche des bornes ne répond pas : recliquez sur le bouton prise dans quelques secondes.');
+    return true;
+  }
+  if(isStale()) return true;
+  if(!chargerInfoWindow) chargerInfoWindow = new GMInfoWindow();
+  places.forEach(p=>{
+    const marker = new google.maps.Marker({ position: {lat:p.lat, lng:p.lng}, map, title: p.name || 'Borne de recharge', zIndex: 5,
+      ...legacyMarkerVisuals('⚡', '#f97316', 9) });
+    marker.addListener('click', ()=>{
+      chargerInfoWindow.setContent(chargerPopupHtml(p));
+      chargerInfoWindow.open({ map, anchor: marker });
+    });
+    chargerMarkers.push(marker);
+  });
+  setChargerStatus(places.length
+    ? `${places.length} borne(s) de recharge à moins de ${POI_SEARCH_RADIUS_M/1000} km (pins orange, données ${source}). Recliquez sur le bouton prise pour les masquer.`
+    : `Aucune borne de recharge trouvée à moins de ${POI_SEARCH_RADIUS_M/1000} km.`);
+  return true;
+}
+function hideChargersOnMainMap(){
+  chargersShown = false;
+  showChargersOnMainMap.token = (showChargersOnMainMap.token || 0) + 1;
+  clearChargerMarkers();
+  if(chargerInfoWindow) chargerInfoWindow.close();
+  setChargerStatus('');
+  document.getElementById('chargeMapBtn').classList.remove('on');
+}
+async function onChargeButtonClick(){
+  if(chargersShown){ hideChargersOnMainMap(); return; }
+  // Ouverture de la fenêtre AVANT tout await : sinon le navigateur ne la
+  // considère plus comme liée au clic et la bloque (anti-popup).
+  openChargemapPopup();
+  chargersShown = true;
+  document.getElementById('chargeMapBtn').classList.add('on');
+  const shown = await showChargersOnMainMap();
+  if(!shown){
+    // Pas de carte Google interactive (pas de clé) : ancienne fenêtre.
+    hideChargersOnMainMap();
+    openChargeMapModal();
+  }
+}
+document.getElementById('chargeMapBtn').addEventListener('click', onChargeButtonClick);
 document.getElementById('chargeMapModalClose').addEventListener('click', closeChargeMapModal);
 document.getElementById('chargeMapModalOverlay').addEventListener('click', e=>{
   if(e.target.id === 'chargeMapModalOverlay') closeChargeMapModal();
@@ -6140,22 +6959,226 @@ document.getElementById('chargeMapModalOverlay').addEventListener('click', e=>{
    utilisée ailleurs dans l'appli), centrée sur une recherche autour du lieu
    de départ renseigné. Fonctionne même sans ville saisie (recherche alors
    sans zone précise, Google demandera la position ou une zone). */
-function openPoiSearchModal(overlayId, frameId, externalLinkId, query){
-  const ville = state.ville ? state.ville : '';
-  const q = ville ? `${query} ${ville}` : query;
-  document.getElementById(frameId).src = 'https://maps.google.com/maps?q=' + encodeURIComponent(q) + '&z=13&output=embed';
-  document.getElementById(externalLinkId).href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
-  document.getElementById(overlayId).hidden = false;
+/* Centre de la ville de destination pour les cartes des boutons de coin :
+   coordonnées déjà connues (aperçu/recherche), sinon géocodage gratuit à la
+   volée de la ville saisie dans le cercle central. null si aucune ville. */
+async function ensureDestinationCenter(){
+  const ville = state.ville || document.getElementById('inputVille').value.trim();
+  if(!ville) return null;
+  if(state.centerLatLng && !state.centerLatLng.approx) return state.centerLatLng;
+  try{
+    const cp = state.cp || document.getElementById('inputCP').value.trim();
+    const pays = state.pays || document.getElementById('inputPays').value.trim() || 'France';
+    const center = await withTimeout(geocodeCityFree(ville, cp, pays), 6000, 'Géocodage trop long');
+    if(!state.ville){ state.ville = ville; state.cp = cp; state.pays = pays; }
+    state.centerLatLng = center;
+    return center;
+  }catch(err){
+    return state.centerLatLng || null;
+  }
 }
-function closePoiSearchModal(overlayId, frameId){
-  document.getElementById(overlayId).hidden = true;
+
+/* Cartes "Urgences" et "Dépannage" : carte Google Maps interactive (API JS,
+   zoom molette direct grâce à gestureHandling:'greedy') avec un pin par
+   lieu trouvé via OpenStreetMap/Overpass (gratuit) autour de la ville de
+   destination. Une carte Google intégrée en iframe impose "Ctrl + molette"
+   pour zoomer, sans réglage possible depuis la page : elle ne sert plus que
+   de repli quand aucune clé Google n'est disponible.
+   Pour l'iframe de repli, Google ne localise correctement que s'il reçoit
+   UN seul type de lieu et les coordonnées de la ville via "ll=" (sans "ll",
+   la vue part du monde entier). Les pastilles permettent de passer d'un
+   type de lieu à l'autre. */
+const POI_SEARCH_RADIUS_M = 10000;
+// "cle=valeur" / "cle~motif" (data-osm des pastilles) -> filtre Overpass
+function overpassFilterFromSpec(spec){
+  const m = spec.match(/^([^=~]+)([=~])(.+)$/);
+  if(!m) return null;
+  const key = JSON.stringify(m[1].trim());
+  const val = JSON.stringify(m[3].trim());
+  return m[2] === '=' ? `[${key}=${val}]` : `[${key}~${val},i]`;
+}
+// Miroirs testés depuis un navigateur (oct. 2026) : overpass.kumi.systems,
+// overpass.private.coffee et overpass.osm.jp sont bloqués (CORS) ;
+// maps.mail.ru accepte les appels navigateur.
+const OVERPASS_ENDPOINTS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
+];
+async function fetchOsmPlacesAround(center, osmSpecs, endpoint, limit){
+  const clauses = osmSpecs.split('|').map(overpassFilterFromSpec).filter(Boolean)
+    .map(f => `nwr(around:${POI_SEARCH_RADIUS_M},${center.lat},${center.lng})${f};`).join('\n  ');
+  const query = `[out:json][timeout:15];\n(\n  ${clauses}\n);\nout center ${limit || 60};`;
+  // Serveur saturé = réponse qui peut ne jamais arriver : on abandonne
+  // au bout de 15 s pour passer au miroir suivant.
+  const ctl = new AbortController();
+  const timer = setTimeout(()=>ctl.abort(), 15000);
+  let res;
+  try{ res = await fetch(endpoint || OVERPASS_ENDPOINTS[0], { method: 'POST', body: 'data=' + encodeURIComponent(query), signal: ctl.signal }); }
+  finally{ clearTimeout(timer); }
+  if(!res.ok) throw new Error('Overpass HTTP ' + res.status);
+  const data = await res.json();
+  return (data.elements || []).map(el=>{
+    const lat = el.lat != null ? el.lat : (el.center ? el.center.lat : null);
+    const lng = el.lon != null ? el.lon : (el.center ? el.center.lon : null);
+    if(lat == null || lng == null) return null;
+    const t = el.tags || {};
+    const street = [t['addr:housenumber'], t['addr:street']].filter(Boolean).join(' ');
+    return {
+      lat, lng,
+      name: t.name || t['name:fr'] || '',
+      addr: [street, t['addr:postcode'], t['addr:city']].filter(Boolean).join(', '),
+      phone: t.phone || t['contact:phone'] || '',
+      emergency: t.emergency === 'yes',
+      tags: t
+    };
+  }).filter(Boolean);
+}
+/* Source principale des pins Urgences / Dépannage / Bornes quand une clé
+   Google est disponible : Google Places (fiable, données à jour), au lieu
+   du serveur public OpenStreetMap souvent saturé (504) — qui ne sert plus
+   que de secours. Même format de résultat que fetchOsmPlacesAround.
+   - textQuery : recherche texte ("pharmacie", "pare-brise"...) biaisée
+     autour de la ville ;
+   - includedTypes : recherche par type Google (ex. bornes de recharge).
+   Les résultats au-delà du rayon sont écartés. */
+async function fetchGooglePlacesAround(center, { textQuery, includedTypes }){
+  if(!GMPlace) throw new Error('Google Places non chargé');
+  const fields = ['displayName','location','formattedAddress','nationalPhoneNumber','googleMapsURI'];
+  const { places } = includedTypes
+    ? await GMPlace.searchNearby({ fields, includedTypes, maxResultCount: 20,
+        locationRestriction: { center, radius: POI_SEARCH_RADIUS_M },
+        rankPreference: GMSearchNearbyRankPreference.DISTANCE, language: 'fr', region: 'fr' })
+    : await GMPlace.searchByText({ fields, textQuery, maxResultCount: 20,
+        locationBias: { center, radius: POI_SEARCH_RADIUS_M }, language: 'fr', region: 'fr' });
+  return (places || []).map(p=>{
+    const loc = p.location;
+    if(!loc) return null;
+    const lat = loc.lat(), lng = loc.lng();
+    if(haversineKm(center.lat, center.lng, lat, lng) * 1000 > POI_SEARCH_RADIUS_M) return null;
+    return { lat, lng, name: p.displayName || '', addr: p.formattedAddress || '', phone: p.nationalPhoneNumber || '',
+      emergency: false, googleMapsURI: p.googleMapsURI || null, tags: {} };
+  }).filter(Boolean);
+}
+// Google Places d'abord (si clé), OpenStreetMap ensuite. Renvoie
+// { places, source } ; lève une erreur seulement si les deux échouent.
+async function fetchPoiPlaces(center, google, osmSpecs, osmLimit, isStale){
+  if(google && GMPlace && !googleMapsAuthFailed){
+    try{
+      const places = await fetchGooglePlacesAround(center, google);
+      if(places.length) return { places, source: 'Google' };
+    }catch(err){ console.warn('Recherche Google Places impossible, repli OpenStreetMap', err); }
+  }
+  const places = await fetchOsmPlacesWithRetry(center, osmSpecs, osmLimit, isStale);
+  return { places, source: 'OpenStreetMap' };
+}
+
+// Même requête avec nouvel essai sur un serveur miroir (le serveur public
+// Overpass refuse souvent les requêtes trop rapprochées : 429/504).
+// isStale() permet d'abandonner si l'utilisateur a changé d'avis entretemps.
+async function fetchOsmPlacesWithRetry(center, osmSpecs, limit, isStale){
+  let lastErr = null;
+  for(let attempt=0; attempt<OVERPASS_ENDPOINTS.length; attempt++){
+    try{ return await fetchOsmPlacesAround(center, osmSpecs, OVERPASS_ENDPOINTS[attempt], limit); }
+    catch(err){
+      lastErr = err;
+      console.warn('Recherche OpenStreetMap impossible', err);
+      await new Promise(r=>setTimeout(r, 1500));
+      if(isStale && isStale()) break;
+    }
+  }
+  throw lastErr || new Error('OpenStreetMap indisponible');
+}
+
+async function showPoiSearch(prefix, chip){
+  const token = (showPoiSearch.tokens[prefix] = (showPoiSearch.tokens[prefix] || 0) + 1);
+  const query = chip.dataset.q;
+  const label = chip.textContent.trim();
+  const frame = document.getElementById(prefix + 'MapFrame');
+  const mapDiv = document.getElementById(prefix + 'MapDiv');
+  const info = document.getElementById(prefix + 'MapInfo');
+  const link = document.getElementById(prefix + 'ExternalLink');
+  const ville = state.ville || document.getElementById('inputVille').value.trim();
+  info.textContent = '';
+  const center = await ensureDestinationCenter();
+  if(token !== showPoiSearch.tokens[prefix]) return;
+
+  const ll = center ? `${center.lat},${center.lng}` : '';
+  link.href = center
+    ? `https://www.google.com/maps/search/${encodeURIComponent(query)}/@${ll},14z`
+    : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(ville ? `${query} ${ville}` : query);
+
+  if(center && await tryEnableGoogleMapsForDisplay()){
+    if(token !== showPoiSearch.tokens[prefix]) return;
+    frame.src = ''; frame.hidden = true; mapDiv.hidden = false;
+    const map = new GMMap(mapDiv, { center, zoom: 13, mapId: 'DEMO_MAP_ID', gestureHandling: 'greedy' });
+    new google.maps.Marker({ position: center, map, title: ville, ...legacyMarkerVisuals('', ENDPOINT_COLOR_DEPART, ENDPOINT_PIN_SCALE) });
+    info.textContent = `Recherche « ${label} » autour de ${ville}…`;
+    const isStale = ()=> token !== showPoiSearch.tokens[prefix];
+    let places = [], source = '', fetchFailed = false;
+    try{
+      ({ places, source } = await fetchPoiPlaces(center, { textQuery: query }, chip.dataset.osm || '', 60, isStale));
+    }catch(err){ fetchFailed = true; }
+    if(token !== showPoiSearch.tokens[prefix]) return;
+    const infoWindow = new GMInfoWindow();
+    const bounds = new google.maps.LatLngBounds(center);
+    places.forEach(p=>{
+      const marker = new google.maps.Marker({ position: {lat:p.lat, lng:p.lng}, map, title: p.name || label, ...legacyMarkerVisuals('', p.emergency ? '#dc2626' : PIN_COLOR_DEFAULT, ITINERARY_PIN_SCALE_NORMAL) });
+      bounds.extend(marker.getPosition());
+      const dir = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
+      marker.addListener('click', ()=>{
+        infoWindow.setContent(`<div style="font-size:.8rem;max-width:220px;"><strong>${escapeHtml(p.name || label)}</strong>`
+          + (p.emergency ? `<br><span style="color:#dc2626;font-weight:700;">Service d'urgences</span>` : '')
+          + (p.addr ? `<br>${escapeHtml(p.addr)}` : '')
+          + (p.phone ? `<br>Tél. : <a href="tel:${escapeHtml(p.phone.replace(/\s+/g,''))}">${escapeHtml(p.phone)}</a>` : '')
+          + `<br><a href="${dir}" target="_blank" rel="noopener noreferrer">Itinéraire</a></div>`);
+        infoWindow.open({ map, anchor: marker });
+      });
+    });
+    if(places.length) map.fitBounds(bounds, 40);
+    info.textContent = fetchFailed
+      ? `La recherche de lieux ne répond pas pour le moment : recliquez sur « ${label} » dans quelques secondes, ou utilisez « Ouvrir dans Google Maps » ci-dessus.`
+      : places.length
+      ? `${places.length} résultat(s) dans un rayon de ${POI_SEARCH_RADIUS_M/1000} km (données ${source}). Cliquez sur un pin pour l'adresse et l'itinéraire ; zoom à la molette.`
+      : `Aucun résultat dans un rayon de ${POI_SEARCH_RADIUS_M/1000} km : utilisez « Ouvrir dans Google Maps » ci-dessus.`;
+    return;
+  }
+
+  // Repli sans clé Google : carte intégrée en iframe (zoom = Ctrl + molette).
+  mapDiv.hidden = true; frame.hidden = false;
+  frame.src = center
+    ? `https://maps.google.com/maps?q=${encodeURIComponent(query)}&ll=${ll}&z=14&hl=fr&output=embed`
+    : 'https://maps.google.com/maps?q=' + encodeURIComponent(ville ? `${query} ${ville}` : query) + '&z=13&hl=fr&output=embed';
+  info.textContent = 'Astuce : Ctrl + molette pour zoomer dans cette carte Google intégrée.';
+}
+showPoiSearch.tokens = {};
+function openPoiSearchModal(prefix){
+  const chips = document.getElementById(prefix + 'Chips');
+  chips.querySelectorAll('.chip').forEach((c, i)=>c.classList.toggle('on', i===0));
+  document.getElementById(prefix + 'ModalOverlay').hidden = false;
+  showPoiSearch(prefix, chips.querySelector('.chip'));
+}
+function wirePoiSearchChips(prefix){
+  const chips = document.getElementById(prefix + 'Chips');
+  chips.addEventListener('click', e=>{
+    const chip = e.target.closest('.chip[data-q]');
+    if(!chip) return;
+    chips.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on', c===chip));
+    showPoiSearch(prefix, chip);
+  });
+}
+function closePoiSearchModal(prefix){
+  showPoiSearch.tokens[prefix] = (showPoiSearch.tokens[prefix] || 0) + 1;
+  document.getElementById(prefix + 'ModalOverlay').hidden = true;
   // Coupe le chargement de l'iframe une fois fermée.
-  document.getElementById(frameId).src = '';
+  document.getElementById(prefix + 'MapFrame').src = '';
+  document.getElementById(prefix + 'MapDiv').innerHTML = '';
 }
-function openEmergencyModal(){ openPoiSearchModal('emergencyModalOverlay', 'emergencyMapFrame', 'emergencyExternalLink', 'hopital urgences pharmacie'); }
-function closeEmergencyModal(){ closePoiSearchModal('emergencyModalOverlay', 'emergencyMapFrame'); }
-function openRepairModal(){ openPoiSearchModal('repairModalOverlay', 'repairMapFrame', 'repairExternalLink', 'garage automobile reparation pneu pare-brise carrosserie'); }
-function closeRepairModal(){ closePoiSearchModal('repairModalOverlay', 'repairMapFrame'); }
+function openEmergencyModal(){ openPoiSearchModal('emergency'); }
+function closeEmergencyModal(){ closePoiSearchModal('emergency'); }
+function openRepairModal(){ openPoiSearchModal('repair'); }
+function closeRepairModal(){ closePoiSearchModal('repair'); }
+wirePoiSearchChips('emergency');
+wirePoiSearchChips('repair');
 
 document.getElementById('emergencyBtn').addEventListener('click', openEmergencyModal);
 document.getElementById('emergencyModalClose').addEventListener('click', closeEmergencyModal);
