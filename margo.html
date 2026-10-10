@@ -642,6 +642,8 @@
   .chip:hover{transform:translateY(-1px);box-shadow:0 5px 12px -3px rgba(16,19,43,.22);}
   .chip.on{background:var(--petal-visite);color:#fff;}
   .poi-search-chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem;}
+  .poi-search-chips .chip{display:inline-flex;align-items:center;gap:.35rem;}
+  .chip-picto{display:inline-flex;width:20px;height:20px;border-radius:50%;background:#fff;align-items:center;justify-content:center;flex-shrink:0;}
   .poi-search-map{width:100%;height:520px;border-radius:12px;overflow:hidden;}
   .poi-search-map[hidden]{display:none;}
   .poi-search-info{font-size:.76rem;color:var(--gray-500);margin-top:.4rem;min-height:1em;}
@@ -775,6 +777,18 @@
   .ai-roadbook-guide .ai-roadbook-guide-body h3{font-size:.88rem;margin:.6rem 0 .25rem;}
   .ai-roadbook-guide p{margin:.35rem 0;}
   .ai-roadbook-guide ul, .ai-roadbook-guide ol{margin:.3rem 0 .5rem 1.2rem;}
+  .ai-roadbook-guide{padding:.9rem 1.2rem;}
+  .ai-roadbook-guide-actions{display:flex;gap:.45rem;flex-wrap:wrap;}
+  .ai-roadbook-guide-hint{font-size:.76rem;color:var(--gray-500);margin-top:.3rem !important;}
+  /* Encadré « L'avis de l'IA » intégré à chaque étape du ROADBOOK */
+  .step-ai{margin:.55rem 0 .6rem;padding:.55rem .8rem;border-radius:10px;background:linear-gradient(120deg,rgba(124,58,237,.06),rgba(24,164,99,.07));border-left:3px solid #7c3aed;font-size:.82rem;line-height:1.5;}
+  .step-ai-head{font-weight:800;color:#6d28d9;font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;margin-bottom:.2rem;}
+  .step-ai ul, .ai-roadbook-notes ul{margin:.1rem 0 0 1.05rem;}
+  .step-ai li, .ai-roadbook-notes li{margin:.12rem 0;}
+  .step-ai p, .ai-roadbook-notes p{margin:.2rem 0;}
+  .step-ai h2, .step-ai h3, .ai-roadbook-notes h2, .ai-roadbook-notes h3{font-size:.85rem;margin:.4rem 0 .2rem;color:var(--primary);}
+  .ai-roadbook-notes{margin-top:.8rem;padding:.6rem .8rem;border-radius:10px;background:rgba(124,58,237,.05);border-left:3px solid #7c3aed;}
+  @media print{ .step-ai, .ai-roadbook-notes{page-break-inside:avoid;} }
   .tree-category{margin:.3rem 0 .3rem .3rem;padding-left:.4rem;}
   .tree-category > summary{padding:.4rem .3rem;font-size:.85rem;font-weight:600;color:var(--secondary);border-radius:4px;}
   .tree-category > summary:hover{background:#f7fbff;}
@@ -1314,6 +1328,19 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="aiRoadbookTextModalOverlay" hidden>
+  <div class="modal-box modal-box-wide" role="dialog" aria-modal="true" aria-label="Texte complet du Roadbook IA">
+    <button type="button" class="modal-close" id="aiRoadbookTextModalClose" aria-label="Fermer"><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg></button>
+    <h3 style="margin-bottom:.6rem;"><svg class="icon-inline" aria-hidden="true"><use href="#icon-sparkles"></use></svg> Roadbook IA — texte complet</h3>
+    <div class="ai-roadbook-output" id="aiRoadbookTextBody"></div>
+    <div class="ai-roadbook-actions">
+      <button type="button" class="btn small secondary" id="aiRoadbookTextCopy"><svg class="icon-inline" aria-hidden="true"><use href="#icon-clipboard"></use></svg> Copier le texte</button>
+      <button type="button" class="btn small secondary" id="aiRoadbookTextDownload"><svg class="icon-inline" aria-hidden="true"><use href="#icon-download"></use></svg> Télécharger (.md)</button>
+    </div>
+    <p class="ai-roadbook-status" id="aiRoadbookTextStatus" aria-live="polite"></p>
+  </div>
+</div>
+
 <div class="modal-overlay" id="wazeConvertModalOverlay" hidden>
   <div class="modal-box" role="dialog" aria-modal="true" aria-label="Convertir un lien Google Maps en lien Waze">
     <button type="button" class="modal-close" id="wazeConvertModalClose" aria-label="Fermer"><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg></button>
@@ -1369,9 +1396,9 @@
       <a href="#" target="_blank" rel="noopener noreferrer" id="emergencyExternalLink">Ouvrir dans Google Maps</a>
     </p>
     <div class="poi-search-chips" id="emergencyChips">
-      <button type="button" class="chip on" data-q="hôpital" data-osm="amenity=hospital|amenity=clinic">Hôpitaux &amp; urgences</button>
-      <button type="button" class="chip" data-q="pharmacie" data-osm="amenity=pharmacy">Pharmacies</button>
-      <button type="button" class="chip" data-q="médecin" data-osm="amenity=doctors|healthcare=doctor">Médecins</button>
+      <button type="button" class="chip on" data-pin="hospital" data-q="hôpital" data-osm="amenity=hospital|amenity=clinic">Hôpitaux &amp; urgences</button>
+      <button type="button" class="chip" data-pin="pharmacy" data-q="pharmacie" data-osm="amenity=pharmacy">Pharmacies</button>
+      <button type="button" class="chip" data-pin="doctor" data-q="médecin" data-osm="amenity=doctors|healthcare=doctor">Médecins</button>
     </div>
     <iframe id="emergencyMapFrame" src="" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms" referrerpolicy="no-referrer" style="width:100%;height:520px;border:0;border-radius:12px;"></iframe>
     <div id="emergencyMapDiv" class="poi-search-map" hidden></div>
@@ -1388,10 +1415,10 @@
       <a href="#" target="_blank" rel="noopener noreferrer" id="repairExternalLink">Ouvrir dans Google Maps</a>
     </p>
     <div class="poi-search-chips" id="repairChips">
-      <button type="button" class="chip on" data-q="garage automobile" data-osm="shop=car_repair">Garages</button>
-      <button type="button" class="chip" data-q="pneus" data-osm="shop=tyres|service:vehicle:tyres=yes">Pneus</button>
-      <button type="button" class="chip" data-q="pare-brise" data-osm="service:vehicle:glass=yes|name~pare-brise|name~carglass|name~mondial pare|name~glass">Pare-brise</button>
-      <button type="button" class="chip" data-q="dépannage remorquage" data-osm="service:vehicle:towing=yes|service:vehicle:breakdown_repair=yes|name~dépannage|name~remorquage">Dépannage</button>
+      <button type="button" class="chip on" data-pin="garage" data-q="garage automobile" data-osm="shop=car_repair">Garages</button>
+      <button type="button" class="chip" data-pin="tyre" data-q="pneus" data-osm="shop=tyres|service:vehicle:tyres=yes">Pneus</button>
+      <button type="button" class="chip" data-pin="glass" data-q="pare-brise" data-osm="service:vehicle:glass=yes|name~pare-brise|name~carglass|name~mondial pare|name~glass">Pare-brise</button>
+      <button type="button" class="chip" data-pin="tow" data-q="dépannage remorquage" data-osm="service:vehicle:towing=yes|service:vehicle:breakdown_repair=yes|name~dépannage|name~remorquage">Dépannage</button>
     </div>
     <iframe id="repairMapFrame" src="" loading="lazy" sandbox="allow-scripts allow-same-origin allow-forms" referrerpolicy="no-referrer" style="width:100%;height:520px;border:0;border-radius:12px;"></iframe>
     <div id="repairMapDiv" class="poi-search-map" hidden></div>
@@ -1915,7 +1942,7 @@ async function fetchVilleSuggestionsGoogle(query, apiKey){
     if(isCity && mainText){
       const secondary = (pred.secondaryText && pred.secondaryText.text) || '';
       const pays = secondary.split(',').pop().trim();
-      return { label: text, ville: mainText.trim(), cp:'', pays, source:'google' };
+      return { label: text, ville: mainText.trim(), cp:'', pays, isCity: true, source:'google' };
     }
     // Adresse : le pays est le dernier élément du texte Google ("…, France").
     const parts = text.split(',');
@@ -1971,20 +1998,57 @@ function resetVilleAutocompleteSession(){
 
 async function fetchVilleSuggestions(query){
   const apiKey = getApiKey();
-  if(apiKey){
+  if(apiKey && !googleMapsAuthFailed){
     try{
       const res = await fetchVilleSuggestionsGoogle(query, apiKey);
-      if(res.length) return res;
+      if(res.length) return await addFrenchPostcodes(res);
     }catch(err){
       console.warn('Autocomplétion Google indisponible, repli sur les suggestions gratuites (OSM)', err);
     }
   }
   try{
-    return await fetchVilleSuggestionsFree(query);
+    return await addFrenchPostcodes(await fetchVilleSuggestionsFree(query));
   }catch(err){
     console.warn('Suggestions de ville indisponibles (réseau)', err);
     return [];
   }
+}
+
+/* Code postal dans la liste des villes : Google n'en fournit pas ("Nevers,
+   France") et OpenStreetMap pas toujours. Pour les villes françaises sans
+   code postal, on le complète via l'API officielle des communes
+   (geo.api.gouv.fr : gratuite, sans clé, appelable depuis le navigateur) —
+   commune de même nom la plus peuplée, comme le classement de Google.
+   Grandes villes à plusieurs codes postaux (Paris, Lyon...) : le libellé
+   affiche le premier suivi de "…", mais le champ Code postal reste vide
+   pour ne pas centrer la carte sur un seul arrondissement. Échec ou délai
+   dépassé (2,5 s) : la suggestion reste affichée sans code postal. */
+const frenchPostcodeCache = new Map();
+async function lookupFrenchPostcodes(ville){
+  const key = normalize(ville);
+  if(frenchPostcodeCache.has(key)) return frenchPostcodeCache.get(key);
+  const url = 'https://geo.api.gouv.fr/communes?fields=nom,codesPostaux&boost=population&limit=5&nom=' + encodeURIComponent(ville);
+  const res = await withTimeout(fetch(url), 2500, 'geo.api.gouv.fr trop long');
+  if(!res.ok) throw new Error('geo.api.gouv.fr HTTP ' + res.status);
+  const communes = await res.json();
+  const match = (communes || []).find(c => normalize(c.nom) === key);
+  const codes = match && match.codesPostaux ? match.codesPostaux.slice().sort() : [];
+  frenchPostcodeCache.set(key, codes);
+  return codes;
+}
+async function addFrenchPostcodes(items){
+  await Promise.all(items.map(async it=>{
+    const isFrench = !it.pays || normalize(it.pays) === 'france';
+    const isCity = it.isCity || it.source === 'osm';
+    if(it.cp || !isCity || !isFrench || !it.ville || it.ville.includes(',')) return;
+    try{
+      const codes = await lookupFrenchPostcodes(it.ville);
+      if(!codes.length) return;
+      if(codes.length === 1) it.cp = codes[0];
+      it.label = [it.ville, codes.length === 1 ? codes[0] : codes[0] + '…', it.pays || 'France'].join(' · ');
+    }catch(err){ /* code postal facultatif : suggestion conservée telle quelle */ }
+  }));
+  return items;
 }
 
 const CATEGORY_TO_GOOGLE_TYPE = {
@@ -5096,14 +5160,25 @@ function renderGuide(){
   // affiché juste sous la bannière (rendu Markdown sûr, voir
   // aiRoadbookMarkdownToHtml), donc repris aussi par l'impression et
   // l'export HTML qui partent de #guideContent.
-  if(state.aiRoadbook){
+  // Le texte n'est plus affiché d'un bloc : chaque étape reçoit son encadré
+  // « L'avis de l'IA » (voir plus bas), seule l'introduction reste ici, et le
+  // texte complet s'ouvre dans une fenêtre (copier / télécharger).
+  const aiParsed = state.aiRoadbook ? parseAiRoadbook(state.aiRoadbook, state.aiRoadbookPlaceIds) : null;
+  if(aiParsed){
+    const nbAiSteps = state.itineraryChunks.flat().filter(p=>aiParsed.steps[p.id]).length;
     html += `
     <div class="ai-roadbook-guide">
       <div class="ai-roadbook-guide-head">
-        <h2><svg class="icon-inline" aria-hidden="true"><use href="#icon-sparkles"></use></svg> Roadbook IA</h2>
-        <button type="button" class="btn small secondary no-print" id="btnRemoveAiRoadbook"><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg> Retirer</button>
+        <h2><svg class="icon-inline" aria-hidden="true"><use href="#icon-sparkles"></use></svg> ${escapeHtml(aiParsed.title || 'Roadbook IA')}</h2>
+        <div class="ai-roadbook-guide-actions no-print">
+          <button type="button" class="btn small" id="btnOpenAiRoadbookText"><svg class="icon-inline" aria-hidden="true"><use href="#icon-sparkles"></use></svg> Lire le texte complet</button>
+          <button type="button" class="btn small secondary" id="btnRemoveAiRoadbook"><svg class="icon-inline" aria-hidden="true"><use href="#icon-x"></use></svg> Retirer</button>
+        </div>
       </div>
-      <div class="ai-roadbook-guide-body">${aiRoadbookMarkdownToHtml(state.aiRoadbook)}</div>
+      ${aiParsed.intro ? `<div class="ai-roadbook-guide-body">${aiRoadbookMarkdownToHtml(aiParsed.intro)}</div>` : ''}
+      <p class="ai-roadbook-guide-hint">${nbAiSteps
+        ? `Les commentaires de l'IA sont intégrés à ${nbAiSteps} étape(s) ci-dessous (encadrés « L'avis de l'IA »).`
+        : `Aucune étape du parcours ne correspond aux lieux commentés par l'IA : ouvrez le texte complet.`}</p>
     </div>`;
   }
 
@@ -5153,6 +5228,7 @@ function renderGuide(){
             <h3>${CAT_LABEL[p.cat].emoji} ${escapeHtml(p.name)}</h3>
             <p><strong>Adresse :</strong> ${escapeHtml(dedupeTrailingCountry(p.addr))}</p>
             ${stepRows}
+            ${aiParsed && aiParsed.steps[p.id] ? `<div class="step-ai"><div class="step-ai-head"><svg class="icon-inline" aria-hidden="true"><use href="#icon-sparkles"></use></svg> L'avis de l'IA</div>${aiRoadbookMarkdownToHtml(aiParsed.steps[p.id])}</div>` : ''}
             <div class="step-actions">
               <span class="step-traveltime" title="${escapeHtml(distanceTitle)}"><svg class="icon-inline" aria-hidden="true"><use href="#icon-timer"></use></svg> <strong>${p.legMinutes} min</strong> ${si<chunk.length-1?'→ étape suivante':'(arrivée sur ce mini-parcours)'}${distanceSuffix}</span>
               <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn small">Ouvrir dans Maps</a>
@@ -5181,6 +5257,7 @@ function renderGuide(){
         <li>Google Maps limite les itinéraires à 10 étapes : le parcours a été découpé en ${state.itineraryChunks.length} mini-parcours successifs.</li>
         <li><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('office de tourisme '+state.ville)}" target="_blank" rel="noopener noreferrer">Office de tourisme de ${escapeHtml(state.ville)}</a></li>
       </ul>
+      ${aiParsed && aiParsed.extras ? `<div class="ai-roadbook-notes"><div class="step-ai-head"><svg class="icon-inline" aria-hidden="true"><use href="#icon-sparkles"></use></svg> Conseils de l'IA</div>${aiRoadbookMarkdownToHtml(aiParsed.extras)}</div>` : ''}
     </div>
   `;
 
@@ -5204,6 +5281,8 @@ function renderGuide(){
     state.aiRoadbook = '';
     renderGuide();
   });
+  const btnOpenAiRoadbookText = document.getElementById('btnOpenAiRoadbookText');
+  if(btnOpenAiRoadbookText) btnOpenAiRoadbookText.addEventListener('click', openAiRoadbookTextModal);
 
   const guideHeroToolbarSlot = document.getElementById('guideHeroToolbarSlot');
   if(guideHeroToolbarSlot && guideBtnRowEl) guideHeroToolbarSlot.appendChild(guideBtnRowEl);
@@ -5794,7 +5873,7 @@ document.getElementById('btnExportHtml').addEventListener('click', async ()=>{
     // sans clé), qui lui fonctionne dans n'importe quel navigateur.
     const clone = document.getElementById('guideContent').cloneNode(true);
     clone.querySelectorAll('.drag-handle').forEach(el => el.remove());
-    clone.querySelectorAll('.gps-app-choice-btn, .guide-remove-step, .chip-add-nearby, #btnRemoveAiRoadbook').forEach(el => el.remove());
+    clone.querySelectorAll('.gps-app-choice-btn, .guide-remove-step, .chip-add-nearby, .ai-roadbook-guide-actions').forEach(el => el.remove());
     // Barre d'actions de l'appli (HTML, Imprimer, Autre appli, Partager...) :
     // boutons sans effet dans un fichier exporté sans le JS de l'appli.
     clone.querySelectorAll('#guideBtnRow, .guide-hero-toolbar').forEach(el => el.remove());
@@ -5838,7 +5917,8 @@ document.getElementById('btnExportMd').addEventListener('click', ()=>{
   md += `**Généré le :** ${new Date().toLocaleDateString('fr-FR')}\n\n`;
   md += `**Transport :** ${travelModeLabel()} · **Optimisation :** ${state.optimizeMode} · **Rayon :** ${state.radiusKm} km\n\n`;
   md += `**Départ :** ${dedupeTrailingCountry(state.depart || state.ville)} · **Arrivée :** ${dedupeTrailingCountry(state.arrivee || state.depart || state.ville)}\n\n---\n\n`;
-  if(state.aiRoadbook) md += `## Roadbook IA\n\n${state.aiRoadbook.trim()}\n\n---\n\n`;
+  const mdAi = state.aiRoadbook ? parseAiRoadbook(state.aiRoadbook, state.aiRoadbookPlaceIds) : null;
+  if(mdAi && mdAi.intro) md += `## Roadbook IA\n\n${aiRoadbookCleanText(mdAi.intro)}\n\n---\n\n`;
   const mdEndpoints = chunkEndpoints();
   state.itineraryChunks.forEach((chunk, ci)=>{
     const ep = mdEndpoints[ci];
@@ -5855,6 +5935,7 @@ document.getElementById('btnExportMd').addEventListener('click', ()=>{
       md += `- **Site internet :** ${p.website && p.website!=='—' ? p.website : '—'}\n`;
       md += `- **Temps de trajet :** ${p.legMinutes} min\n`;
       md += `- [Ouvrir dans Maps](${mapsSearchLink(p)}) · [Ouvrir dans Waze](${wazeSearchLink(p)})\n\n`;
+      if(mdAi && mdAi.steps[p.id]) md += `**L'avis de l'IA :**\n\n${aiRoadbookCleanText(mdAi.steps[p.id])}\n\n`;
     });
   });
   md += `---\n\n## Notes pratiques\n\n- Point de départ : ${state.depart || state.ville}\n- Point d'arrivée : ${state.arrivee || state.depart || state.ville}\n- Google Maps limite les itinéraires à 10 étapes : parcours découpé en ${state.itineraryChunks.length} mini-parcours.\n`;
@@ -6438,8 +6519,12 @@ function aiRoadbookPlaces(){
     .slice(0, AI_ROADBOOK_MAX_PLACES);
 }
 
+// Identifiants des lieux numérotés dans le dernier prompt envoyé : le repère
+// [Lx] de chaque étape rédigée par l'IA renvoie au lieu n°x de cette liste.
+let aiRoadbookPromptPlaceIds = [];
 function buildAiRoadbookPrompt(){
   const places = aiRoadbookPlaces();
+  aiRoadbookPromptPlaceIds = places.map(p=>p.id);
   const known = v => v && v!=='—' && !/non communiqué/i.test(v);
   const lines = places.map((p,i)=>{
     const parts = [
@@ -6461,13 +6546,16 @@ Contexte du visiteur :
 - Mode de déplacement : ${travelModeLabel()}
 - Rayon de recherche : ${state.radiusKm} km autour du centre
 ${state.meta.date ? `- Date de visite : ${state.meta.date}\n` : ''}${nbSel ? `- Le visiteur a déjà choisi ${nbSel} lieu(x), marqués « CHOISI PAR LE VISITEUR » : ils doivent tous figurer dans le roadbook.\n` : ''}
-Ce que le roadbook doit contenir :
-1. Un titre et une courte introduction sur la ville (2 à 3 phrases).
-2. Un parcours en étapes numérotées, dans un ordre logique de proximité, en t'appuyant uniquement sur les lieux de la liste (n'en invente aucun). Pour chaque étape : le nom du lieu, pourquoi il vaut la visite, un temps de visite conseillé et un conseil pratique.
-3. Si la liste est longue, propose un découpage en demi-journées ou journées.
-4. Une courte rubrique de conseils pratiques pour terminer.
+Ce que le roadbook doit contenir, en Markdown simple et EXACTEMENT dans ce format :
+1. Une ligne de titre « # … », puis une courte introduction sur la ville (2 à 3 phrases).
+2. Les étapes, dans un ordre logique pour la journée (proximité et horaires), en t'appuyant uniquement sur les lieux de la liste (n'en invente aucun). Si la sélection contient des restaurants, places-en un au déjeuner (vers midi) et un au dîner (le soir), entre les visites ; si elle contient un hébergement (hôtel, gîte, camping...), place-le en toute dernière étape, pour la nuit. Chaque étape commence par un titre de la forme « ## Étape N : Nom du lieu [Lx] », où x est le numéro du lieu dans la liste ci-dessous (ce repère [Lx] est obligatoire), suivi de ces lignes :
+- **Pourquoi y aller :** 1 à 2 phrases
+- **Temps de visite :** durée conseillée
+- **Conseil :** un conseil pratique
+- **Moment :** matin, après-midi ou soir (seulement si la liste est longue et qu'un découpage en demi-journées ou journées est utile)
+3. Pour terminer, une section « ## Conseils pratiques » (liste courte), sans repère [Lx].
 
-Reste factuel : si tu ne connais pas un lieu, décris-le sobrement à partir de sa catégorie sans inventer d'histoire, d'horaires ni de prix. Ne recopie pas les mentions internes de la liste (« CHOISI PAR LE VISITEUR », distances au centre) dans le texte. Réponds uniquement avec le roadbook, en Markdown simple (titres #, ##, listes, **gras**).
+Reste factuel : si tu ne connais pas un lieu, décris-le sobrement à partir de sa catégorie sans inventer d'histoire, d'horaires ni de prix. Ne recopie pas les mentions internes de la liste (« CHOISI PAR LE VISITEUR », distances au centre) dans le texte. Réponds uniquement avec le roadbook.
 
 Lieux proposés (${places.length}) :
 ${lines.join('\n')}`;
@@ -6476,7 +6564,46 @@ ${lines.join('\n')}`;
 // Mini-rendu Markdown (titres, listes, gras/italique, paragraphes) : le
 // texte est échappé AVANT toute mise en forme, donc aucun HTML venant de la
 // réponse de l'IA n'est jamais interprété.
+/* Découpe le roadbook IA par étape pour l'intégrer dans le ROADBOOK :
+   - intro : texte entre le titre « # » et la première section « ## » ;
+   - steps : { idDuLieu: markdown du corps de l'étape } — lieu retrouvé par
+     le repère [Lx] (n° dans la liste envoyée à l'IA), ou à défaut par son
+     nom dans le titre de l'étape ;
+   - extras : sections sans lieu (Conseils pratiques...).
+   Mis en cache : renderGuide() est rappelé à chaque modification. */
+function parseAiRoadbook(md, placeIds){
+  const cacheKey = md + '|' + (placeIds || []).join(',');
+  if(parseAiRoadbook.cache && parseAiRoadbook.cache.key === cacheKey) return parseAiRoadbook.cache.value;
+  const out = { title: '', intro: '', steps: {}, extras: '' };
+  const parts = md.split(/^(?=##\s)/m);
+  const head = parts.shift() || '';
+  const titleMatch = head.match(/^#\s+(.+)$/m);
+  if(titleMatch) out.title = titleMatch[1].replace(/\s*\[L\d+\]/g, '').trim();
+  out.intro = head.replace(/^#\s+.*$/m, '').trim();
+  const norm = s => normalize(s).replace(/[^a-z0-9]+/g, ' ').trim();
+  const byName = state.allPOIs.map(p=>({ id: p.id, n: norm(p.name) })).filter(x=>x.n.length > 3);
+  parts.forEach(section=>{
+    const nl = section.indexOf('\n');
+    const heading = nl < 0 ? section : section.slice(0, nl);
+    const body = nl < 0 ? '' : section.slice(nl + 1).trim();
+    let id = null;
+    const tag = heading.match(/\[L(\d+)\]/);
+    if(tag && placeIds) id = placeIds[parseInt(tag[1], 10) - 1] || null;
+    if(!id){
+      const h = norm(heading);
+      const hit = byName.find(x => h.includes(x.n));
+      if(hit) id = hit.id;
+    }
+    if(id && !out.steps[id]) out.steps[id] = body;
+    else out.extras += section.trim() + '\n\n';
+  });
+  out.extras = out.extras.trim();
+  parseAiRoadbook.cache = { key: cacheKey, value: out };
+  return out;
+}
+
 function aiRoadbookMarkdownToHtml(md){
+  md = (md || '').replace(/\s*\[L\d+\]/g, ''); // repères techniques des étapes
   const inline = s => escapeHtml(s)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, '$1<em>$2</em>');
@@ -6758,20 +6885,65 @@ async function copyTextToClipboard(text){
 function validateAiRoadbook(){
   if(!aiRoadbookText) return;
   state.aiRoadbook = aiRoadbookText;
+  state.aiRoadbookPlaceIds = aiRoadbookPromptPlaceIds.slice();
   if(state.selectedIds.size === 0){
-    const norm = s => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-    const text = norm(aiRoadbookText);
-    aiRoadbookPlaces().forEach(p=>{
-      if(p.name && text.includes(norm(p.name))) setPoiSelected(p.id, true);
+    // Aucun lieu coché : on coche les étapes rédigées par l'IA.
+    const parsed = parseAiRoadbook(state.aiRoadbook, state.aiRoadbookPlaceIds);
+    Object.keys(parsed.steps).forEach(id=>{
+      if(state.allPOIs.some(p=>p.id === id)) setPoiSelected(id, true);
     });
   }
   if(state.selectedIds.size === 0){
     setAiRoadbookStatus("Roadbook IA enregistré. Cochez au moins un lieu dans la liste puis cliquez sur « Générer le ROADBOOK ».");
     return;
   }
+  // Le ROADBOOK suit l'ordre de la journée proposé par l'IA (déjeuner à
+  // midi, dîner le soir, hôtel en dernier...) plutôt que l'ordre optimisé
+  // par distance ; les lieux cochés non commentés par l'IA viennent ensuite.
+  // Le bouton « Revenir à l'ordre optimisé » reste disponible.
+  const aiOrder = Object.keys(parseAiRoadbook(state.aiRoadbook, state.aiRoadbookPlaceIds).steps)
+    .filter(id=>state.selectedIds.has(id));
+  if(aiOrder.length >= 2){
+    state.manualOrderIds = aiOrder.concat([...state.selectedIds].filter(id=>!aiOrder.includes(id)));
+  }
   closeAiRoadbookModal();
   document.getElementById('btnToOptions').click();
 }
+
+// Texte tel que lu par l'utilisateur : sans les repères techniques [Lx].
+function aiRoadbookCleanText(md){ return (md || '').replace(/\s*\[L\d+\]/g, '').trim(); }
+function downloadAiRoadbookMarkdown(md){
+  const blob = new Blob([aiRoadbookCleanText(md)], {type:'text/markdown;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `roadbook-ia-${(state.ville||'margo').toLowerCase().replace(/[^a-z0-9]+/gi,'-')}.md`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+
+/* Fenêtre « texte complet » du Roadbook IA validé (bouton du bandeau IA de
+   l'écran ROADBOOK) : le texte entier, à copier ou télécharger, pendant que
+   les étapes affichent seulement leur propre encadré. */
+function openAiRoadbookTextModal(){
+  document.getElementById('aiRoadbookTextBody').innerHTML = aiRoadbookMarkdownToHtml(state.aiRoadbook);
+  document.getElementById('aiRoadbookTextStatus').textContent = '';
+  document.getElementById('aiRoadbookTextModalOverlay').hidden = false;
+}
+function closeAiRoadbookTextModal(){ document.getElementById('aiRoadbookTextModalOverlay').hidden = true; }
+document.getElementById('aiRoadbookTextModalClose').addEventListener('click', closeAiRoadbookTextModal);
+document.getElementById('aiRoadbookTextModalOverlay').addEventListener('click', e=>{
+  if(e.target.id === 'aiRoadbookTextModalOverlay') closeAiRoadbookTextModal();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && !document.getElementById('aiRoadbookTextModalOverlay').hidden) closeAiRoadbookTextModal();
+});
+document.getElementById('aiRoadbookTextCopy').addEventListener('click', async ()=>{
+  const ok = await copyTextToClipboard(aiRoadbookCleanText(state.aiRoadbook));
+  document.getElementById('aiRoadbookTextStatus').textContent = ok ? 'Roadbook copié.' : 'Copie impossible dans ce navigateur.';
+});
+document.getElementById('aiRoadbookTextDownload').addEventListener('click', ()=>downloadAiRoadbookMarkdown(state.aiRoadbook));
 
 document.getElementById('aiRoadbookValidate').addEventListener('click', validateAiRoadbook);
 document.getElementById('aiRoadbookGenerate').addEventListener('click', generateAiRoadbook);
@@ -6781,19 +6953,10 @@ document.getElementById('aiRoadbookCopyPrompt').addEventListener('click', async 
   setAiRoadbookStatus(ok ? 'Prompt copié : collez-le dans Gemini, ChatGPT ou Claude.' : 'Copie impossible dans ce navigateur.', !ok);
 });
 document.getElementById('aiRoadbookCopy').addEventListener('click', async ()=>{
-  const ok = await copyTextToClipboard(aiRoadbookText);
+  const ok = await copyTextToClipboard(aiRoadbookCleanText(aiRoadbookText));
   setAiRoadbookStatus(ok ? 'Roadbook copié.' : 'Copie impossible dans ce navigateur.', !ok);
 });
-document.getElementById('aiRoadbookDownload').addEventListener('click', ()=>{
-  const blob = new Blob([aiRoadbookText], {type:'text/markdown;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `roadbook-ia-${(state.ville||'margo').toLowerCase().replace(/[^a-z0-9]+/gi,'-')}.md`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
-});
+document.getElementById('aiRoadbookDownload').addEventListener('click', ()=>downloadAiRoadbookMarkdown(aiRoadbookText));
 document.getElementById('aiRoadbookForgetKey').addEventListener('click', ()=>{
   try{ localStorage.removeItem(AI_ROADBOOK_KEY_STORAGE); }catch(err){ /* stockage indisponible */ }
   document.getElementById('aiRoadbookKeyInput').value = '';
@@ -6913,7 +7076,7 @@ async function showChargersOnMainMap(){
   if(!chargerInfoWindow) chargerInfoWindow = new GMInfoWindow();
   places.forEach(p=>{
     const marker = new google.maps.Marker({ position: {lat:p.lat, lng:p.lng}, map, title: p.name || 'Borne de recharge', zIndex: 5,
-      ...legacyMarkerVisuals('⚡', '#f97316', 9) });
+      icon: pictoPinIcon('charger'), optimized: false });
     marker.addListener('click', ()=>{
       chargerInfoWindow.setContent(chargerPopupHtml(p));
       chargerInfoWindow.open({ map, anchor: marker });
@@ -6921,7 +7084,7 @@ async function showChargersOnMainMap(){
     chargerMarkers.push(marker);
   });
   setChargerStatus(places.length
-    ? `${places.length} borne(s) de recharge à moins de ${POI_SEARCH_RADIUS_M/1000} km (pins orange, données ${source}). Recliquez sur le bouton prise pour les masquer.`
+    ? `${places.length} borne(s) de recharge à moins de ${POI_SEARCH_RADIUS_M/1000} km (pins verts ⚡, données ${source}). Recliquez sur le bouton prise pour les masquer.`
     : `Aucune borne de recharge trouvée à moins de ${POI_SEARCH_RADIUS_M/1000} km.`);
   return true;
 }
@@ -6989,6 +7152,40 @@ async function ensureDestinationCenter(){
    la vue part du monde entier). Les pastilles permettent de passer d'un
    type de lieu à l'autre. */
 const POI_SEARCH_RADIUS_M = 10000;
+
+/* Pins à pictogramme (bornes, urgences, dépannage) : goutte de couleur avec
+   un rond blanc et un pictogramme au centre, plus lisibles que de simples
+   pastilles de couleur. Dessins au trait sur une grille 24×24 (style
+   Lucide, comme les icônes de l'appli) ; c = couleur du type de lieu. */
+const PIN_PICTOS = {
+  charger:   { color:'#059669', draw:c=>`<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" fill="${c}"/>` },
+  hospital:  { color:'#dc2626', draw:()=>`<path d="M7 5v14M17 5v14M7 12h10" stroke-width="3.2"/>` },
+  emergency: { color:'#b91c1c', draw:()=>`<path d="M7 5v14M17 5v14M7 12h10" stroke-width="3.2"/>` },
+  pharmacy:  { color:'#16a34a', draw:c=>`<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="${c}" stroke="none"/>` },
+  doctor:    { color:'#2563eb', draw:()=>`<path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/>` },
+  garage:    { color:'#475569', draw:()=>`<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>` },
+  tyre:      { color:'#1f2937', draw:()=>`<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"/>` },
+  glass:     { color:'#0284c7', draw:()=>`<path d="M3 8c5.5-3 12.5-3 18 0l-2.5 9h-13z"/><path d="M8.5 13l3.5-3.5M12 14l4-4"/>` },
+  tow:       { color:'#ea580c', draw:()=>`<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>` }
+};
+function pictoGlyphSvg(type, size){
+  const p = PIN_PICTOS[type] || PIN_PICTOS.hospital;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${p.color}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p.draw(p.color)}</svg>`;
+}
+const pictoPinIconCache = {};
+function pictoPinIcon(type){
+  const p = PIN_PICTOS[type] || PIN_PICTOS.hospital;
+  if(!pictoPinIconCache[type]){
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="46" viewBox="0 0 36 46">`
+      + `<ellipse cx="18" cy="44" rx="6" ry="1.8" fill="rgba(0,0,0,.25)"/>`
+      + `<path d="M18 1.5C9.4 1.5 2.5 8.4 2.5 17c0 11.2 13.6 25.4 14.6 26.5a1.2 1.2 0 0 0 1.8 0C19.9 42.4 33.5 28.2 33.5 17 33.5 8.4 26.6 1.5 18 1.5z" fill="${p.color}" stroke="#fff" stroke-width="2"/>`
+      + `<circle cx="18" cy="17" r="11.5" fill="#fff"/>`
+      + `<g transform="translate(9.6 8.6) scale(0.7)" fill="none" stroke="${p.color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${p.draw(p.color)}</g>`
+      + `</svg>`;
+    pictoPinIconCache[type] = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+  }
+  return { url: pictoPinIconCache[type], scaledSize: new google.maps.Size(32, 41), anchor: new google.maps.Point(16, 40) };
+}
 // "cle=valeur" / "cle~motif" (data-osm des pastilles) -> filtre Overpass
 function overpassFilterFromSpec(spec){
   const m = spec.match(/^([^=~]+)([=~])(.+)$/);
@@ -7122,7 +7319,7 @@ async function showPoiSearch(prefix, chip){
     const infoWindow = new GMInfoWindow();
     const bounds = new google.maps.LatLngBounds(center);
     places.forEach(p=>{
-      const marker = new google.maps.Marker({ position: {lat:p.lat, lng:p.lng}, map, title: p.name || label, ...legacyMarkerVisuals('', p.emergency ? '#dc2626' : PIN_COLOR_DEFAULT, ITINERARY_PIN_SCALE_NORMAL) });
+      const marker = new google.maps.Marker({ position: {lat:p.lat, lng:p.lng}, map, title: p.name || label, icon: pictoPinIcon(p.emergency ? 'emergency' : (chip.dataset.pin || 'hospital')), optimized: false });
       bounds.extend(marker.getPosition());
       const dir = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
       marker.addListener('click', ()=>{
@@ -7159,6 +7356,10 @@ function openPoiSearchModal(prefix){
 }
 function wirePoiSearchChips(prefix){
   const chips = document.getElementById(prefix + 'Chips');
+  // Même pictogramme dans la pastille que sur les pins de la carte.
+  chips.querySelectorAll('.chip[data-pin]').forEach(chip=>{
+    chip.insertAdjacentHTML('afterbegin', `<span class="chip-picto">${pictoGlyphSvg(chip.dataset.pin, 15)}</span>`);
+  });
   chips.addEventListener('click', e=>{
     const chip = e.target.closest('.chip[data-q]');
     if(!chip) return;
@@ -7571,7 +7772,7 @@ showScreen('screen-lieu');
 </script>
 
 <div class="bottom-banner no-print" id="bottomBanner">
-  © <span id="footerYear"></span> TopKapi Studio · <a href="pages/mentions-legales.html" target="_blank" rel="noopener noreferrer">Mentions légales &amp; RGPD/Cookies</a>
+  © <span id="footerYear"></span> Studio TopKapi · <a href="pages/mentions-legales.html" target="_blank" rel="noopener noreferrer">Mentions légales &amp; RGPD/Cookies</a>
 </div>
 <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </body>

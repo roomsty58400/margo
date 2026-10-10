@@ -77,6 +77,13 @@ MARGO/
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.01 — Roadbook IA intégré aux étapes, pins à pictogrammes, codes postaux, Studio TopKapi (10 octobre 2026)
+- **Roadbook IA intégré aux étapes** : l'IA rédige chaque étape dans un format fixe (pourquoi y aller, temps de visite, conseil, moment de la journée) avec un repère vers le lieu ; dans l'écran ROADBOOK, chaque étape reçoit son encadré « L'avis de l'IA », l'introduction reste dans un bandeau compact et les conseils pratiques rejoignent les « Notes pratiques ». Le texte complet s'ouvre dans une fenêtre (copier / télécharger). Exports HTML et Markdown alignés.
+- **Ordre de la journée** : l'IA place un restaurant au déjeuner, un au dîner et l'hébergement en dernière étape (nuit) ; à la validation, le ROADBOOK reprend cet ordre (bouton « Revenir à l'ordre optimisé » toujours disponible).
+- **Pins à pictogrammes** : bornes de recharge (éclair vert), hôpitaux (H rouge), pharmacies (croix verte), médecins (stéthoscope), garages, pneus, pare-brise, dépannage — mêmes pictogrammes dans les pastilles de choix.
+- **Codes postaux dans la liste des villes** (API officielle geo.api.gouv.fr pour les villes françaises) ; le code postal choisi remplit le champ Code postal.
+- **Studio TopKapi** : nom, logo et adresse topkapi321@gmail.com dans les mentions légales, le pied de page et la fiche commerciale.
+
 ### v3.00 — IA Roadbook (Gemini), cartes des 4 boutons centrées sur la ville, fiabilité (9 octobre 2026)
 - **IA Roadbook** : bouton à gauche de « Coups de cœur Office de Tourisme » ; roadbook rédigé par Google Gemini (offre gratuite) à partir de la liste proposée, génération en direct avec bande de progression, repli automatique entre modèles Gemini (`gemini-3.7-flash`, `gemini-3.5-flash-lite`, `gemini-3.8-flash`) en cas de saturation, y compris en cours de rédaction. Clé chargée automatiquement depuis `AQ.env` en local (fenêtre directe, réglages masqués). Bouton **Valider le Roadbook** : le texte est inséré dans l'écran ROADBOOK, l'impression et les exports HTML/Markdown, et les lieux cités sont cochés si aucun ne l'était.
 - **Boutons autour de la ville** : cartes centrées sur la ville de destination (coordonnées transmises à la carte, géocodage à la volée si besoin) ; Urgences et Dépannage deviennent des cartes interactives (zoom molette direct) avec pastilles par type de lieu et pins Google Places (repli OpenStreetMap) ; bornes de recharge en pins orange sur la carte principale + page Chargemap de la ville en fenêtre séparée.

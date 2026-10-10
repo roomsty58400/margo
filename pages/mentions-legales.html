@@ -22,6 +22,9 @@
   h3{color:var(--primary);font-size:.95rem;}
   p, li{font-size:.9rem;color:#444;}
   .todo{background:#fff8e1;border:1px dashed #e0b400;padding:.6rem .8rem;border-radius:10px;font-size:.85rem;color:#7a5c00;}
+  .studio-card{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+  .studio-card img{width:240px;max-width:100%;height:auto;border-radius:12px;box-shadow:0 6px 16px -6px rgba(16,19,43,.25);}
+  .studio-card p{flex:1 1 260px;margin:0;}
   .icon-inline{width:1em;height:1em;vertical-align:-0.125em;display:inline-block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 </style>
 </head>
@@ -29,22 +32,20 @@
 <svg id="lucide-sprite" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4" /><path d="M12 8h.01" /></symbol></svg>
 
 <header class="app-header">
-  <!-- Repli sans JS : index.html (édition bureau ou mobile détectée
-       automatiquement) ; avec JS, retour à l'onglet/l'édition d'origine
-       (bureau ou mobile) quand c'est possible, cette page étant ouverte
-       depuis les deux éditions. -->
+  <!-- Repli sans JS : index.html (redirige vers l'application) ; avec JS,
+       retour à l'onglet d'origine quand c'est possible. -->
   <a href="../index.html" class="back-btn" onclick="if(window.history.length>1){window.history.back();return false;}">← Retour à l'application</a>
   <h1><svg class="icon-inline" aria-hidden="true"><use href="#icon-info"></use></svg> Informations, mentions légales &amp; RGPD</h1>
 </header>
 
 <main>
 
-  <p style="font-size:.8rem;color:#7a8598;text-align:right;margin:0 0 1rem;">Dernière mise à jour : 23/08/2026</p>
+  <p style="font-size:.8rem;color:#7a8598;text-align:right;margin:0 0 1rem;">Dernière mise à jour : 10/10/2026</p>
 
   <section>
     <h2>Mentions légales</h2>
     <h3>Éditeur du site</h3>
-    <p>Topkapi Studio — 2 impasse du Buisson des Chaumes, 58400 Chaulgnes, France — <a href="mailto:topkapi-studio@gmail.com">topkapi-studio@gmail.com</a>.</p>
+    <div class="studio-card"><img src="../assets/images/studio-topkapi.jpg" alt="Logo Studio TopKapi" width="240" height="131"><p><strong>Studio TopKapi</strong> — numérique, création, design, photo, vidéo, développement web.<br>2 impasse du Buisson des Chaumes, 58400 Chaulgnes, France — <a href="mailto:topkapi321@gmail.com">topkapi321@gmail.com</a>.</p></div>
     <h3>Hébergement</h3>
     <p>GitHub, Inc. — GitHub Pages (<a href="https://pages.github.com/" target="_blank" rel="noopener noreferrer">pages.github.com</a>).</p>
     <h3>Directeur de la publication</h3>
@@ -63,7 +64,7 @@
     <p>La saisie vocale (bouton micro) utilise la reconnaissance vocale native du navigateur (Web Speech API) : aucune clé ni service tiers propre à Margo n'est impliqué, le traitement audio est géré directement par le navigateur.</p>
     <p>Aucune donnée personnelle identifiante n'est collectée ni stockée par ce site pour son propre compte. Les clés API (Google, Gemini), si renseignées, sont conservées localement dans le navigateur de l'utilisateur (stockage local) et ne sont transmises qu'au service concerné (Google). Un bouton « Oublier la clé » permet d'effacer la clé Gemini à tout moment.</p>
     <h3>Vos droits</h3>
-    <p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition concernant vos données. Pour toute question, contactez <a href="mailto:topkapi-studio@gmail.com">topkapi-studio@gmail.com</a>.</p>
+    <p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification, d'effacement et d'opposition concernant vos données. Pour toute question, contactez <a href="mailto:topkapi321@gmail.com">topkapi321@gmail.com</a>.</p>
   </section>
 
   <section>
