@@ -77,6 +77,11 @@ MARGO/
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.02 — Infos pratiques des lieux et recommandations selon la sélection (11 octobre 2026)
+- **Infos pratiques en une ligne** sous le nom de chaque lieu (liste « Lieux proposés », fiches de la carte, étapes du ROADBOOK, export Markdown) : note Google et nombre d'avis, parking gratuit/payant, tarif d'entrée, fourchette de prix, moyens de paiement. Rien ne s'affiche quand l'info n'est pas connue.
+- **Sources** : note et nombre d'avis via Google Places (déjà demandés à la recherche) ; parking sur place, paiement et fourchette de prix via Google Places, demandés uniquement pour les lieux sélectionnés (champs `parkingOptions`, `paymentOptions`, `priceRange`, facturés au niveau « Enterprise + Atmosphere ») ; tarifs d'entrée des musées/sites et tarif des parkings via OpenStreetMap (tags `fee` et `charge`), Google ne publiant pas ces tarifs.
+- **Recommandations** : dès qu'un lieu est sélectionné, chaque catégorie est triée par proximité de la sélection et note Google lissée (ex. un hôtel choisi fait remonter les parkings proches et bien notés). Les 3 premiers lieux non sélectionnés de chaque catégorie reçoivent la pastille « Conseillé · à 250 m de … ». Tout reste sélectionnable, seul l'ordre change, et la liste se réordonne sans perdre le défilement.
+
 ### v3.01 — Roadbook IA intégré aux étapes, pins à pictogrammes, codes postaux, Studio TopKapi (10 octobre 2026)
 - **Roadbook IA intégré aux étapes** : l'IA rédige chaque étape dans un format fixe (pourquoi y aller, temps de visite, conseil, moment de la journée) avec un repère vers le lieu ; dans l'écran ROADBOOK, chaque étape reçoit son encadré « L'avis de l'IA », l'introduction reste dans un bandeau compact et les conseils pratiques rejoignent les « Notes pratiques ». Le texte complet s'ouvre dans une fenêtre (copier / télécharger). Exports HTML et Markdown alignés.
 - **Ordre de la journée** : l'IA place un restaurant au déjeuner, un au dîner et l'hébergement en dernière étape (nuit) ; à la validation, le ROADBOOK reprend cet ordre (bouton « Revenir à l'ordre optimisé » toujours disponible).

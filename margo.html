@@ -883,6 +883,21 @@
   .tree-leaf-thumb.clickable{cursor:pointer;transition:transform .12s, box-shadow .12s;}
   .tree-leaf-thumb.clickable:hover{transform:scale(1.04);box-shadow:0 3px 10px -2px rgba(16,19,43,.3);}
   .tree-empty{padding:1.5rem;text-align:center;color:var(--gray-500);font-size:.85rem;}
+  /* v3.02 : infos pratiques (note Google, parking, tarifs) + recommandations */
+  .practical-line{display:flex;flex-wrap:wrap;gap:.25rem .35rem;margin:.15rem 0 .25rem;}
+  .practical-line[hidden]{display:none;}
+  .practical-line .pc{display:inline-flex;align-items:center;gap:.2rem;font-size:.7rem;line-height:1.3;padding:.05rem .45rem;border-radius:10px;background:#f1f4f6;color:#3b4652;white-space:nowrap;}
+  .practical-line .pc .icon-inline{width:.85em;height:.85em;}
+  .practical-line .pc-rating{background:#fff6e0;color:#7a5200;font-weight:bold;}
+  .practical-line .pc-star{color:#f2a900;}
+  .practical-line .pc-sub{font-weight:normal;color:#8a6d2c;}
+  .practical-line .pc-good{background:#e7f6ec;color:#1d6b3a;}
+  .practical-line .pc-warn{background:#fdeee8;color:#9a3d17;}
+  .reco-slot:empty{display:none;}
+  .reco-badge{display:inline-block;background:#e8f1fb;color:#1f5d99;border:1px solid #9cc2e8;border-radius:12px;padding:.05rem .5rem;font-size:.68rem;font-weight:bold;margin-bottom:.25rem;}
+  .reco-sort-hint{font-size:.7rem;font-weight:normal;color:var(--gray-700);margin-left:.35rem;}
+  .reco-sort-hint[hidden]{display:none;}
+  .guide-pin-popup .practical-line, .step .practical-line{margin:.2rem 0 .35rem;}
   .ot-badge{display:inline-block;background:#fff4e0;color:#a9640c;border:1px solid #e8a33d;border-radius:12px;padding:.1rem .55rem;font-size:.68rem;font-weight:bold;margin-bottom:.3rem;}
   #btnOtOnly.on{background:var(--accent);color:#fff;}
 
@@ -1681,6 +1696,327 @@ function buildPoiDetailsRowsHtml(poi){
   ].join('');
 }
 
+/* ============ v3.02 : INFOS PRATIQUES (note Google, parking, tarifs) ============
+   Une seule ligne compacte de pastilles, affichée sous le nom du lieu
+   (liste des lieux proposés, fiches de la carte, étapes du ROADBOOK) :
+   note Google + nombre d'avis, parking (gratuit/payant), tarif d'entrée,
+   moyens de paiement. Volontairement court : uniquement ce qui aide à
+   décider, rien quand l'info n'est pas connue.
+   Sources :
+   - note et nombre d'avis : Google Places (champs rating/userRatingCount,
+     déjà demandés lors de la recherche) ;
+   - parking sur place, paiement, fourchette de prix : Google Places, demandés
+     UNIQUEMENT pour les lieux sélectionnés (voir enrichPoiPractical) afin de
+     ne pas alourdir la facturation de la recherche ;
+   - tarif d'entrée / parking payant ou gratuit : Google ne publie pas les
+     tarifs des musées ou des parkings — on les lit dans OpenStreetMap
+     (tags "fee" et "charge"), directement pour les lieux OpenStreetMap, ou
+     via une petite requête Overpass groupée pour les lieux Google
+     sélectionnés (voir enrichPracticalFromOsm). */
+const FEE_RELEVANT_CATS = new Set(['musee','historique','culturel','zoo','parc-theme','aquatique','parc','parking','aire-camping-car']);
+
+function formatRatingFr(r){ return Number(r).toFixed(1).replace('.', ','); }
+function formatCountFr(n){ return Number(n).toLocaleString('fr-FR'); }
+function formatOsmCharge(charge){
+  // "8 EUR" / "8.50 EUR" / "EUR 8" / "2 EUR/hour" → "8 €", "8,50 €", "2 €/h"
+  return String(charge).split(';').slice(0,2).map(s=>s.trim()
+    .replace(/(\d)\.(\d)/g, '$1,$2')
+    .replace(/\bEUR\s*([\d,]+)/i, '$1 €')
+    .replace(/\s*EUR\b/ig, ' €')
+    .replace(/\/\s*(hour|hr|h)\b/ig, '/h')
+    .replace(/\/\s*day\b/ig, '/jour')
+  ).join(' · ');
+}
+
+/* Fusionne de nouvelles infos pratiques dans poi.practical (sans écraser
+   une info déjà connue par une valeur vide). */
+function mergePractical(poi, extra){
+  if(!extra) return;
+  poi.practical = poi.practical || {};
+  Object.keys(extra).forEach(k=>{
+    if(extra[k] != null && extra[k] !== '') poi.practical[k] = extra[k];
+  });
+}
+
+/* Lit les options Google (parking, paiement, fourchette de prix) d'un objet
+   Place. Les noms de propriétés diffèrent selon les versions de l'API JS
+   (freeParkingLot / hasFreeParkingLot) : on accepte les deux. */
+function practicalFromGooglePlace(place){
+  const out = {};
+  const pick = (o, k) => o ? (o[k] != null ? o[k] : o['has' + k.charAt(0).toUpperCase() + k.slice(1)]) : null;
+  try{
+    const po = place.parkingOptions;
+    if(po){
+      const free = pick(po,'freeParkingLot') || pick(po,'freeGarageParking') || pick(po,'freeStreetParking');
+      const paid = pick(po,'paidParkingLot') || pick(po,'paidGarageParking') || pick(po,'paidStreetParking');
+      if(free && !paid) out.parking = 'free';
+      else if(paid && !free) out.parking = 'paid';
+      else if(free && paid) out.parking = 'both';
+      else if(pick(po,'valetParking')) out.parking = 'valet';
+    }
+  }catch(err){ /* champ absent : ignoré */ }
+  try{
+    const pay = place.paymentOptions;
+    if(pay){
+      if(pay.acceptsCashOnly) out.pay = 'Espèces uniquement';
+      else if(pay.acceptsCreditCards || pay.acceptsDebitCards || pay.acceptsNFC) out.pay = 'CB acceptée';
+    }
+  }catch(err){}
+  try{
+    const pr = place.priceRange;
+    if(pr && (pr.startPrice || pr.endPrice)){
+      const money = m => m && m.units != null ? Number(m.units) : null;
+      const a = money(pr.startPrice), b = money(pr.endPrice);
+      if(a != null && b != null) out.priceRange = `${a}–${b} €`;
+      else if(a != null) out.priceRange = `dès ${a} €`;
+    }
+  }catch(err){}
+  return out;
+}
+
+/* Infos pratiques d'un élément OpenStreetMap (tags fee/charge/payment). */
+function practicalFromOsmTags(tags, catKey){
+  const out = {};
+  if(!tags) return out;
+  const fee = (tags.fee || tags['parking:fee'] || '').toLowerCase();
+  const charge = tags.charge || tags['charge:adult'] || tags['parking:charge'];
+  if(catKey === 'parking'){
+    if(fee === 'no') out.parking = 'free';
+    else if(fee === 'yes' || charge) out.parking = 'paid';
+  } else {
+    if(fee === 'no') out.entry = 'free';
+    else if(fee === 'yes' || charge) out.entry = 'paid';
+  }
+  if(charge) out.charge = formatOsmCharge(charge);
+  if(tags['payment:cash'] === 'only' || (tags['payment:cash'] === 'yes' && tags['payment:cards'] === 'no')) out.pay = 'Espèces uniquement';
+  else if(tags['payment:credit_cards'] === 'yes' || tags['payment:debit_cards'] === 'yes' || tags['payment:cards'] === 'yes') out.pay = 'CB acceptée';
+  return out;
+}
+
+/* Liste des pastilles à afficher pour un lieu : [{icon, text, cls, title}]. */
+function practicalItems(poi){
+  const items = [];
+  const ico = id => `<svg class="icon-inline" aria-hidden="true"><use href="#${id}"></use></svg>`;
+  if(poi.rating){
+    const count = poi.ratingCount ? ` <span class="pc-sub">(${formatCountFr(poi.ratingCount)})</span>` : '';
+    items.push({ html: `<span class="pc-star">★</span> ${formatRatingFr(poi.rating)}${count}`, cls:'pc-rating',
+      title: `Note Google : ${formatRatingFr(poi.rating)}/5` + (poi.ratingCount ? ` sur ${formatCountFr(poi.ratingCount)} avis` : '') });
+  }
+  const pr = poi.practical || {};
+  const isParkingPlace = poi.cat === 'parking';
+  if(pr.parking){
+    const label = isParkingPlace
+      ? ({free:'Gratuit', paid:'Payant', both:'Gratuit / payant', valet:'Voiturier'})[pr.parking]
+      : ({free:'Parking gratuit', paid:'Parking payant', both:'Parking gratuit et payant', valet:'Voiturier'})[pr.parking];
+    const text = (isParkingPlace && pr.charge) ? `${label} · ${escapeHtml(pr.charge)}` : label;
+    items.push({ html: `${ico('icon-circle-parking')} ${text}`, cls: pr.parking==='free' ? 'pc-good' : (pr.parking==='paid' ? 'pc-warn' : ''),
+      title: isParkingPlace ? 'Tarif du parking' : 'Stationnement sur place ou à proximité immédiate' });
+  }
+  if(pr.entry || (!isParkingPlace && pr.charge)){
+    const base = pr.entry==='free' ? 'Entrée gratuite' : (pr.charge ? `Entrée ${escapeHtml(pr.charge)}` : 'Entrée payante');
+    items.push({ html: `${ico('icon-ticket')} ${base}`, cls: pr.entry==='free' ? 'pc-good' : '', title: "Tarif d'entrée (source OpenStreetMap)" });
+  }
+  if(pr.priceRange){
+    items.push({ html: `${ico('icon-euro')} ${escapeHtml(pr.priceRange)}`, cls:'', title:'Fourchette de prix par personne (Google)' });
+  }
+  if(pr.pay){
+    items.push({ html: `${ico('icon-credit-card')} ${escapeHtml(pr.pay)}`, cls:'', title:'Moyens de paiement' });
+  }
+  return items;
+}
+
+/* Ligne de pastilles (HTML). data-practical-id permet de la rafraîchir en
+   place quand les infos détaillées d'un lieu sélectionné arrivent. */
+function buildPracticalChipsHtml(poi){
+  const items = practicalItems(poi);
+  const inner = items.map(i=>`<span class="pc ${i.cls}" title="${escapeHtml(i.title||'')}">${i.html}</span>`).join('');
+  return `<div class="practical-line" data-practical-id="${escapeHtml(poi.id)}"${items.length ? '' : ' hidden'}>${inner}</div>`;
+}
+
+/* Version texte (export Markdown). */
+function practicalText(poi){
+  const tmp = document.createElement('div');
+  return practicalItems(poi).map(i=>{ tmp.innerHTML = i.html; return tmp.textContent.trim().replace(/\s+/g,' '); }).join(' · ');
+}
+
+function refreshPracticalChips(poiId){
+  const poi = state.allPOIs.find(p=>p.id===poiId);
+  if(!poi) return;
+  const html = buildPracticalChipsHtml(poi);
+  document.querySelectorAll('.practical-line[data-practical-id="' + CSS.escape(poiId) + '"]').forEach(el=>{
+    el.outerHTML = html;
+  });
+}
+
+/* Complète les infos pratiques des lieux sélectionnés (appelé à chaque
+   sélection, regroupé par un court délai). Chaque lieu n'est interrogé
+   qu'une fois (poi._practicalFetched). */
+let practicalEnrichTimer = null;
+function schedulePracticalEnrichment(){
+  clearTimeout(practicalEnrichTimer);
+  practicalEnrichTimer = setTimeout(enrichSelectedPractical, 500);
+}
+async function enrichSelectedPractical(){
+  const todo = state.allPOIs.filter(p=>state.selectedIds.has(p.id) && !p._practicalFetched);
+  if(!todo.length) return;
+  todo.forEach(p=>{ p._practicalFetched = true; });
+  const googleTodo = todo.filter(p=>String(p.id).startsWith('g_') && p.googlePlaceId);
+  const osmTodo = todo.filter(p=>!String(p.id).startsWith('osm_') && FEE_RELEVANT_CATS.has(p.cat) && p.lat!=null);
+  await Promise.all([
+    mapWithConcurrency(googleTodo, 4, p=>enrichPoiPracticalGoogle(p).catch(err=>console.warn('Infos pratiques Google indisponibles', p.name, err))),
+    enrichPracticalFromOsm(osmTodo).catch(err=>console.warn('Tarifs OpenStreetMap indisponibles', err))
+  ]);
+  todo.forEach(p=>refreshPracticalChips(p.id));
+}
+
+async function enrichPoiPracticalGoogle(poi){
+  if(typeof GMPlace === 'undefined' || !GMPlace) return;
+  const place = new GMPlace({ id: poi.googlePlaceId, requestedLanguage: 'fr', requestedRegion: 'FR' });
+  // priceRange est un champ récent : s'il n'est pas reconnu par la version
+  // de l'API chargée, on réessaie sans lui plutôt que de tout perdre.
+  try{
+    await withTimeout(place.fetchFields({ fields: ['parkingOptions','paymentOptions','priceRange'] }), 8000, 'timeout');
+  }catch(err){
+    await withTimeout(place.fetchFields({ fields: ['parkingOptions','paymentOptions'] }), 8000, 'timeout');
+  }
+  mergePractical(poi, practicalFromGooglePlace(place));
+}
+
+/* Rapproche chaque lieu (Google) d'un élément OpenStreetMap tout proche
+   portant un tarif (fee/charge) : même nom (ou, pour un parking, le parking
+   OSM le plus proche à moins de 60 m). Une seule requête Overpass pour tous
+   les lieux concernés. */
+async function enrichPracticalFromOsm(pois){
+  if(!pois.length) return;
+  const clauses = pois.map(p=>`nwr(around:150,${p.lat},${p.lng})[~"^(fee|charge|parking:fee)$"~"."];`).join('\n  ');
+  const query = `[out:json][timeout:15];\n(\n  ${clauses}\n);\nout tags center 200;`;
+  let data = null;
+  for(const endpoint of OVERPASS_ENDPOINTS){
+    try{
+      const resp = await withTimeout(fetch(endpoint, { method:'POST', body:'data=' + encodeURIComponent(query), headers:{'Content-Type':'application/x-www-form-urlencoded'} }), 15000, 'timeout');
+      if(!resp.ok) continue;
+      data = await resp.json();
+      break;
+    }catch(err){ /* serveur suivant */ }
+  }
+  if(!data || !data.elements) return;
+  const elems = data.elements.map(el=>({
+    tags: el.tags || {},
+    lat: el.lat != null ? el.lat : (el.center ? el.center.lat : null),
+    lng: el.lon != null ? el.lon : (el.center ? el.center.lon : null)
+  })).filter(e=>e.lat!=null);
+  const distM = (a, b) => {
+    const R = 6371000, toRad = d => d*Math.PI/180;
+    const dLat = toRad(b.lat-a.lat), dLng = toRad(b.lng-a.lng);
+    const h = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+    return 2*R*Math.asin(Math.sqrt(h));
+  };
+  const words = s => normalize(String(s||'')).split(/[^a-z0-9]+/).filter(w=>w.length>2 && !['les','des','du','de','la','le','parking','musee'].includes(w));
+  pois.forEach(p=>{
+    const pw = new Set(words(p.name));
+    let best = null, bestScore = 0;
+    elems.forEach(e=>{
+      const d = distM(p, e);
+      if(d > 150) return;
+      const ew = words(e.tags.name);
+      const common = ew.filter(w=>pw.has(w)).length;
+      let score = 0;
+      if(common > 0) score = common*100 - d/10;
+      else if(p.cat === 'parking' && e.tags.amenity === 'parking' && d <= 60) score = 50 - d/10;
+      if(score > bestScore){ bestScore = score; best = e; }
+    });
+    if(best) mergePractical(p, practicalFromOsmTags(best.tags, p.cat));
+  });
+}
+
+/* ============ v3.02 : RECOMMANDATIONS SELON LA SÉLECTION ============
+   Dès qu'au moins un lieu est sélectionné, chaque catégorie de la liste
+   "Lieux proposés" est triée pour mettre en tête les lieux les plus proches
+   de la sélection ET les mieux notés (ex. un hôtel choisi fait remonter les
+   parkings bien notés à deux pas). Tout reste sélectionnable : seul l'ordre
+   change. Les 3 premiers non sélectionnés de chaque catégorie reçoivent une
+   pastille "Conseillé · à 250 m de <lieu>". */
+const RECO_BADGE_MAX = 3;
+const RECO_MAX_DIST_KM = 2;
+function recoAnchorsFor(p, anchors){
+  const g = CAT_LABEL[p.cat] && CAT_LABEL[p.cat].group;
+  // Un lieu ne sert pas de repère pour sa propre catégorie, ni un
+  // hébergement pour un autre hébergement (on ne dort qu'à un endroit).
+  return anchors.filter(a=>a.cat !== p.cat && !(g==='hebergement' && CAT_LABEL[a.cat] && CAT_LABEL[a.cat].group==='hebergement'));
+}
+function recoInfo(p, anchors){
+  const own = recoAnchorsFor(p, anchors);
+  if(!own.length) return null;
+  let best = null, d = Infinity;
+  own.forEach(a=>{ const dd = poiDistanceKm(p, a); if(dd < d){ d = dd; best = a; } });
+  if(!isFinite(d)) return null;
+  // Proximité (1 à 0) : 1 sur place, 0,5 à 500 m, 0,2 à 2 km.
+  const prox = 1 / (1 + d/0.5);
+  // Note "lissée" : peu d'avis → ramenée vers 4,0 (évite qu'un 5★ sur 2 avis
+  // passe devant un 4,6★ sur 800 avis). Sans note : valeur neutre.
+  const n = p.ratingCount || 0;
+  const bayes = p.rating ? (p.rating*n + 4.0*10)/(n+10) : 3.9;
+  const quality = Math.max(0, Math.min(1, (bayes-3)/2));
+  const score = 0.65*prox + 0.35*quality + (p.suggereParOT ? 0.05 : 0);
+  return { score, d, anchor: best };
+}
+function currentRecoAnchors(){
+  return state.allPOIs.filter(p=>state.selectedIds.has(p.id));
+}
+function sortPoisForDisplay(pois){
+  const anchors = currentRecoAnchors();
+  const infos = new Map(pois.map(p=>[p.id, anchors.length ? recoInfo(p, anchors) : null]));
+  const sorted = pois.slice().sort((a,b)=>{
+    const ia = infos.get(a.id), ib = infos.get(b.id);
+    if(ia && ib) return ib.score - ia.score;
+    return (b.suggereParOT?1:0) - (a.suggereParOT?1:0);
+  });
+  // Pastille "Conseillé" sur les premiers lieux non sélectionnés.
+  const badges = new Map();
+  let given = 0;
+  sorted.forEach(p=>{
+    const info = infos.get(p.id);
+    if(!info || state.selectedIds.has(p.id) || given >= RECO_BADGE_MAX || info.d > RECO_MAX_DIST_KM) return;
+    badges.set(p.id, info);
+    given++;
+  });
+  return { sorted, badges, active: [...infos.values()].some(Boolean) };
+}
+function formatDistShort(km){
+  return km < 1 ? (Math.max(10, Math.round(km*1000/10)*10) + ' m') : (km.toFixed(1).replace('.', ',') + ' km');
+}
+function recoBadgeHtml(info){
+  if(!info) return '';
+  const anchorName = info.anchor ? info.anchor.name : '';
+  return `<span class="reco-badge" title="Proche de votre sélection et bien noté">Conseillé · à ${formatDistShort(info.d)} de ${escapeHtml(anchorName)}</span>`;
+}
+/* Réordonne la liste déjà affichée (sans la reconstruire : on garde le
+   défilement, les branches ouvertes/fermées et les écouteurs). */
+let recoRefreshPending = false;
+function scheduleRecommendationRefresh(){
+  if(recoRefreshPending) return;
+  recoRefreshPending = true;
+  requestAnimationFrame(()=>{ recoRefreshPending = false; refreshRecommendations(); });
+}
+function refreshRecommendations(){
+  document.querySelectorAll('#resultsContainer ul.tree-leaves').forEach(ul=>{
+    const lis = [...ul.children].filter(li=>li.dataset && li.dataset.id);
+    const pois = lis.map(li=>state.allPOIs.find(p=>p.id===li.dataset.id)).filter(Boolean);
+    if(!pois.length) return;
+    const { sorted, badges, active } = sortPoisForDisplay(pois);
+    const byId = new Map(lis.map(li=>[li.dataset.id, li]));
+    sorted.forEach(p=>{
+      const li = byId.get(p.id);
+      if(!li) return;
+      ul.appendChild(li);
+      const slot = li.querySelector('.reco-slot');
+      if(slot) slot.innerHTML = recoBadgeHtml(badges.get(p.id));
+    });
+    const hint = ul.parentElement && ul.parentElement.querySelector(':scope > summary .reco-sort-hint');
+    if(hint) hint.hidden = !active;
+  });
+}
+
 /* ============ VÉRIFICATION DES SITES INTERNET PROPOSÉS ============
    Aucun backend disponible : impossible de vraiment "visiter" un site tiers
    depuis le navigateur (CORS). Le meilleur repli côté client consiste à
@@ -2144,7 +2480,9 @@ const CATEGORY_TO_OSM_TAGS = {
 };
 const PRICE_LEVEL_LABEL = {
   PRICE_LEVEL_FREE:'Gratuit', PRICE_LEVEL_INEXPENSIVE:'€', PRICE_LEVEL_MODERATE:'€€',
-  PRICE_LEVEL_EXPENSIVE:'€€€', PRICE_LEVEL_VERY_EXPENSIVE:'€€€€'
+  PRICE_LEVEL_EXPENSIVE:'€€€', PRICE_LEVEL_VERY_EXPENSIVE:'€€€€',
+  // L'API JS (classe Place) renvoie ces valeurs sans le préfixe PRICE_LEVEL_.
+  FREE:'Gratuit', INEXPENSIVE:'€', MODERATE:'€€', EXPENSIVE:'€€€', VERY_EXPENSIVE:'€€€€'
 };
 
 /* Devine l'une de nos catégories à partir des "types" Google d'un lieu
@@ -2199,6 +2537,7 @@ function toInternalPOIFromOverpass(el, catKey, center){
     website: tags.website || tags['contact:website'] || '—',
     googleMapsURI: null,
     rating: null,
+    practical: practicalFromOsmTags(tags, catKey),
     photoUrl,
     lat, lng,
     x: round1(x), y: round1(y),
@@ -2241,6 +2580,9 @@ function toInternalPOI(place, catKey, center){
     website: place.websiteURI || '—',
     googleMapsURI: place.googleMapsURI || null,
     rating: place.rating || null,
+    ratingCount: place.userRatingCount || null,
+    googlePlaceId: place.id || null,
+    practical: practicalFromGooglePlace(place),
     photoUrl,
     lat, lng,
     x: round1(x), y: round1(y),
@@ -2257,7 +2599,7 @@ async function searchCategoryReal(def, centerLatLng, radiusKm){
   // classés sous un type frère (ex. "parking_garage").
   const acceptedTypes = acceptableGoogleTypesFor(def.key);
   const request = {
-    fields: ['displayName','location','formattedAddress','googleMapsURI','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','photos','primaryType'],
+    fields: ['displayName','location','formattedAddress','googleMapsURI','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','userRatingCount','photos','primaryType'],
     locationRestriction: { center: centerLatLng, radius: Math.min(Math.max(radiusKm,0.1)*1000, 50000) },
     includedPrimaryTypes: acceptedTypes,
     maxResultCount: 20,
@@ -3546,6 +3888,8 @@ function setPoiSelected(id, selected){
   if(checkbox) checkbox.checked = selected;
   setMarkerSelected(id, selected);
   updateSelCount();
+  scheduleRecommendationRefresh();
+  if(selected) schedulePracticalEnrichment();
   document.querySelectorAll('.poi-popup-toggle[data-id="' + id + '"]').forEach(btn=>{
     btn.innerHTML = selected ? '<svg class="icon-inline" aria-hidden="true"><use href="#icon-check"></use></svg> Ajouté' : '+ Ajouter';
     btn.classList.toggle('on', selected);
@@ -3595,7 +3939,7 @@ function buildPoiPopupHtml(poi){
   const img = poi.photoUrl
     ? `<img src="${escapeHtml(poi.photoUrl)}" alt="${escapeHtml(poi.name)}" style="width:100%;max-width:220px;height:120px;object-fit:cover;border-radius:6px;margin-bottom:.4rem;display:block;">`
     : `<div style="width:100%;max-width:220px;height:90px;background:#eef2f3;border-radius:6px;margin-bottom:.4rem;display:flex;align-items:center;justify-content:center;font-size:2rem;">${emoji}</div>`;
-  return `<div style="max-width:220px;">${img}<strong>${escapeHtml(poi.name)}</strong><br><span style="font-size:.8rem;">${escapeHtml(poi.addr)}</span>${poiContactLinesHtml(poi)}<br>
+  return `<div style="max-width:220px;">${img}<strong>${escapeHtml(poi.name)}</strong><br><span style="font-size:.8rem;">${escapeHtml(poi.addr)}</span>${buildPracticalChipsHtml(poi)}${poiContactLinesHtml(poi)}<br>
     <button type="button" class="poi-popup-toggle${isSelected ? ' on' : ''}" data-id="${poi.id}">${isSelected ? '<svg class="icon-inline" aria-hidden="true"><use href="#icon-check"></use></svg> Ajouté' : '+ Ajouter'}</button>
   </div>`;
 }
@@ -3611,7 +3955,7 @@ function buildItineraryAddPopupHtml(poi){
   const img = poi.photoUrl
     ? `<img src="${escapeHtml(poi.photoUrl)}" alt="${escapeHtml(poi.name)}" style="width:100%;max-width:200px;height:110px;object-fit:cover;border-radius:6px;margin-bottom:.4rem;display:block;">`
     : `<div style="width:100%;max-width:200px;height:80px;background:#eef2f3;border-radius:6px;margin-bottom:.4rem;display:flex;align-items:center;justify-content:center;font-size:1.8rem;">${emoji}</div>`;
-  return `<div style="max-width:200px;">${img}<strong>${escapeHtml(poi.name)}</strong><br><span style="font-size:.78rem;">${escapeHtml(poi.addr)}</span>${poiContactLinesHtml(poi)}<br>
+  return `<div style="max-width:200px;">${img}<strong>${escapeHtml(poi.name)}</strong><br><span style="font-size:.78rem;">${escapeHtml(poi.addr)}</span>${buildPracticalChipsHtml(poi)}${poiContactLinesHtml(poi)}<br>
     <button type="button" class="btn small itinerary-add-poi-btn${isSelected ? ' disabled' : ''}" data-id="${poi.id}" style="margin-top:.4rem;" ${isSelected ? 'disabled' : ''}>${isSelected ? '<svg class="icon-inline" aria-hidden="true"><use href="#icon-check"></use></svg> Déjà dans l\'itinéraire' : '+ Ajouter à l\'itinéraire'}</button>
   </div>`;
 }
@@ -3717,7 +4061,7 @@ async function renderLieuMap(){
         event.stop(); // empêche l'InfoWindow par défaut de Google de s'ouvrir
         try{
           const place = new GMPlace({ id: event.placeId, requestedLanguage: 'fr', requestedRegion: 'FR' });
-          await place.fetchFields({ fields: ['displayName','location','formattedAddress','types','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','photos'] });
+          await place.fetchFields({ fields: ['displayName','location','formattedAddress','types','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','userRatingCount','photos'] });
           const cat = detectCategoryFromGoogleTypes(place.types);
           const poi = toInternalPOI(place, cat, state.centerLatLng);
           poi.manuallyAdded = true;
@@ -3876,9 +4220,10 @@ function renderResults(){
       // Les coups de cœur Office de Tourisme remontent en tête de chaque
       // catégorie ; à égalité, l'ordre d'origine (distance) est conservé
       // (tri stable).
+      // v3.02 : dès qu'un lieu est sélectionné, tri par proximité de la
+      // sélection + note Google (voir sortPoisForDisplay).
       pois: state.allPOIs
         .filter(p=>p.cat===def.key && poiIsVisible(p))
-        .sort((a,b)=>(b.suggereParOT?1:0) - (a.suggereParOT?1:0))
     })).filter(c=>c.pois.length>0);
     if(branchCats.length===0) return;
     anyShown = true;
@@ -3929,12 +4274,13 @@ function renderResults(){
     }
     branch.appendChild(branchSummary);
 
-    branchCats.forEach(({def, pois})=>{
+    branchCats.forEach(({def, pois: rawPois})=>{
+      const { sorted: pois, badges: recoBadges, active: recoActive } = sortPoisForDisplay(rawPois);
       const catDetails = document.createElement('details');
       catDetails.className = 'tree-category';
       catDetails.open = true;
       const catSummary = document.createElement('summary');
-      catSummary.innerHTML = `<span class="caret">▶</span>${def.emoji} ${def.label} <span class="count">(${pois.length})</span>`;
+      catSummary.innerHTML = `<span class="caret">▶</span>${def.emoji} ${def.label} <span class="count">(${pois.length})</span><span class="reco-sort-hint"${recoActive ? '' : ' hidden'}>· triés selon votre sélection</span>`;
       catDetails.appendChild(catSummary);
 
       const ul = document.createElement('ul');
@@ -3942,6 +4288,7 @@ function renderResults(){
       pois.forEach(p=>{
         const li = document.createElement('li');
         li.className = 'tree-leaf';
+        li.dataset.id = p.id;
         const checked = state.selectedIds.has(p.id) ? 'checked' : '';
         const otBadge = p.suggereParOT ? `<span class="ot-badge" title="Suggéré par l'Office de Tourisme"><svg class="icon-inline" aria-hidden="true"><use href="#icon-bell"></use></svg> Coup de cœur Office de Tourisme</span>` : '';
         // Vignette photo (façon aperçu Google Maps) si disponible en mode
@@ -3973,7 +4320,9 @@ function renderResults(){
           ${thumb}
           <div class="info" tabindex="0">
             <h4>${escapeHtml(p.name)}</h4>
+            <span class="reco-slot">${recoBadgeHtml(recoBadges.get(p.id))}</span>
             ${otBadge}
+            ${buildPracticalChipsHtml(p)}
             <div class="info-details">
               <p><span class="ico"><svg class="icon-inline" aria-hidden="true"><use href="#icon-map-pin"></use></svg></span><span class="txt">${addrHtml} · ${p.dist} km${otherCityNote}</span></p>
               <div class="info-extra">${infoRows}</div>
@@ -4040,6 +4389,7 @@ function renderResults(){
   }
   updateSelCount();
   checkWebsiteLinksIn(container);
+  schedulePracticalEnrichment();
 }
 
 function updateSelCount(){
@@ -5083,6 +5433,7 @@ function buildGuideStepsListHtml(chunk, ci, isFirstChunk, isLastChunk, departLab
   return html;
 }
 function renderGuide(){
+  schedulePracticalEnrichment();
   const totalSteps = state.itineraryChunks.reduce((a,c)=>a+c.length,0);
   const totalWalkMin = state.itineraryChunks.reduce((a,c)=>a+c.reduce((s,p)=>s+p.legMinutes,0),0);
   const totalVisitMin = state.itineraryChunks.reduce((a,c)=>a+c.reduce((s,p)=>s+(VISIT_DURATION[p.cat]||15),0),0);
@@ -5226,6 +5577,7 @@ function renderGuide(){
           <div class="num">${globalNum}</div>
           <div style="flex:1;">
             <h3>${CAT_LABEL[p.cat].emoji} ${escapeHtml(p.name)}</h3>
+            ${buildPracticalChipsHtml(p)}
             <p><strong>Adresse :</strong> ${escapeHtml(dedupeTrailingCountry(p.addr))}</p>
             ${stepRows}
             ${aiParsed && aiParsed.steps[p.id] ? `<div class="step-ai"><div class="step-ai-head"><svg class="icon-inline" aria-hidden="true"><use href="#icon-sparkles"></use></svg> L'avis de l'IA</div>${aiRoadbookMarkdownToHtml(aiParsed.steps[p.id])}</div>` : ''}
@@ -5392,6 +5744,7 @@ function buildGuidePinPopupHtml(poi, numLabel){
     + thumb
     + `<h4>${numLabel!=null ? escapeHtml(String(numLabel))+'. ' : ''}${escapeHtml(poi.name)}</h4>`
     + otBadge
+    + buildPracticalChipsHtml(poi)
     + `<p><span class="ico"><svg class="icon-inline" aria-hidden="true"><use href="#icon-map-pin"></use></svg></span><span class="txt">${escapeHtml(poi.addr || '')}${distHtml}</span></p>`
     + buildPoiDetailsRowsHtml(poi)
     + `</div>`;
@@ -5473,7 +5826,7 @@ function renderGuideChunkMapGoogle(container, ci, chunk, isFirstChunk, startLL, 
     event.stop();
     try{
       const place = new GMPlace({ id: event.placeId, requestedLanguage: 'fr', requestedRegion: 'FR' });
-      await place.fetchFields({ fields: ['displayName','location','formattedAddress','types','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','photos'] });
+      await place.fetchFields({ fields: ['displayName','location','formattedAddress','types','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','userRatingCount','photos'] });
       const cat = detectCategoryFromGoogleTypes(place.types);
       const existing = state.allPOIs.find(p=>p.id === ('g_' + (place.id || '')));
       const poi = existing || toInternalPOI(place, cat, state.centerLatLng);
@@ -5928,6 +6281,8 @@ document.getElementById('btnExportMd').addEventListener('click', ()=>{
       const globalNum = ci*10+si+1;
       md += `### ${globalNum}. ${p.name}\n`;
       md += `- **Adresse :** ${dedupeTrailingCountry(p.addr)}\n`;
+      const mdPractical = practicalText(p);
+      if(mdPractical) md += `- **Infos pratiques :** ${mdPractical}\n`;
       md += `- **Horaires :** ${p.hours}\n`;
       md += `- **Prix :** ${p.price}\n`;
       md += `- **Paiement :** ${p.payment}\n`;
