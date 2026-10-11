@@ -77,6 +77,10 @@ MARGO/
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.06 — Bug corrigé : aucun résultat sur le site public dans les grandes villes (11 octobre 2026)
+- **Cause** : sans clé Google, la recherche passe par OpenStreetMap (Overpass), qui ne trie pas les lieux par distance. La requête « out center 25 » renvoyait donc 25 lieux pris au hasard dans les 30 km (ex. à Lille : des hôtels belges à 25–30 km), si bien qu'une fois le rayon appliqué la liste était vide (« Aucun lieu dans ce rayon »). En local, la recherche passe par Google Places, triée par distance, d'où la différence.
+- **Corrigé** : jusqu'à 400 lieux demandés par catégorie, puis les 40 plus proches du centre gardés ; une réponse Overpass vide pour cause de surcharge (« runtime error: Query timed out ») est traitée comme un échec et relancée sur le serveur suivant.
+
 ### v3.05 — Recherche OpenStreetMap rétablie par catégorie, lien vers les avis Google (11 octobre 2026)
 - **Recherche** : retour à une requête OpenStreetMap par catégorie (25 lieux max chacune), 2 à la fois, comme avant la v3.04 : la requête unique ramenait trop d'éléments sur 50 km et tronquait certaines catégories. On garde la liste de serveurs de secours et le second essai en cas de saturation.
 - **Avis sans clé Google** : sur le site public (sans clé), les lieux viennent d'OpenStreetMap, qui ne publie aucun avis. Leur ligne d'étoiles devient un lien « Voir les avis Google » qui ouvre la fiche Google Maps du lieu. Avec une clé (en local via `apiki.env`, ou en ligne via la clé publique restreinte au domaine), les vraies notes Google s'affichent.
