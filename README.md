@@ -77,9 +77,10 @@ MARGO/
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
-### v3.03 — Étoiles des avis sur chaque résultat, Bourgou remis à niveau (11 octobre 2026)
+### v3.03 — Étoiles des avis, pictogrammes et catégories vins & gastronomie, Bourgou remis à niveau (11 octobre 2026)
 - **Étoiles des avis** : chaque lieu de la liste « Lieux proposés » affiche 5 étoiles remplies au prorata de sa note Google (ex. 4,3 → 4 étoiles pleines et un tiers de la 5e), suivies de la note et du nombre d'avis ; un lieu sans note affiche des étoiles grises « Pas d'avis ». Mêmes étoiles sur les fiches de la carte et les étapes du ROADBOOK.
-- **Bourgou** (`bourgou.html`, à la racine pour partager `apiki.env`/`AQ.env`) : reconstruit sur le moteur actuel de Margo (IA Roadbook, infos pratiques, recommandations, étoiles…) avec son habillage bordeaux/or. Nouveaux pictogrammes vins & gastronomie (grappe, verre de vin, bouteille, verres qui trinquent, toque, fromage, panier, tasse) et cinq catégories : Caves & domaines, Bars à vin, Cavistes, Fromageries & terroir, Marchés (repli OpenStreetMap si Google refuse ces types). Lancement local : `http://localhost:8000/bourgou.html`.
+- **Vins & gastronomie** (Margo et Bourgou) : le groupe Restauration devient « Vins & gastronomie », avec de nouveaux pictogrammes modernes (toque, verres qui trinquent, tasse, grappe, verre de vin, bouteille, fromage, panier) et cinq catégories : Caves & domaines, Bars à vin, Cavistes, Fromageries & terroir, Marchés. Si Google refuse ces types de lieux, la recherche de ces catégories passe automatiquement par OpenStreetMap.
+- **Bourgou** (`bourgou.html`, à la racine pour partager `apiki.env`/`AQ.env`) : reconstruit sur le moteur actuel de Margo (IA Roadbook, infos pratiques, recommandations, étoiles…) avec son habillage bordeaux/or. Lancement local : `http://localhost:8000/bourgou.html`.
 
 ### v3.02 — Infos pratiques des lieux et recommandations selon la sélection (11 octobre 2026)
 - **Infos pratiques en une ligne** sous le nom de chaque lieu (liste « Lieux proposés », fiches de la carte, étapes du ROADBOOK, export Markdown) : note Google et nombre d'avis, parking gratuit/payant, tarif d'entrée, fourchette de prix, moyens de paiement. Rien ne s'affiche quand l'info n'est pas connue.
