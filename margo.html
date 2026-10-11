@@ -2675,7 +2675,14 @@ async function fetchOverpassJson(query, perServerMs){
           break;
         }
         if(!res.ok) throw new Error('Overpass HTTP ' + res.status);
-        return await res.json();
+        const json = await res.json();
+        // Serveur surchargé : réponse 200 mais vide, avec une remarque
+        // "runtime error: Query timed out" — à traiter comme un échec pour
+        // passer au serveur suivant, sinon « Aucun lieu » s'affiche à tort.
+        if(json && json.remark && /runtime error|timed out|out of memory/i.test(json.remark) && !(json.elements||[]).length){
+          throw new Error('Overpass : ' + json.remark);
+        }
+        return json;
       }catch(err){ lastErr = err; break; }
       finally{ clearTimeout(timer); }
     }
@@ -2703,11 +2710,17 @@ async function searchCategoryOverpass(def, centerLatLng, radiusKm){
   const clauses = tagFilters
     .map(f => `nwr(around:${radiusMeters},${centerLatLng.lat},${centerLatLng.lng})[${f}];`)
     .join('\n  ');
-  const query = `[out:json][timeout:15];\n(\n  ${clauses}\n);\nout center 25;`;
-  const data = await fetchOverpassJson(query, 20000);
+  // Overpass ne trie PAS par distance : "out center 25" renvoyait 25 lieux
+  // pris au hasard dans les 50 km (ex. à Lille : des hôtels belges à 30 km,
+  // aucun en ville), d'où une liste vide une fois le rayon appliqué. On en
+  // demande davantage et on garde les plus proches du centre.
+  const query = `[out:json][timeout:25];\n(\n  ${clauses}\n);\nout center 400;`;
+  const data = await fetchOverpassJson(query, 30000);
   return (data.elements || [])
     .map(el => toInternalPOIFromOverpass(el, def.key, centerLatLng))
-    .filter(Boolean);
+    .filter(Boolean)
+    .sort((a,b)=>a.dist-b.dist)
+    .slice(0, 40);
 }
 
 /* Si une clé a été chargée automatiquement depuis apiki.env, elle est
