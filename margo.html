@@ -851,7 +851,7 @@
      renderResults). */
   .info-details p{display:flex;align-items:flex-start;gap:.45rem;margin:.3rem 0;}
   .info-details p .ico{flex:0 0 auto;width:1.1rem;text-align:center;line-height:1.4;}
-  .info-details p .txt{flex:1 1 auto;min-width:0;line-height:1.4;}
+  .info-details p .txt{flex:1 1 auto;min-width:0;line-height:1.4;overflow-wrap:anywhere;}
   .info-extra{margin-top:.4rem;padding-top:.4rem;border-top:1px dashed #e2e2e2;}
   .info-extra > *:first-child{margin-top:0;}
   .info-extra > *:last-child{margin-bottom:0;}
@@ -885,6 +885,23 @@
   .tree-empty{padding:1.5rem;text-align:center;color:var(--gray-500);font-size:.85rem;}
   .ot-badge{display:inline-block;background:#fff4e0;color:#a9640c;border:1px solid #e8a33d;border-radius:12px;padding:.1rem .55rem;font-size:.68rem;font-weight:bold;margin-bottom:.3rem;}
   #btnOtOnly.on{background:var(--accent);color:#fff;}
+  /* v3.02 : ligne discrète sous le nom du lieu — note Google (★ 4,5 · 1 234
+     avis), 1 à 2 infos pratiques courtes (parking payant, entrée gratuite...)
+     et, pour les parkings/restos proches d'un lieu déjà sélectionné, un petit
+     badge "Conseillé". Le détail (avis, tarifs, paiement) reste dans la bulle
+     au survol, pour ne pas alourdir la liste. */
+  .poi-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .4rem;margin:.05rem 0 .25rem;font-size:.7rem;color:var(--gray-500);line-height:1.3;}
+  .poi-rating{color:#8a6d00;font-weight:700;white-space:nowrap;}
+  .poi-rating .star{color:#e8a33d;}
+  .poi-rating .count{font-weight:400;color:var(--gray-500);}
+  .poi-chip{white-space:nowrap;}
+  .poi-chip + .poi-chip::before, .poi-rating + .poi-chip::before{content:'·';margin-right:.4rem;color:#c8c8c8;}
+  .reco-badge{display:inline-block;background:#e8f6ee;color:#1f7a4a;border:1px solid #9fd8b8;border-radius:12px;padding:.05rem .5rem;font-size:.66rem;font-weight:700;white-space:nowrap;}
+  .reco-hint{font-weight:400;font-size:.72rem;color:var(--gray-500);margin-left:.3rem;}
+  .poi-reviews{margin-top:.35rem;}
+  .poi-review{margin:.2rem 0 .35rem 1.55rem;font-size:.72rem;line-height:1.4;color:var(--gray-700);}
+  .poi-review .who{color:var(--gray-500);font-style:italic;}
+  .poi-reviews a{font-size:.72rem;margin-left:1.55rem;}
 
   /* --- Options screen --- */
   .opt-group{margin-bottom:1.2rem;}
@@ -1677,8 +1694,226 @@ function buildPoiDetailsRowsHtml(poi){
     !isUnknown(poi.price) ? row('<svg class="icon-inline" aria-hidden="true"><use href="#icon-euro"></use></svg>', escapeHtml(poi.price)) : '',
     !isUnknown(poi.payment) ? row('<svg class="icon-inline" aria-hidden="true"><use href="#icon-credit-card"></use></svg>', escapeHtml(poi.payment)) : '',
     !isUnknown(poi.phone) ? row('<svg class="icon-inline" aria-hidden="true"><use href="#icon-phone"></use></svg>', escapeHtml(poi.phone)) : '',
-    !isUnknown(poi.website) ? row('<svg class="icon-inline" aria-hidden="true"><use href="#icon-globe"></use></svg>', websiteLink(poi.website)) : ''
+    !isUnknown(poi.website) ? row('<svg class="icon-inline" aria-hidden="true"><use href="#icon-globe"></use></svg>', websiteLink(poi.website)) : '',
+    poiRatingRowHtml(poi),
+    (poi.practical && poi.practical.length) ? row('<svg class="icon-inline" aria-hidden="true"><use href="#icon-info"></use></svg>', poi.practical.map(escapeHtml).join(' · ')) : '',
+    poiReviewsHtml(poi)
   ].join('');
+}
+
+/* ============ NOTES, AVIS ET INFOS PRATIQUES (v3.02) ============
+   Note Google (+ nombre d'avis) et infos pratiques courtes (parking payant ou
+   gratuit, tarif d'entrée, accès PMR...) : une ligne discrète sous le nom du
+   lieu dans la liste, le détail (2 avis récents, tarifs, paiement) dans la
+   bulle au survol et dans la fiche des pins du Roadbook. Sources : la
+   recherche Google Places elle-même (rating/userRatingCount), les tags
+   OpenStreetMap (fee, charge, capacity...) en mode OSM, et un complément
+   Google à la demande pour chaque lieu SÉLECTIONNÉ (voir enrichPoiFromGoogle). */
+function formatFrNumber(n, digits){
+  return Number(n).toLocaleString('fr-FR', { minimumFractionDigits: digits||0, maximumFractionDigits: digits||0 });
+}
+function poiRatingInlineHtml(poi){
+  if(!poi || !poi.rating) return '';
+  const count = poi.ratingCount ? ` <span class="count">(${formatFrNumber(poi.ratingCount)} avis)</span>` : '';
+  return `<span class="poi-rating" title="Note Google"><span class="star">★</span> ${formatFrNumber(poi.rating, 1)}${count}</span>`;
+}
+function poiRatingRowHtml(poi){
+  if(!poi || !poi.rating) return '';
+  return `<p><span class="ico"><span class="star" style="color:#e8a33d">★</span></span><span class="txt">Note Google : <strong>${formatFrNumber(poi.rating, 1)}/5</strong>${poi.ratingCount ? ' · ' + formatFrNumber(poi.ratingCount) + ' avis' : ''}</span></p>`;
+}
+function poiReviewsHtml(poi){
+  if(!poi || !poi.reviews || !poi.reviews.length) return '';
+  const items = poi.reviews.map(r=>{
+    const txt = r.text.length > 160 ? r.text.slice(0, 157).trimEnd() + '…' : r.text;
+    const stars = r.rating ? '★'.repeat(Math.round(r.rating)) + ' ' : '';
+    return `<p class="poi-review">${escapeHtml(stars)}« ${escapeHtml(txt)} » <span class="who">— ${escapeHtml(r.author || 'Avis Google')}${r.when ? ', ' + escapeHtml(r.when) : ''}</span></p>`;
+  }).join('');
+  const link = poi.googleMapsURI && /^https:\/\//i.test(poi.googleMapsURI)
+    ? `<a href="${escapeHtml(poi.googleMapsURI)}" target="_blank" rel="noopener noreferrer">Tous les avis sur Google Maps</a>` : '';
+  return `<div class="poi-reviews"><p class="info-label"><span class="ico"><svg class="icon-inline" aria-hidden="true"><use href="#icon-message-circle"></use></svg></span><span class="txt">Avis Google récents</span></p>${items}${link}</div>`;
+}
+/* Ligne discrète sous le nom : note + au plus 2 infos pratiques + badge de
+   recommandation éventuel (voir computeRecommendations). */
+function buildPoiMetaLineHtml(poi, reco){
+  const chips = (poi.practical || []).slice(0, 2).map(t=>`<span class="poi-chip">${escapeHtml(t)}</span>`).join('');
+  const recoHtml = reco
+    ? `<span class="reco-badge" title="Bien noté et à ${escapeHtml(formatShortDistance(reco.distKm))} de « ${escapeHtml(reco.anchorName)} »">Conseillé · à ${escapeHtml(formatShortDistance(reco.distKm))}</span>` : '';
+  const inner = recoHtml + poiRatingInlineHtml(poi) + chips;
+  return inner ? `<div class="poi-meta">${inner}</div>` : '';
+}
+function formatShortDistance(km){
+  return km < 1 ? (Math.max(10, Math.round(km*1000/10)*10) + ' m') : (formatFrNumber(km, 1) + ' km');
+}
+function truncateLabel(s, max){
+  s = String(s || '');
+  return s.length > max ? s.slice(0, max-1).trimEnd() + '…' : s;
+}
+function addPractical(poi, label){
+  if(!label) return;
+  poi.practical = poi.practical || [];
+  // Une info "parking payant" venue de Google remplace l'équivalent OSM
+  // plutôt que de s'y ajouter en double (même début de libellé).
+  const head = label.split(/[ :]/)[0];
+  const idx = poi.practical.findIndex(t => t === label || (t.split(/[ :]/)[0] === head && /^(Parking|Stationnement|Entrée|Prix)/.test(head)));
+  if(idx >= 0) poi.practical[idx] = label; else poi.practical.push(label);
+}
+
+/* Infos pratiques lisibles depuis les tags OpenStreetMap (gratuites, déjà
+   reçues avec la recherche Overpass) — schéma : wiki.openstreetmap.org. */
+const PAID_ENTRY_CATS = new Set(['musee','historique','zoo','parc-theme','aquatique','culturel']);
+function osmPracticalInfo(tags, catKey){
+  const out = [];
+  const fee = (tags.fee || '').toLowerCase();
+  const charge = tags.charge || tags['charge:conditional'] || '';
+  const isParkingLike = catKey === 'parking' || catKey === 'aire-camping-car' || catKey === 'borne';
+  const prettyCharge = c => String(c).replace(/\bEUR\b/g, '€').replace(/\s*\/\s*/g, '/')
+    .replace(/\/(hour|hr|h)\b/gi, '/h').replace(/\/day\b/gi, '/jour').replace(/\/month\b/gi, '/mois').slice(0, 40);
+  if(isParkingLike){
+    const what = catKey === 'borne' ? 'Recharge' : 'Parking';
+    if(fee === 'yes') out.push(charge ? `${what} payant : ${prettyCharge(charge)}` : `${what} payant`);
+    else if(fee === 'no') out.push(`${what} gratuit`);
+    else if(charge) out.push(`Tarif : ${prettyCharge(charge)}`);
+    if(catKey === 'parking'){
+      if(tags.parking === 'underground') out.push('Souterrain');
+      else if(tags.parking === 'multi-storey') out.push('En étages');
+      if(tags.capacity && /^\d+$/.test(tags.capacity)) out.push(`${tags.capacity} places`);
+      if(tags.maxstay) out.push(`Durée max : ${String(tags.maxstay).slice(0, 25)}`);
+    }
+  } else if(PAID_ENTRY_CATS.has(catKey)){
+    if(charge) out.push(`Entrée : ${prettyCharge(charge)}`);
+    else if(fee === 'yes') out.push('Entrée payante');
+    else if(fee === 'no') out.push('Entrée gratuite');
+  }
+  if(tags.wheelchair === 'yes') out.push('Accès PMR');
+  return out;
+}
+
+/* Infos pratiques depuis la fiche Google (Place Details, champs "Atmosphere") :
+   noms de propriétés lus de façon tolérante (hasPaidParkingLot ou
+   paidParkingLot selon la version de la bibliothèque). */
+function googleFlag(obj, name){
+  if(!obj) return false;
+  const has = 'has' + name.charAt(0).toUpperCase() + name.slice(1);
+  return obj[has] === true || obj[name] === true;
+}
+function applyGooglePracticalInfo(poi, place){
+  const pk = place.parkingOptions;
+  if(pk){
+    const paid = ['paidParkingLot','paidGarageParking','paidStreetParking'].some(k=>googleFlag(pk, k));
+    const free = ['freeParkingLot','freeGarageParking','freeStreetParking'].some(k=>googleFlag(pk, k));
+    if(poi.cat === 'parking'){
+      if(paid && !free) addPractical(poi, 'Parking payant');
+      else if(free && !paid) addPractical(poi, 'Parking gratuit');
+    } else {
+      if(free) addPractical(poi, 'Stationnement gratuit');
+      else if(paid) addPractical(poi, 'Stationnement payant');
+    }
+  }
+  const pr = place.priceRange;
+  if(pr && (pr.startPrice || pr.endPrice)){
+    const money = m => m && m.units != null ? `${m.units} ${m.currencyCode === 'EUR' || !m.currencyCode ? '€' : m.currencyCode}` : '';
+    const a = money(pr.startPrice), b = money(pr.endPrice);
+    const label = (a && b) ? `${a.replace(/ €$/, '')}–${b}` : (a ? `dès ${a}` : `jusqu'à ${b}`);
+    addPractical(poi, (PAID_ENTRY_CATS.has(poi.cat) ? 'Entrée : ' : 'Prix : ') + label);
+  }
+  const acc = place.accessibilityOptions;
+  if(acc && googleFlag(acc, 'wheelchairAccessibleEntrance')) addPractical(poi, 'Accès PMR');
+  const pay = place.paymentOptions;
+  if(pay && (!poi.payment || /non communiqué/i.test(poi.payment))){
+    const parts = [];
+    if(googleFlag(pay, 'acceptsCashOnly')) parts.push('Espèces uniquement');
+    else {
+      if(googleFlag(pay, 'acceptsCreditCards') || googleFlag(pay, 'acceptsDebitCards')) parts.push('CB');
+      if(googleFlag(pay, 'acceptsNFC')) parts.push('sans contact');
+    }
+    if(parts.length) poi.payment = parts.join(', ');
+  }
+}
+
+/* Complément Google pour un lieu SÉLECTIONNÉ : note, nombre d'avis, 2 avis
+   récents et infos pratiques. Un seul appel Place Details par lieu (précédé,
+   pour un lieu OpenStreetMap, d'une recherche texte pour retrouver la fiche
+   Google correspondante à moins de 250 m) — résultat gardé en mémoire le temps
+   de la session, jamais stocké (conditions Google sur les avis). Silencieux
+   sans clé Google valide : on garde alors les seules infos OpenStreetMap. */
+const googleEnrichDone = new Map(); // poi.id -> Promise
+function googleEnrichAvailable(){
+  return !!getApiKey() && !googleMapsAuthFailed;
+}
+const GOOGLE_ENRICH_FIELDS = ['rating','userRatingCount','reviews','googleMapsURI','parkingOptions','paymentOptions','accessibilityOptions','priceRange'];
+async function findGooglePlaceIdForPoi(poi, fieldsForLookup){
+  const { places } = await GMPlace.searchByText({
+    textQuery: `${poi.name} ${poi.addr && poi.addr !== '—' ? poi.addr : (state.ville || '')}`,
+    fields: ['id','location','displayName'].concat(fieldsForLookup || []),
+    locationBias: { center: {lat: poi.lat, lng: poi.lng}, radius: 300 },
+    maxResultCount: 1,
+    language: 'fr', region: 'FR'
+  });
+  const p = places && places[0];
+  if(!p || !p.location) return null;
+  // Garde-fou contre une mauvaise fiche : très proche, OU un peu plus loin
+  // (grands sites : château, parc...) avec au moins un mot du nom en commun.
+  const d = haversineKm(poi.lat, poi.lng, p.location.lat(), p.location.lng());
+  const words = n => new Set(normalize(n || '').split(/[^a-z0-9]+/).filter(w => w.length >= 4 && !['parking','musee','hotel','restaurant'].includes(w)));
+  const a = words(poi.name), b = words(p.displayName);
+  const sharesWord = [...a].some(w => b.has(w));
+  return (d <= 0.15 || (d <= 0.6 && sharesWord)) ? p : null;
+}
+function enrichPoiFromGoogle(poi, opts){
+  const lite = !!(opts && opts.lite); // lite : note seule (candidats de recommandation)
+  if(!poi || poi.lat == null || !googleEnrichAvailable()) return Promise.resolve(false);
+  const key = poi.id + (lite ? '|lite' : '');
+  if(googleEnrichDone.has(poi.id)) return googleEnrichDone.get(poi.id);
+  if(googleEnrichDone.has(key)) return googleEnrichDone.get(key);
+  const job = (async ()=>{
+    try{
+      await withTimeout(ensureGoogleMapsLoaded(getApiKey()), 12000, 'Chargement Google trop long');
+      let googleId = poi.googlePlaceId || (String(poi.id).startsWith('g_') ? String(poi.id).slice(2) : null);
+      if(lite){
+        if(googleId && poi.rating) return false; // déjà noté par la recherche Google
+        const found = googleId ? null : await findGooglePlaceIdForPoi(poi, ['rating','userRatingCount','googleMapsURI']);
+        if(found){
+          poi.googlePlaceId = found.id;
+          if(found.rating){ poi.rating = found.rating; poi.ratingCount = found.userRatingCount || null; }
+          if(!poi.googleMapsURI && found.googleMapsURI) poi.googleMapsURI = found.googleMapsURI;
+          return !!found.rating;
+        }
+        return false;
+      }
+      if(!googleId){
+        const found = await findGooglePlaceIdForPoi(poi);
+        if(!found) return false;
+        googleId = found.id;
+      }
+      poi.googlePlaceId = googleId;
+      const place = new GMPlace({ id: googleId, requestedLanguage: 'fr', requestedRegion: 'FR' });
+      try{
+        await place.fetchFields({ fields: GOOGLE_ENRICH_FIELDS });
+      }catch(err){
+        // Champ inconnu d'une version plus ancienne de la bibliothèque (ex.
+        // priceRange) : on retente avec l'essentiel plutôt que de tout perdre.
+        await place.fetchFields({ fields: ['rating','userRatingCount','reviews','googleMapsURI'] });
+      }
+      if(place.rating){ poi.rating = place.rating; poi.ratingCount = place.userRatingCount || poi.ratingCount || null; }
+      if(place.googleMapsURI) poi.googleMapsURI = place.googleMapsURI;
+      poi.reviews = (place.reviews || [])
+        .filter(r => r && r.text)
+        .slice(0, 2)
+        .map(r => ({
+          text: String(r.text).replace(/\s+/g, ' ').trim(),
+          rating: r.rating || null,
+          author: r.authorAttribution && r.authorAttribution.displayName,
+          when: r.relativePublishTimeDescription || ''
+        }));
+      applyGooglePracticalInfo(poi, place);
+      return true;
+    }catch(err){
+      console.warn('Complément Google (note/avis) indisponible pour', poi.name, err);
+      return false;
+    }
+  })();
+  googleEnrichDone.set(key, job);
+  return job;
 }
 
 /* ============ VÉRIFICATION DES SITES INTERNET PROPOSÉS ============
@@ -2199,6 +2434,8 @@ function toInternalPOIFromOverpass(el, catKey, center){
     website: tags.website || tags['contact:website'] || '—',
     googleMapsURI: null,
     rating: null,
+    ratingCount: null,
+    practical: osmPracticalInfo(tags, catKey),
     photoUrl,
     lat, lng,
     x: round1(x), y: round1(y),
@@ -2241,6 +2478,9 @@ function toInternalPOI(place, catKey, center){
     website: place.websiteURI || '—',
     googleMapsURI: place.googleMapsURI || null,
     rating: place.rating || null,
+    ratingCount: place.userRatingCount || null,
+    googlePlaceId: place.id || null,
+    practical: [],
     photoUrl,
     lat, lng,
     x: round1(x), y: round1(y),
@@ -2257,7 +2497,7 @@ async function searchCategoryReal(def, centerLatLng, radiusKm){
   // classés sous un type frère (ex. "parking_garage").
   const acceptedTypes = acceptableGoogleTypesFor(def.key);
   const request = {
-    fields: ['displayName','location','formattedAddress','googleMapsURI','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','photos','primaryType'],
+    fields: ['displayName','location','formattedAddress','googleMapsURI','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','userRatingCount','photos','primaryType'],
     locationRestriction: { center: centerLatLng, radius: Math.min(Math.max(radiusKm,0.1)*1000, 50000) },
     includedPrimaryTypes: acceptedTypes,
     maxResultCount: 20,
@@ -3546,6 +3786,7 @@ function setPoiSelected(id, selected){
   if(checkbox) checkbox.checked = selected;
   setMarkerSelected(id, selected);
   updateSelCount();
+  onPoiSelectionChanged(id, selected);
   document.querySelectorAll('.poi-popup-toggle[data-id="' + id + '"]').forEach(btn=>{
     btn.innerHTML = selected ? '<svg class="icon-inline" aria-hidden="true"><use href="#icon-check"></use></svg> Ajouté' : '+ Ajouter';
     btn.classList.toggle('on', selected);
@@ -3717,7 +3958,7 @@ async function renderLieuMap(){
         event.stop(); // empêche l'InfoWindow par défaut de Google de s'ouvrir
         try{
           const place = new GMPlace({ id: event.placeId, requestedLanguage: 'fr', requestedRegion: 'FR' });
-          await place.fetchFields({ fields: ['displayName','location','formattedAddress','types','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','photos'] });
+          await place.fetchFields({ fields: ['displayName','location','formattedAddress','types','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','userRatingCount','photos'] });
           const cat = detectCategoryFromGoogleTypes(place.types);
           const poi = toInternalPOI(place, cat, state.centerLatLng);
           poi.manuallyAdded = true;
@@ -3863,6 +4104,124 @@ function groupColorForCat(catKey){
 /* Arborescence : Ville > (Visites / Restauration) > Catégorie > Lieux.
    Les niveaux se déplient automatiquement (attribut "open") dès que des
    résultats existent, tout en restant repliables manuellement. */
+/* ============ RECOMMANDATIONS SELON LA SÉLECTION (v3.02) ============
+   Les lieux déjà sélectionnés servent de "points d'ancrage" : dans les
+   catégories de services ci-dessous, les lieux à la fois bien notés et
+   proches d'un ancrage remontent en tête de leur catégorie (tri par score
+   note + distance) avec un petit badge "Conseillé · 250 m de Hôtel X".
+   Exemple : un hôtel sélectionné fait remonter les parkings les mieux notés
+   les plus proches de cet hôtel. Tout le reste de la liste reste affiché et
+   sélectionnable, dans son ordre habituel, juste en dessous.
+   anchorGroups : groupes d'ancrage prioritaires (si un lieu de ces groupes
+   est sélectionné, seuls eux servent d'ancrage) ; sinon, n'importe quel lieu
+   sélectionné d'un autre groupe que "service". maxKm : au-delà, pas de
+   recommandation (trop loin pour être utile). */
+const RECO_RULES = {
+  parking:      { anchorGroups:['hebergement'], maxKm:1.5 },
+  borne:        { anchorGroups:['hebergement'], maxKm:3 },
+  boulangerie:  { anchorGroups:['hebergement'], maxKm:1 },
+  restaurant:   { anchorGroups:null, maxKm:1 },
+  'salon-the':  { anchorGroups:null, maxKm:1 },
+  snack:        { anchorGroups:null, maxKm:1 },
+  bar:          { anchorGroups:null, maxKm:1 }
+};
+const RECO_TOP_N = 3;
+function recoAnchorsFor(catKey){
+  const rule = RECO_RULES[catKey];
+  if(!rule) return [];
+  const selected = state.allPOIs.filter(p => state.selectedIds.has(p.id) && p.cat !== catKey && p.lat != null);
+  const groupOf = p => (CAT_LABEL[p.cat] || {}).group;
+  if(rule.anchorGroups){
+    const preferred = selected.filter(p => rule.anchorGroups.includes(groupOf(p)));
+    if(preferred.length) return preferred;
+  }
+  return selected.filter(p => groupOf(p) !== 'service');
+}
+/* Note "bayésienne" légère : une note de 5/5 sur 3 avis pèse moins qu'un
+   4,6/5 sur 800 avis ; sans note, valeur neutre (pas pénalisé à l'excès en
+   mode OpenStreetMap, où les notes ne sont connues qu'après complément). */
+function recoRatingScore(p){
+  if(!p.rating) return 0.5;
+  const conf = p.ratingCount ? Math.min(1, p.ratingCount / 40) : 0.4;
+  const r = (Math.min(5, Math.max(1, p.rating)) - 1) / 4;
+  return r * conf + 0.6 * (1 - conf);
+}
+/* Renvoie Map poiId -> {score, distKm, anchorName, rank} pour une catégorie
+   (vide si aucune règle ou aucun ancrage). */
+function computeRecommendations(catKey, pois){
+  const out = new Map();
+  const rule = RECO_RULES[catKey];
+  const anchors = recoAnchorsFor(catKey);
+  if(!rule || !anchors.length) return out;
+  const scored = [];
+  pois.forEach(p=>{
+    if(p.lat == null) return;
+    let best = null;
+    anchors.forEach(a=>{
+      const d = haversineKm(p.lat, p.lng, a.lat, a.lng);
+      if(!best || d < best.d) best = { d, a };
+    });
+    if(!best || best.d > rule.maxKm) return;
+    const proximity = 1 - best.d / rule.maxKm;
+    scored.push({ id: p.id, score: 0.55*proximity + 0.45*recoRatingScore(p), distKm: best.d, anchorName: best.a.name });
+  });
+  scored.sort((x,y)=>y.score - x.score).slice(0, RECO_TOP_N)
+    .forEach((s,i)=>out.set(s.id, {...s, rank:i}));
+  return out;
+}
+/* Signature des ancrages actuels : sert à ne reconstruire la liste (pour
+   réordonner) que si une sélection change réellement les recommandations. */
+function recoSignature(){
+  return Object.keys(RECO_RULES)
+    .filter(k => state.selectedCategories.has(k))
+    .map(k => k + ':' + recoAnchorsFor(k).map(a=>a.id).sort().join(','))
+    .join('|');
+}
+let lastRecoSignature = '';
+/* En mode OpenStreetMap, les candidats n'ont pas de note : on complète (note
+   seule) les quelques plus proches de chaque ancrage, si Google est dispo. */
+function enrichRecoCandidates(){
+  if(!googleEnrichAvailable()) return;
+  const jobs = [];
+  Object.keys(RECO_RULES).forEach(catKey=>{
+    if(!state.selectedCategories.has(catKey)) return;
+    const anchors = recoAnchorsFor(catKey);
+    if(!anchors.length) return;
+    const rule = RECO_RULES[catKey];
+    state.allPOIs
+      .filter(p => p.cat === catKey && !p.rating && p.lat != null)
+      .map(p => ({ p, d: Math.min(...anchors.map(a=>haversineKm(p.lat, p.lng, a.lat, a.lng))) }))
+      .filter(x => x.d <= rule.maxKm)
+      .sort((x,y)=>x.d - y.d)
+      .slice(0, 6)
+      .forEach(x => jobs.push(enrichPoiFromGoogle(x.p, {lite:true})));
+  });
+  if(jobs.length){
+    Promise.all(jobs).then(res => { if(res.some(Boolean)) rerenderResultsKeepingUi(); });
+  }
+}
+/* Reconstruit la liste en conservant le défilement et les branches repliées
+   par l'utilisateur (renderResults les rouvre toutes par défaut). */
+function rerenderResultsKeepingUi(){
+  const container = document.getElementById('resultsContainer');
+  if(!container || !state.allPOIs.length) return;
+  const scroll = container.scrollTop;
+  const closed = new Set([...container.querySelectorAll('details[data-key]:not([open])')].map(d=>d.dataset.key));
+  renderResults();
+  container.querySelectorAll('details[data-key]').forEach(d=>{ if(closed.has(d.dataset.key)) d.open = false; });
+  container.scrollTop = scroll;
+}
+/* Appelé à chaque (dé)sélection : complète le lieu via Google, puis
+   rafraîchit la liste si les recommandations ont changé. */
+function onPoiSelectionChanged(id, selected){
+  const sig = recoSignature();
+  if(sig !== lastRecoSignature){ rerenderResultsKeepingUi(); enrichRecoCandidates(); }
+  if(selected){
+    const poi = state.allPOIs.find(p=>p.id===id);
+    if(poi) enrichPoiFromGoogle(poi).then(changed=>{ if(changed) rerenderResultsKeepingUi(); });
+  }
+}
+
 function renderResults(){
   const container = document.getElementById('resultsContainer');
   container.innerHTML = '';
@@ -3880,12 +4239,25 @@ function renderResults(){
         .filter(p=>p.cat===def.key && poiIsVisible(p))
         .sort((a,b)=>(b.suggereParOT?1:0) - (a.suggereParOT?1:0))
     })).filter(c=>c.pois.length>0);
+    // v3.02 : lieux conseillés (bien notés + proches d'un lieu sélectionné)
+    // en tête de leur catégorie, triés par score ; le reste suit inchangé.
+    branchCats.forEach(c=>{
+      c.reco = computeRecommendations(c.def.key, c.pois);
+      if(c.reco.size){
+        c.pois.sort((a,b)=>{
+          const ra = c.reco.get(a.id), rb = c.reco.get(b.id);
+          if(ra && rb) return ra.rank - rb.rank;
+          return (rb?1:0) - (ra?1:0);
+        });
+      }
+    });
     if(branchCats.length===0) return;
     anyShown = true;
 
     const branchTotal = branchCats.reduce((a,c)=>a+c.pois.length,0);
     const branch = document.createElement('details');
     branch.className = 'tree-branch';
+    branch.dataset.key = 'g:' + groupKey;
     branch.open = true;
     const branchSummary = document.createElement('summary');
     branchSummary.innerHTML = `<span class="tree-branch-label"><span class="caret">▶</span>${groupLabelHtml(groupKey)} <span class="count">(${branchTotal})</span></span>`;
@@ -3929,12 +4301,16 @@ function renderResults(){
     }
     branch.appendChild(branchSummary);
 
-    branchCats.forEach(({def, pois})=>{
+    branchCats.forEach(({def, pois, reco})=>{
       const catDetails = document.createElement('details');
       catDetails.className = 'tree-category';
+      catDetails.dataset.key = 'c:' + def.key;
       catDetails.open = true;
       const catSummary = document.createElement('summary');
-      catSummary.innerHTML = `<span class="caret">▶</span>${def.emoji} ${def.label} <span class="count">(${pois.length})</span>`;
+      const recoAnchors = reco && reco.size ? recoAnchorsFor(def.key) : [];
+      const recoHint = recoAnchors.length
+        ? `<span class="reco-hint">· conseillés près de ${recoAnchors.length===1 ? escapeHtml(truncateLabel(recoAnchors[0].name, 24)) : 'votre sélection'}</span>` : '';
+      catSummary.innerHTML = `<span class="caret">▶</span>${def.emoji} ${def.label} <span class="count">(${pois.length})</span>${recoHint}`;
       catDetails.appendChild(catSummary);
 
       const ul = document.createElement('ul');
@@ -3973,6 +4349,7 @@ function renderResults(){
           ${thumb}
           <div class="info" tabindex="0">
             <h4>${escapeHtml(p.name)}</h4>
+            ${buildPoiMetaLineHtml(p, reco && reco.get(p.id))}
             ${otBadge}
             <div class="info-details">
               <p><span class="ico"><svg class="icon-inline" aria-hidden="true"><use href="#icon-map-pin"></use></svg></span><span class="txt">${addrHtml} · ${p.dist} km${otherCityNote}</span></p>
@@ -4040,6 +4417,7 @@ function renderResults(){
   }
   updateSelCount();
   checkWebsiteLinksIn(container);
+  lastRecoSignature = recoSignature();
 }
 
 function updateSelCount(){
@@ -5391,6 +5769,7 @@ function buildGuidePinPopupHtml(poi, numLabel){
   return `<div class="guide-pin-popup">`
     + thumb
     + `<h4>${numLabel!=null ? escapeHtml(String(numLabel))+'. ' : ''}${escapeHtml(poi.name)}</h4>`
+    + buildPoiMetaLineHtml(poi)
     + otBadge
     + `<p><span class="ico"><svg class="icon-inline" aria-hidden="true"><use href="#icon-map-pin"></use></svg></span><span class="txt">${escapeHtml(poi.addr || '')}${distHtml}</span></p>`
     + buildPoiDetailsRowsHtml(poi)
@@ -5473,7 +5852,7 @@ function renderGuideChunkMapGoogle(container, ci, chunk, isFirstChunk, startLL, 
     event.stop();
     try{
       const place = new GMPlace({ id: event.placeId, requestedLanguage: 'fr', requestedRegion: 'FR' });
-      await place.fetchFields({ fields: ['displayName','location','formattedAddress','types','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','photos'] });
+      await place.fetchFields({ fields: ['displayName','location','formattedAddress','types','regularOpeningHours','priceLevel','nationalPhoneNumber','websiteURI','rating','userRatingCount','photos'] });
       const cat = detectCategoryFromGoogleTypes(place.types);
       const existing = state.allPOIs.find(p=>p.id === ('g_' + (place.id || '')));
       const poi = existing || toInternalPOI(place, cat, state.centerLatLng);
