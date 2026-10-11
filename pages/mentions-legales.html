@@ -40,7 +40,7 @@
 
 <main>
 
-  <p style="font-size:.8rem;color:#7a8598;text-align:right;margin:0 0 1rem;">Dernière mise à jour : 10/10/2026</p>
+  <p style="font-size:.8rem;color:#7a8598;text-align:right;margin:0 0 1rem;">Dernière mise à jour : 11/10/2026</p>
 
   <section>
     <h2>Mentions légales</h2>
@@ -57,7 +57,10 @@
     <p>Ce générateur d'itinéraire touristique fonctionne côté client (dans le navigateur) : il n'a pas de serveur propre et ne conserve aucune donnée. Les critères saisis (ville, catégories, rayon) sont envoyés directement par le navigateur aux services suivants, selon les fonctions utilisées :</p>
     <ul>
       <li><strong>OpenStreetMap</strong> (Nominatim pour la localisation de la ville, Overpass pour la recherche de lieux) — services gratuits et ouverts ;</li>
-      <li><strong>Google Maps / Google Places</strong>, si une clé API Google est configurée : cartes, recherche de lieux, photos et itinéraires, conformément à la politique de confidentialité de Google ;</li>
+      <li><strong>Google Maps / Google Places</strong>, si une clé API Google est configurée : cartes, recherche de lieux, photos, itinéraires, ainsi que les <strong>notes et avis Google</strong> des lieux sélectionnés (affichés avec le nom de leur auteur, tels que publiés sur Google Maps), conformément à la <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">politique de confidentialité de Google</a> ;</li>
+      <li><strong>Google Traduction</strong>, uniquement si l'utilisateur choisit une autre langue que le français dans le menu à drapeaux : le texte de la page est alors traduit par Google ;</li>
+      <li><strong>geo.api.gouv.fr</strong> (API officielle des communes françaises) pour proposer les codes postaux ;</li>
+      <li><strong>api.qrserver.com</strong> pour dessiner les QR codes du roadbook (seul le lien Google Maps de l'étape lui est transmis) et <strong>flagcdn.com</strong> pour les drapeaux du menu des langues ;</li>
       <li><strong>Google Gemini</strong>, uniquement si l'utilisateur lance l'<strong>IA Roadbook</strong> avec sa propre clé Gemini : la liste des lieux proposés (noms, adresses, horaires, prix, catégories), la ville et le mode de déplacement sont envoyés à Google pour rédiger le roadbook. Avec l'offre gratuite de Gemini, Google peut utiliser ces textes pour améliorer ses produits. Aucune donnée personnelle n'est incluse dans cette demande ;</li>
       <li><strong>Open Charge Map</strong> et <strong>Chargemap.com</strong> (bornes de recharge), <strong>TripAdvisor</strong> et les sites des offices de tourisme, uniquement à l'ouverture des liens ou fenêtres correspondants.</li>
     </ul>
@@ -68,8 +71,14 @@
   </section>
 
   <section>
+    <h2>Propriété intellectuelle et contenus tiers</h2>
+    <p>Le nom Margo, le logo, la mise en page et le code de l'application appartiennent à Studio TopKapi. Les données de lieux, photos, notes et avis restent la propriété de leurs auteurs et de leurs fournisseurs (Google, contributeurs OpenStreetMap). Les textes rédigés par l'IA sont des suggestions générées automatiquement : vérifiez horaires, tarifs et disponibilités auprès des lieux avant de vous déplacer.</p>
+  </section>
+
+  <section>
     <h2>Cookies</h2>
     <p>Ce site n'utilise pas de cookies de suivi ou publicitaires. Seul le stockage local du navigateur peut être utilisé pour mémoriser certaines préférences techniques (ex. clés API, résultats de recherche mis en cache).</p>
+    <p>Si vous choisissez une langue de traduction, <strong>Google Traduction</strong> dépose un cookie technique <code>googtrans</code> qui mémorise la langue choisie. Revenir au français dans le menu supprime ce cookie. Google peut aussi déposer ses propres cookies lors du chargement de ses services (cartes, traduction) : voir la <a href="https://policies.google.com/technologies/cookies" target="_blank" rel="noopener noreferrer">politique de Google relative aux cookies</a>.</p>
     <p>Margo peut être installée comme application (PWA) et son interface fonctionne alors aussi hors-ligne, grâce à un fichier technique de cache (<code>sw.js</code>/<code>manifest.json</code>). Ce mécanisme ne collecte et ne transmet aucune donnée personnelle : il conserve seulement localement les fichiers de l'application ; les fichiers de clés API ne sont jamais mis en cache.</p>
   </section>
 

@@ -107,7 +107,7 @@
   .lang-dropdown-btn:hover{background:rgba(255,255,255,.3);}
   .lang-dropdown-btn img{display:block;width:26px;height:19px;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.15);}
   .lang-dropdown-btn .lang-caret{font-size:.64rem;opacity:.85;}
-  .lang-dropdown-menu{position:absolute;top:calc(100% + .4rem);right:0;background:#fff;border-radius:12px;box-shadow:0 10px 28px -6px rgba(16,19,43,.35);padding:.4rem;min-width:170px;z-index:200;display:flex;flex-direction:column;gap:.15rem;}
+  .lang-dropdown-menu{position:absolute;top:calc(100% + .4rem);right:0;background:#fff;border-radius:12px;box-shadow:0 10px 28px -6px rgba(16,19,43,.35);padding:.4rem;min-width:170px;z-index:200;max-height:min(70vh,520px);overflow-y:auto;display:flex;flex-direction:column;gap:.15rem;}
   .lang-dropdown-menu[hidden]{display:none;}
   .lang-option{display:flex;align-items:center;gap:.55rem;background:none;border:none;border-radius:8px;padding:.45rem .6rem;font-size:.82rem;font-weight:600;color:var(--primary);cursor:pointer;text-align:left;width:100%;}
   .lang-option:hover{background:var(--light);}
@@ -116,6 +116,9 @@
   /* Le widget Google Traduction lui-même reste invisible : on pilote sa
      traduction via notre propre menu déroulant .lang-dropdown. */
   #google_translate_element{display:none !important;}
+/* Bannière récente de Google Traduction (« Traduction en cours », barre du haut) et infobulle au survol : masquées. */
+body > .skiptranslate, iframe.VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-yAWNEb-L7lbkb, .VIpgJd-ZVi9od-aZ2wEe-wOHMyf, .VIpgJd-ZVi9od-aZ2wEe-OiiCO{display:none !important;}
+
   /* Sélecteurs renforcés (id + doublons) : le style que Google injecte
      dynamiquement dans <head> peut arriver APRÈS le nôtre dans le DOM, et à
      spécificité égale c'est l'ordre d'apparition qui tranche — d'où le besoin
@@ -1270,7 +1273,7 @@
   // la traduction.
   function googleTranslateElementInit(){
     new google.translate.TranslateElement(
-      { pageLanguage: 'fr', includedLanguages: 'en,de,es,ar,ja,zh-CN', autoDisplay: false },
+      { pageLanguage: 'fr', includedLanguages: 'en,de,es,it,pt,nl,pl,cs,ru,tr,ar,zh-CN,ja,ko', autoDisplay: false },
       'google_translate_element'
     );
   }
@@ -4635,9 +4638,17 @@ const LANGUAGES = [
   {code:'en', label:'English', flag:'gb'},
   {code:'de', label:'Deutsch', flag:'de'},
   {code:'es', label:'Español', flag:'es'},
+  {code:'it', label:'Italiano', flag:'it'},
+  {code:'pt', label:'Português', flag:'pt'},
+  {code:'nl', label:'Nederlands', flag:'nl'},
+  {code:'pl', label:'Polski', flag:'pl'},
+  {code:'cs', label:'Čeština', flag:'cz'},
+  {code:'ru', label:'Русский', flag:'ru'},
+  {code:'tr', label:'Türkçe', flag:'tr'},
   {code:'ar', label:'العربية', flag:'sa'},
+  {code:'zh-CN', label:'中文', flag:'cn'},
   {code:'ja', label:'日本語', flag:'jp'},
-  {code:'zh-CN', label:'中文', flag:'cn'}
+  {code:'ko', label:'한국어', flag:'kr'}
 ];
 function flagUrl(cc){ return `https://flagcdn.com/20x15/${cc}.png`; }
 function selectLanguage(lang){
@@ -4672,6 +4683,13 @@ function closeLangDropdown(){
   document.getElementById('langDropdownBtn').setAttribute('aria-expanded', 'false');
 }
 renderLangDropdownMenu();
+/* Langue déjà active (cookie « googtrans » posé par Google Traduction) : on
+   remet le bon drapeau sur le bouton après un rechargement de page. */
+(function(){
+  const m = document.cookie.match(/googtrans=\/[^/]+\/([^;]+)/);
+  const l = m && LANGUAGES.find(x=>x.code===decodeURIComponent(m[1]));
+  if(l) document.getElementById('langDropdownFlag').src = flagUrl(l.flag);
+})();
 document.getElementById('langDropdownBtn').addEventListener('click', e=>{
   e.stopPropagation();
   const menu = document.getElementById('langDropdownMenu');

@@ -27,7 +27,7 @@ Site en ligne : **https://roomsty58400.github.io/margo/**
 
 ## Lancer l'application en local
 
-1. Double-clique sur `lancer-margo.bat` (ou `lancer-app.bat`) pour Margo, ou sur `lancer-bourgo.bat` pour Bourgou (Windows). Le script démarre un petit serveur local (`python -m http.server`) sur le **port 8000** et ouvre la page. Garde ce port : la clé Google est restreinte à cette adresse.
+1. Double-clique sur `lancer-margo-app.bat` pour Margo, ou sur `lancer-bourgo-app.bat` pour Bourgou (Windows). Le script démarre un petit serveur local (`python -m http.server`) sur le **port 8000** et ouvre la page. Garde ce port : la clé Google est restreinte à cette adresse.
    - Si le serveur du dossier tourne déjà (par exemple Margo ouvert, puis Bourgou), il est réutilisé : la page s'ouvre directement.
    - Si le port 8000 est pris par un **autre** projet, le script le signale et propose de l'arrêter ; sinon il passe sur 8001+, où la clé Google ne fonctionne pas.
 2. **Clé Google (optionnelle)** : bouton 🔑 en haut de la fleur, ou fichier `apiki.env` à la racine du dossier (chargé automatiquement). La clé doit avoir accès à **Maps JavaScript API**, **Places API (New)** et **Geocoding API**, et être restreinte par référent HTTP. Sans clé, la recherche passe par OpenStreetMap (gratuit).
@@ -62,9 +62,8 @@ MARGO/
 ├── margo.html                   L'application complète (HTML + CSS + JS en un seul fichier)
 ├── index.html                   Page d'accueil du site : redirige vers margo.html
 ├── manifest.json, sw.js         Fichiers PWA (installation écran d'accueil, usage hors-ligne)
-├── lancer-app.bat               Lance un serveur local (port 8000) et ouvre une page (margo.html par défaut)
-├── lancer-margo.bat             Raccourci : lance Margo
-├── lancer-bourgo.bat            Raccourci : lance Bourgou
+├── lancer-margo-app.bat         Lance un serveur local (port 8000) et ouvre Margo
+├── lancer-bourgo-app.bat        Lance un serveur local (port 8000) et ouvre Bourgou
 ├── bourgo.html (non versionné)  Bourgou, carnet de route œnotouristique en Bourgogne (usage local)
 ├── publier-github.bat           Publie les changements sur le dépôt GitHub
 ├── apiki.env  (non versionné)   Clé API Google Maps, chargée automatiquement si présente
@@ -75,12 +74,19 @@ MARGO/
 │   ├── images/                  margo-logo.png, margo.png, snail-route.svg, snail-route.gif
 │   └── icons/                   margo.ico, icon-192*.png, icon-512*.png, apple-touch-icon.png
 └── pages/
-    └── mentions-legales.html    Mentions légales / RGPD / cookies
+    ├── mentions-legales.html    Mentions légales / RGPD / cookies de Margo
+    └── mentions-legales-bourgou.html  Mentions légales / RGPD / cookies de Bourgou (usage local)
 ```
 
 ## Historique des versions
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
+
+### v3.08 — Traduction en 15 langues, mentions légales mises à jour (11 octobre 2026)
+- **Traduction internationale** : le menu à drapeaux propose 15 langues (français, anglais, allemand, espagnol, italien, portugais, néerlandais, polonais, tchèque, russe, turc, arabe, chinois, japonais, coréen) ; la langue choisie est retrouvée au rechargement, et la bannière de Google Traduction reste masquée.
+- **Mentions légales & RGPD** : ajout des avis Google, de Google Traduction (cookie `googtrans`), de geo.api.gouv.fr, des QR codes et des drapeaux, et d'un paragraphe sur la propriété intellectuelle et les textes rédigés par l'IA.
+- **Bourgou** (local) : même traduction en 15 langues, page `pages/mentions-legales-bourgou.html` (RGPD, cookies, mention « L'abus d'alcool est dangereux pour la santé »), lien dans le pied de page.
+- **Lanceurs** : `lancer-margo-app.bat` et `lancer-bourgo-app.bat` remplacent `lancer-app.bat`, `lancer-margo.bat` et `lancer-bourgo.bat`.
 
 ### v3.07 — Avis Google récents, note des lieux OpenStreetMap, Bourgou, lanceurs (11 octobre 2026)
 - **Avis récents** : pour chaque lieu sélectionné, 2 avis Google récents (étoiles, extrait, auteur) s'affichent dans la bulle au survol et dans la fiche des pins du ROADBOOK, avec un lien « Tous les avis sur Google Maps ». Ils arrivent par la même requête que le parking et le paiement.
