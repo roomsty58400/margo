@@ -356,6 +356,13 @@ main{max-width:1320px;margin:0 auto;padding:.5rem 1.25rem 0;}
 .ai-modal[hidden]{display:none;}
 .ai-modal-box{width:min(760px,100%);max-height:calc(100vh - 2rem);display:flex;flex-direction:column;padding:1.1rem 1.2rem;}
 .ai-modal-box .ai-carnet-out{flex:1;min-height:0;overflow-y:auto;padding-right:.3rem;}
+.keys-box{width:min(560px,100%);}
+.key-label{display:block;font-weight:800;font-size:.84rem;color:var(--ink-900);margin-top:.7rem;}
+.key-label small{font-weight:500;color:var(--ink-500);}
+.key-input{width:100%;margin-top:.3rem;padding:.55rem .75rem;border:1.5px solid var(--line);border-radius:10px;background:var(--cream-050);color:var(--ink-900);font:inherit;font-size:.86rem;}
+.key-input:focus{outline:none;border-color:var(--gold-500);}
+.key-state{font-size:.74rem;color:var(--ink-500);margin:.25rem 0 0;}
+.key-state.ok{color:var(--ok);font-weight:700;}
 .ai-modal-intro{font-size:.84rem;color:var(--ink-700);margin:.4rem 0 .2rem;line-height:1.5;}
 .results-list{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;flex:1;min-height:0;padding-right:.2rem;}
 .result-row{
@@ -645,6 +652,7 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
       </div>
     </div>
     <div class="header-spacer"></div>
+    <button class="pill-btn" id="btnKeys" type="button" title="Clés Google et Gemini"><span aria-hidden="true">🔑</span> Clés</button>
     <div class="lang-dropdown">
       <button class="lang-btn" id="langBtn" title="Traduire le site" aria-haspopup="true"><img id="langFlag" src="https://flagcdn.com/24x18/fr.png" alt=""><span id="langCode">FR</span><svg class="ic"><use href="#icon-chevron-down"></use></svg></button>
       <div class="lang-menu" id="langMenu" hidden></div>
@@ -809,6 +817,28 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
     </div>
   </section>
 </main>
+
+<div class="ai-modal" id="keysModal" hidden>
+  <div class="card ai-modal-box keys-box" role="dialog" aria-modal="true" aria-labelledby="keysTitle">
+    <div class="ai-carnet-head">
+      <h3 id="keysTitle" style="font-family:var(--font-display);color:var(--wine-700);margin:0;">🔑 Clés API</h3>
+      <button class="btn btn-ghost" id="btnKeysClose" style="padding:.35rem .6rem" aria-label="Fermer"><svg class="ic"><use href="#icon-x"></use></svg></button>
+    </div>
+    <p class="ai-modal-intro">Avec ces clés, Bourgou utilise Google Maps (carte, suggestions de villages, photos, notes et avis) et l'IA Gemini pour rédiger ton carnet. Elles restent dans ce navigateur et ne sont envoyées qu'à Google ; une clé déjà saisie dans Margo sert aussi ici.</p>
+    <label class="key-label" for="keyGoogle">Clé Google Maps <small>(Maps JavaScript, Places API (New), Geocoding — <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener noreferrer">console Google Cloud</a>)</small></label>
+    <input class="key-input" id="keyGoogle" type="password" autocomplete="off" spellcheck="false" placeholder="AIza…">
+    <p class="key-state" id="keyGoogleState"></p>
+    <label class="key-label" for="keyGemini">Clé Gemini <small>(gratuite — <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">aistudio.google.com/apikey</a>)</small></label>
+    <input class="key-input" id="keyGemini" type="password" autocomplete="off" spellcheck="false" placeholder="Clé Gemini">
+    <p class="key-state" id="keyGeminiState"></p>
+    <p class="ai-modal-intro" style="font-size:.76rem">Restreins ta clé Google à l'adresse du site (référent HTTP) dans la console Google Cloud. Avec l'offre gratuite de Gemini, Google peut utiliser les textes envoyés pour améliorer ses produits.</p>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btnKeysSave"><svg class="ic"><use href="#icon-check"></use></svg> Enregistrer</button>
+      <button class="btn btn-ghost" id="btnKeysForget"><svg class="ic"><use href="#icon-trash"></use></svg> Oublier les clés</button>
+    </div>
+    <div class="ai-carnet-status" id="keysStatus"></div>
+  </div>
+</div>
 
 <div class="ai-modal" id="aiModal" hidden>
   <div class="card ai-modal-box" role="dialog" aria-modal="true" aria-labelledby="aiModalTitle">
@@ -1012,7 +1042,9 @@ function haversineKm(a,b){
    exclu du dépôt Git). À défaut, on reprend la clé Google déjà enregistrée par
    MARGO dans ce navigateur (même origine localhost:8000 → même localStorage). */
 const IS_LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
-let googleApiKey = null, geminiApiKey = null;
+let googleApiKey = null, geminiApiKey = null, geminiFromEnv = false, googleFromEnv = false;
+/* Mêmes clés de stockage que Margo (même site => clés partagées entre les 2 applis). */
+const GOOGLE_KEY_STORAGE = 'itineraire_google_api_key', GEMINI_KEY_STORAGE = 'margo_gemini_api_key';
 async function readEnvKey(file, re){
   if(!IS_LOCAL) return null;
   try{
@@ -1025,13 +1057,21 @@ async function readEnvKey(file, re){
 }
 const apiKeysReady = (async ()=>{
   googleApiKey = await readEnvKey('apiki.env', /AIza[0-9A-Za-z_\-]{10,}/);
+  googleFromEnv = !!googleApiKey;
   if(!googleApiKey){
     try{
-      const saved = localStorage.getItem('itineraire_google_api_key');
+      const saved = localStorage.getItem(GOOGLE_KEY_STORAGE);
       if(saved && /^AIza[0-9A-Za-z_-]{10,}$/.test(saved)) googleApiKey = saved;
     }catch(err){}
   }
   geminiApiKey = await readEnvKey('AQ.env', /[0-9A-Za-z._-]{20,}/);
+  if(geminiApiKey) geminiFromEnv = true;
+  else{
+    try{
+      const saved = localStorage.getItem(GEMINI_KEY_STORAGE);
+      if(saved && /^[0-9A-Za-z._-]{20,}$/.test(saved)) geminiApiKey = saved;
+    }catch(err){}
+  }
 })();
 
 /* Chargeur officiel Google Maps JS (même méthode que MARGO). Si la clé est
@@ -2163,7 +2203,8 @@ async function streamFromModel(model, key, prompt, onText){
 async function generateAiCarnet(){
   await apiKeysReady;
   if(!geminiApiKey){
-    setAiStatus("Clé Gemini introuvable : place le fichier AQ.env à côté de bourgo.html (comme pour MARGO) et ouvre la page via localhost.", true);
+    setAiStatus("Clé Gemini manquante : ajoute-la avec le bouton « 🔑 Clés » en haut de la page (gratuite sur aistudio.google.com).", true);
+    openKeysModal();
     return;
   }
   if(!state.route.length) return;
@@ -2257,7 +2298,7 @@ function setAiModalStatus(msg, isErr, busy){
 }
 async function generateAiFromList(){
   await apiKeysReady;
-  if(!geminiApiKey){ setAiModalStatus("Clé Gemini introuvable : place le fichier AQ.env à côté de bourgo.html (comme pour MARGO) et ouvre la page via localhost.", true); return; }
+  if(!geminiApiKey){ setAiModalStatus("Clé Gemini manquante : ajoute-la avec le bouton « 🔑 Clés » en haut de la page (gratuite sur aistudio.google.com).", true); openKeysModal(); return; }
   if(!state.results.length){ setAiModalStatus("Lance d'abord une recherche : l'IA compose ton carnet à partir des lieux proposés.", true); return; }
   aiModalAbort = new AbortController();
   const prevAbort = aiAbort; aiAbort = aiModalAbort; // streamFromModel lit aiAbort.signal
@@ -2317,6 +2358,60 @@ document.getElementById('btnAiModalStop').addEventListener('click', ()=>{ if(aiM
 document.getElementById('btnAiModalValidate').addEventListener('click', validateAiFromList);
 document.getElementById('btnAiModalClose').addEventListener('click', ()=>{ if(aiModalAbort) aiModalAbort.abort(); document.getElementById('aiModal').hidden = true; });
 document.getElementById('aiModal').addEventListener('click', e=>{ if(e.target.id==='aiModal'){ if(aiModalAbort) aiModalAbort.abort(); e.currentTarget.hidden = true; } });
+
+/* ============ CLÉS API (bouton 🔑, comme Margo) ============
+   En local, les fichiers apiki.env / AQ.env restent prioritaires. En ligne
+   (GitHub Pages, où ces fichiers ne sont jamais publiés), l'utilisateur
+   saisit ses clés ici ; elles sont gardées dans ce navigateur. La clé
+   Google n'est prise en compte qu'au chargement de la page (limite du
+   chargeur Google Maps) : on recharge donc après l'avoir changée. */
+const maskKey = k => k ? k.slice(0,4) + '…' + k.slice(-4) : '';
+function refreshKeysModal(){
+  const gs = document.getElementById('keyGoogleState'), ms = document.getElementById('keyGeminiState');
+  gs.className = 'key-state' + (googleApiKey ? ' ok' : '');
+  gs.textContent = googleApiKey ? (googleFromEnv ? `✓ Clé chargée depuis apiki.env (${maskKey(googleApiKey)})` : `✓ Clé enregistrée (${maskKey(googleApiKey)})${googleFailed ? ' — refusée par Google : vérifie-la' : ''}`) : 'Aucune clé : carte libre et OpenStreetMap.';
+  ms.className = 'key-state' + (geminiApiKey ? ' ok' : '');
+  ms.textContent = geminiApiKey ? (geminiFromEnv ? `✓ Clé chargée depuis AQ.env (${maskKey(geminiApiKey)})` : `✓ Clé enregistrée (${maskKey(geminiApiKey)})`) : "Aucune clé : l'IA n'est pas disponible.";
+  document.getElementById('keyGoogle').value = '';
+  document.getElementById('keyGemini').value = '';
+  document.getElementById('keysStatus').textContent = '';
+}
+async function openKeysModal(){
+  await apiKeysReady;
+  refreshKeysModal();
+  document.getElementById('keysModal').hidden = false;
+}
+function closeKeysModal(){ document.getElementById('keysModal').hidden = true; }
+document.getElementById('btnKeys').addEventListener('click', openKeysModal);
+document.getElementById('btnKeysClose').addEventListener('click', closeKeysModal);
+document.getElementById('keysModal').addEventListener('click', e=>{ if(e.target.id==='keysModal') closeKeysModal(); });
+document.getElementById('btnKeysSave').addEventListener('click', ()=>{
+  const g = document.getElementById('keyGoogle').value.trim();
+  const m = document.getElementById('keyGemini').value.trim();
+  const st = document.getElementById('keysStatus');
+  if(g && !/^AIza[0-9A-Za-z_-]{10,}$/.test(g)){ st.className='ai-carnet-status err'; st.textContent = 'La clé Google doit commencer par « AIza ».'; return; }
+  if(m && !/^[0-9A-Za-z._-]{20,}$/.test(m)){ st.className='ai-carnet-status err'; st.textContent = 'Clé Gemini invalide (copie-la depuis aistudio.google.com/apikey).'; return; }
+  if(!g && !m){ st.className='ai-carnet-status err'; st.textContent = 'Saisis au moins une clé.'; return; }
+  try{
+    if(m){ localStorage.setItem(GEMINI_KEY_STORAGE, m); if(!geminiFromEnv) geminiApiKey = m; }
+    if(g) localStorage.setItem(GOOGLE_KEY_STORAGE, g);
+  }catch(err){ st.className='ai-carnet-status err'; st.textContent = "Stockage du navigateur indisponible (navigation privée ?)."; return; }
+  if(g && !googleFromEnv && g !== googleApiKey){
+    st.className='ai-carnet-status'; st.textContent = 'Clé Google enregistrée : rechargement de la page…';
+    setTimeout(()=>location.reload(), 600);
+    return;
+  }
+  refreshKeysModal();
+  st.className='ai-carnet-status'; st.textContent = 'Clés enregistrées.';
+});
+document.getElementById('btnKeysForget').addEventListener('click', ()=>{
+  try{ localStorage.removeItem(GOOGLE_KEY_STORAGE); localStorage.removeItem(GEMINI_KEY_STORAGE); }catch(err){}
+  const hadGoogle = googleApiKey && !googleFromEnv;
+  if(!geminiFromEnv) geminiApiKey = null;
+  if(hadGoogle){ location.reload(); return; }
+  refreshKeysModal();
+  document.getElementById('keysStatus').textContent = 'Clés oubliées.';
+});
 document.getElementById('btnAiCarnet').addEventListener('click', generateAiCarnet);
 document.getElementById('btnAiCarnetStop').addEventListener('click', ()=>{ if(aiAbort) aiAbort.abort(); });
 document.getElementById('btnAiCarnetCopy').addEventListener('click', async ()=>{
