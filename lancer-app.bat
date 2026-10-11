@@ -2,6 +2,18 @@
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
+rem v4 : page a ouvrir passee en argument (margo.html par defaut) :
+rem lancer-margo.bat et lancer-bourgo.bat appellent ce script avec leur page.
+set "PAGE=%~1"
+if "%PAGE%"=="" set "PAGE=margo.html"
+if not exist "%PAGE%" (
+    echo.
+    echo [ERREUR] Fichier introuvable dans ce dossier : %PAGE%
+    echo.
+    pause
+    exit /b 1
+)
+
 set PORT=8000
 
 rem v2 : ferme un serveur Margo deja lance (fenetre "Margo - serveur local")
@@ -13,6 +25,36 @@ rem cassait la restriction "referent HTTP" de la cle API Google Maps (qui
 rem n'autorisait qu'un seul port fixe).
 taskkill /FI "WINDOWTITLE eq Margo - serveur local*" /F >nul 2>nul
 timeout /t 1 /nobreak >nul
+
+rem v4 : le port 8000 est-il deja occupe ?
+rem  - s'il sert deja CE dossier (ex. lance par lancer-margo.bat puis
+rem    lancer-bourgo.bat), on le reutilise et on ouvre simplement la page ;
+rem  - s'il sert un AUTRE projet (autre dossier lance avec
+rem    "python -m http.server 8000"), Margo/Bourgou y renvoyaient une erreur
+rem    404, et un repli sur 8001 casse la cle Google : on propose donc
+rem    d'arreter cet autre serveur.
+netstat -ano | findstr /R /C:":8000 .*LISTENING" >nul
+if %errorlevel%==0 (
+    set "HTTP_CODE="
+    for /f %%c in ('curl -s -o nul -w "%%{http_code}" "http://localhost:8000/%PAGE%" 2^>nul') do set "HTTP_CODE=%%c"
+    if "!HTTP_CODE!"=="200" (
+        echo Serveur local deja actif sur le port 8000 pour ce dossier : ouverture de %PAGE%.
+        start "" "http://localhost:8000/%PAGE%"
+        exit /b 0
+    )
+    set "OTHER_PID="
+    for /f "tokens=5" %%p in ('netstat -ano ^| findstr /R /C:":8000 .*LISTENING"') do set "OTHER_PID=%%p"
+    echo.
+    echo [ATTENTION] Le port 8000 est utilise par un autre programme ^(PID !OTHER_PID!^),
+    echo qui ne sert pas ce dossier. La cle Google ne fonctionne que sur le port 8000.
+    set /p STOP_OTHER="Arreter ce programme pour liberer le port 8000 ? (O/N) "
+    if /i "!STOP_OTHER!"=="O" (
+        taskkill /PID !OTHER_PID! /F >nul 2>nul
+        timeout /t 1 /nobreak >nul
+    ) else (
+        echo Lancement sur un autre port : la carte et les lieux Google ne fonctionneront pas.
+    )
+)
 
 :CHECK_PORT
 rem v3 : seul un serveur en ECOUTE (LISTENING) occupe vraiment le port.
@@ -56,9 +98,9 @@ start "Margo - serveur local (ne pas fermer, fermez cette fenetre pour arreter l
 
 timeout /t 1 /nobreak >nul
 
-start "" "http://localhost:%PORT%/margo.html"
+start "" "http://localhost:%PORT%/%PAGE%"
 
 echo.
-echo Margo est lance : http://localhost:%PORT%/margo.html
+echo Page lancee : http://localhost:%PORT%/%PAGE%
 echo Une fenetre "serveur local" reste ouverte en arriere-plan (reduite) : fermez-la pour arreter le serveur.
 echo.

@@ -27,7 +27,9 @@ Site en ligne : **https://roomsty58400.github.io/margo/**
 
 ## Lancer l'application en local
 
-1. Double-clique sur `lancer-app.bat` (Windows). Le script démarre un petit serveur local (`python -m http.server`) sur le **port 8000** et ouvre `http://localhost:8000/margo.html`. Garde ce port : la clé Google est restreinte à cette adresse (le script ne passe sur 8001+ que si un autre serveur occupe vraiment le port 8000).
+1. Double-clique sur `lancer-margo.bat` (ou `lancer-app.bat`) pour Margo, ou sur `lancer-bourgo.bat` pour Bourgou (Windows). Le script démarre un petit serveur local (`python -m http.server`) sur le **port 8000** et ouvre la page. Garde ce port : la clé Google est restreinte à cette adresse.
+   - Si le serveur du dossier tourne déjà (par exemple Margo ouvert, puis Bourgou), il est réutilisé : la page s'ouvre directement.
+   - Si le port 8000 est pris par un **autre** projet, le script le signale et propose de l'arrêter ; sinon il passe sur 8001+, où la clé Google ne fonctionne pas.
 2. **Clé Google (optionnelle)** : bouton 🔑 en haut de la fleur, ou fichier `apiki.env` à la racine du dossier (chargé automatiquement). La clé doit avoir accès à **Maps JavaScript API**, **Places API (New)** et **Geocoding API**, et être restreinte par référent HTTP. Sans clé, la recherche passe par OpenStreetMap (gratuit).
 3. **Clé Gemini pour l'IA Roadbook (gratuite)** : à créer sur [aistudio.google.com/apikey](https://aistudio.google.com/apikey) (compte Google, sans carte bancaire), puis soit la coller dans la fenêtre IA Roadbook (gardée dans le navigateur), soit la placer dans un fichier `AQ.env` à la racine (chargée automatiquement en local, jamais affichée). Avec l'offre gratuite, Google peut utiliser les textes envoyés pour améliorer ses produits.
 
@@ -60,7 +62,10 @@ MARGO/
 ├── margo.html                   L'application complète (HTML + CSS + JS en un seul fichier)
 ├── index.html                   Page d'accueil du site : redirige vers margo.html
 ├── manifest.json, sw.js         Fichiers PWA (installation écran d'accueil, usage hors-ligne)
-├── lancer-app.bat               Lance un serveur local (port 8000) et ouvre l'application
+├── lancer-app.bat               Lance un serveur local (port 8000) et ouvre une page (margo.html par défaut)
+├── lancer-margo.bat             Raccourci : lance Margo
+├── lancer-bourgo.bat            Raccourci : lance Bourgou
+├── bourgo.html (non versionné)  Bourgou, carnet de route œnotouristique en Bourgogne (usage local)
 ├── publier-github.bat           Publie les changements sur le dépôt GitHub
 ├── apiki.env  (non versionné)   Clé API Google Maps, chargée automatiquement si présente
 ├── AQ.env     (non versionné)   Clé API Gemini (IA Roadbook), chargée automatiquement si présente
@@ -77,8 +82,11 @@ MARGO/
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
-### v3.07 — Avis Google récents et note des lieux OpenStreetMap (11 octobre 2026)
+### v3.07 — Avis Google récents, note des lieux OpenStreetMap, Bourgou, lanceurs (11 octobre 2026)
 - **Avis récents** : pour chaque lieu sélectionné, 2 avis Google récents (étoiles, extrait, auteur) s'affichent dans la bulle au survol et dans la fiche des pins du ROADBOOK, avec un lien « Tous les avis sur Google Maps ». Ils arrivent par la même requête que le parking et le paiement.
+- **Fiche commerciale** (`MARGO_fiche_commerciale.pdf`) mise à jour : nouvel encadré « Notes, avis & recommandations », étapes et chiffres clés revus.
+- **Lanceurs** : `lancer-margo.bat` et `lancer-bourgo.bat` ; `lancer-app.bat` accepte la page à ouvrir, réutilise le serveur du dossier s'il tourne déjà et signale un autre projet qui occuperait le port 8000.
+- **Bourgou** (`bourgo.html`, local) : mêmes clés que Margo (`apiki.env`, `AQ.env`) ; recherche et géocodage par Google avec notes affichées, repli OpenStreetMap ; carnet de voyage rédigé par l'IA Gemini ; fond de carte Esri (les tuiles d'OpenStreetMap.org renvoyaient « Access blocked »).
 - **Lieux OpenStreetMap** : quand une clé Google est configurée, un lieu OpenStreetMap sélectionné est rapproché de sa fiche Google (nom en commun, ou position à moins de 150 m) pour afficher sa note, son nombre d'avis et ses infos pratiques Google.
 
 ### v3.06 — Bug corrigé : aucun résultat sur le site public dans les grandes villes (11 octobre 2026)
