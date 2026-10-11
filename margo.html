@@ -1906,14 +1906,7 @@ async function enrichPracticalFromOsm(pois){
   const clauses = pois.map(p=>`nwr(around:150,${p.lat},${p.lng})[~"^(fee|charge|parking:fee)$"~"."];`).join('\n  ');
   const query = `[out:json][timeout:15];\n(\n  ${clauses}\n);\nout tags center 200;`;
   let data = null;
-  for(const endpoint of OVERPASS_ENDPOINTS){
-    try{
-      const resp = await withTimeout(fetch(endpoint, { method:'POST', body:'data=' + encodeURIComponent(query), headers:{'Content-Type':'application/x-www-form-urlencoded'} }), 15000, 'timeout');
-      if(!resp.ok) continue;
-      data = await resp.json();
-      break;
-    }catch(err){ /* serveur suivant */ }
-  }
+  try{ data = await fetchOverpassJson(query, 15000); }catch(err){ return; }
   if(!data || !data.elements) return;
   const elems = data.elements.map(el=>({
     tags: el.tags || {},
@@ -2660,6 +2653,77 @@ async function searchCategoryReal(def, centerLatLng, radiusKm){
    restaurant) que les lieux dessinés comme un contour (ex. un parking ou un
    parc "way") — un way/relation n'a alors pas de lat/lon direct, seulement
    un point "center" (voir toInternalPOIFromOverpass). */
+/* v3.04 : envoie une requête Overpass en essayant chaque serveur public
+   (OVERPASS_ENDPOINTS) ; un serveur saturé (429/504) a droit à un second
+   essai après une courte pause avant de passer au suivant. */
+async function fetchOverpassJson(query, perServerMs){
+  let lastErr = null;
+  for(const endpoint of OVERPASS_ENDPOINTS){
+    for(let attempt=0; attempt<2; attempt++){
+      const ctl = new AbortController();
+      const timer = setTimeout(()=>ctl.abort(), perServerMs || 25000);
+      try{
+        const res = await fetch(endpoint, { method: 'POST', body: 'data=' + encodeURIComponent(query), headers:{'Content-Type':'application/x-www-form-urlencoded'}, signal: ctl.signal });
+        if(res.status === 429 || res.status === 504){
+          lastErr = new Error('Overpass HTTP ' + res.status);
+          if(attempt === 0){ await new Promise(r=>setTimeout(r, 2500)); continue; }
+          break;
+        }
+        if(!res.ok) throw new Error('Overpass HTTP ' + res.status);
+        return await res.json();
+      }catch(err){ lastErr = err; break; }
+      finally{ clearTimeout(timer); }
+    }
+  }
+  throw lastErr || new Error('Overpass indisponible');
+}
+
+/* Un élément OSM correspond-il à un filtre de CATEGORY_TO_OSM_TAGS ?
+   Formes gérées : "clé=valeur", "clé" (présence), et suites de filtres
+   "a=b][nom~\"re\",i". */
+function osmTagsMatchFilter(tags, filter){
+  return String(filter).split('][').every(part=>{
+    let m = part.match(/^([^=~]+)~"(.*)"(,i)?$/);
+    if(m){ const v = tags[m[1]]; return v != null && new RegExp(m[2], m[3] ? 'i' : '').test(v); }
+    m = part.match(/^([^=]+)=(.*)$/);
+    if(m) return tags[m[1]] === m[2];
+    return tags[part] != null;
+  });
+}
+
+/* v3.04 : UNE seule requête Overpass pour toutes les catégories cochées
+   (au lieu d'une par catégorie) — le serveur public limite le nombre de
+   requêtes simultanées par adresse IP, et 10 catégories cochées suffisaient
+   à le saturer, d'où le message « le service ne répond pas ». Les lieux
+   sont ensuite rangés côté navigateur dans chaque catégorie dont ils
+   portent les tags (25 au plus par catégorie, les plus proches d'abord). */
+async function searchCategoriesOverpassCombined(defs, centerLatLng, radiusKm){
+  const withFilters = defs.filter(d=>(CATEGORY_TO_OSM_TAGS[d.key]||[]).length);
+  if(!withFilters.length) return [];
+  const radiusMeters = Math.round(Math.min(Math.max(radiusKm,0.1)*1000, 50000));
+  const allFilters = [...new Set(withFilters.flatMap(d=>CATEGORY_TO_OSM_TAGS[d.key]))];
+  const clauses = allFilters
+    .map(f => `nwr(around:${radiusMeters},${centerLatLng.lat},${centerLatLng.lng})[${f}];`)
+    .join('\n  ');
+  const limit = Math.min(1500, 120 * withFilters.length);
+  const query = `[out:json][timeout:25];\n(\n  ${clauses}\n);\nout center ${limit};`;
+  const data = await fetchOverpassJson(query, 30000);
+  const byCat = new Map(withFilters.map(d=>[d.key, []]));
+  (data.elements || []).forEach(el=>{
+    const tags = el.tags || {};
+    let first = true;
+    withFilters.forEach(d=>{
+      if(!CATEGORY_TO_OSM_TAGS[d.key].some(f=>osmTagsMatchFilter(tags, f))) return;
+      const poi = toInternalPOIFromOverpass(el, d.key, centerLatLng);
+      if(!poi) return;
+      if(!first) poi.id += '_' + d.key; // même lieu rangé dans 2 catégories
+      first = false;
+      byCat.get(d.key).push(poi);
+    });
+  });
+  return [...byCat.values()].flatMap(list=>list.sort((a,b)=>a.dist-b.dist).slice(0, 25));
+}
+
 async function searchCategoryOverpass(def, centerLatLng, radiusKm){
   const tagFilters = CATEGORY_TO_OSM_TAGS[def.key];
   if(!tagFilters || !tagFilters.length) return [];
@@ -2668,21 +2732,7 @@ async function searchCategoryOverpass(def, centerLatLng, radiusKm){
     .map(f => `nwr(around:${radiusMeters},${centerLatLng.lat},${centerLatLng.lng})[${f}];`)
     .join('\n  ');
   const query = `[out:json][timeout:15];\n(\n  ${clauses}\n);\nout center 25;`;
-  // Serveur public souvent saturé (504/429, ou réponse qui n'arrive jamais) :
-  // 15 s max par serveur, puis serveur miroir (voir OVERPASS_ENDPOINTS).
-  let data = null, lastErr = null;
-  for(const endpoint of OVERPASS_ENDPOINTS){
-    const ctl = new AbortController();
-    const timer = setTimeout(()=>ctl.abort(), 15000);
-    try{
-      const res = await fetch(endpoint, { method: 'POST', body: 'data=' + encodeURIComponent(query), signal: ctl.signal });
-      if(!res.ok) throw new Error('Overpass HTTP ' + res.status);
-      data = await res.json();
-      break;
-    }catch(err){ lastErr = err; }
-    finally{ clearTimeout(timer); }
-  }
-  if(!data) throw lastErr || new Error('Overpass indisponible');
+  const data = await fetchOverpassJson(query, 15000);
   return (data.elements || [])
     .map(el => toInternalPOIFromOverpass(el, def.key, centerLatLng))
     .filter(Boolean);
@@ -3675,13 +3725,11 @@ async function searchAllCategoriesOverpass(){
   state.centerLatLng = center;
   const catsToSearch = CATEGORY_DEFS.filter(def => state.selectedCategories.has(def.key) && !def.hiddenFromFlower);
   try{
-    let failedCats = 0;
-    const resultsByCategory = await mapWithConcurrency(catsToSearch, 3, def =>
-      withTimeout(searchCategoryOverpass(def, center, MAX_RADIUS_KM), 35000, 'Recherche de « ' + def.label + ' » trop longue (35 s).')
-        .catch(err=>{ failedCats++; console.error('Erreur catégorie OpenStreetMap', def.key, err); return []; })
-    );
-    state.searchServiceDown = catsToSearch.length > 0 && failedCats === catsToSearch.length;
-    state.allPOIs = resultsByCategory.flat();
+    let failed = false;
+    const pois = await withTimeout(searchCategoriesOverpassCombined(catsToSearch, center, MAX_RADIUS_KM), 130000, 'Recherche OpenStreetMap trop longue.')
+      .catch(err=>{ failed = true; console.error('Recherche OpenStreetMap impossible (tous serveurs)', err); return []; });
+    state.searchServiceDown = catsToSearch.length > 0 && failed;
+    state.allPOIs = pois;
     markOfficeTourismeSuggestions(state.allPOIs, state.ville);
     state.dataSource = 'osm';
     setApiStatus('Données OpenStreetMap chargées (' + state.allPOIs.length + ' lieux, ' + catsToSearch.length + ' catégorie(s)).', false);
@@ -7601,8 +7649,13 @@ function overpassFilterFromSpec(spec){
 // Miroirs testés depuis un navigateur (oct. 2026) : overpass.kumi.systems,
 // overpass.private.coffee et overpass.osm.jp sont bloqués (CORS) ;
 // maps.mail.ru accepte les appels navigateur.
+// v3.04 : plusieurs serveurs publics (le miroir maps.mail.ru ne répond
+// plus) ; essayés dans l'ordre, avec un nouvel essai court si le serveur
+// principal est saturé (429/504). Voir fetchOverpassJson.
 const OVERPASS_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
   'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
 ];
 async function fetchOsmPlacesAround(center, osmSpecs, endpoint, limit){

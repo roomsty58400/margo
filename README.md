@@ -77,6 +77,10 @@ MARGO/
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.04 — Recherche OpenStreetMap fiabilisée (11 octobre 2026)
+- **Bug corrigé** : message « Le service de recherche de lieux (OpenStreetMap) ne répond pas » alors que le service fonctionnait. Cause : une requête Overpass par catégorie cochée (jusqu'à 3 en parallèle), alors que le serveur public limite les requêtes simultanées par adresse IP ; avec beaucoup de catégories (dont les nouvelles catégories vins & gastronomie), il répondait 429/504, et le serveur de secours `maps.mail.ru` ne répond plus.
+- **Corrigé** (Margo et Bourgou) : une seule requête Overpass pour toutes les catégories, lieux rangés ensuite dans chaque catégorie côté navigateur ; trois serveurs publics essayés dans l'ordre (overpass-api.de, overpass.private.coffee, overpass.kumi.systems), avec un second essai après une courte pause si un serveur est saturé.
+
 ### v3.03 — Étoiles des avis, pictogrammes et catégories vins & gastronomie, Bourgou remis à niveau (11 octobre 2026)
 - **Étoiles des avis** : chaque lieu de la liste « Lieux proposés » affiche 5 étoiles remplies au prorata de sa note Google (ex. 4,3 → 4 étoiles pleines et un tiers de la 5e), suivies de la note et du nombre d'avis ; un lieu sans note affiche des étoiles grises « Pas d'avis ». Mêmes étoiles sur les fiches de la carte et les étapes du ROADBOOK.
 - **Vins & gastronomie** (Margo et Bourgou) : le groupe Restauration devient « Vins & gastronomie », avec de nouveaux pictogrammes modernes (toque, verres qui trinquent, tasse, grappe, verre de vin, bouteille, fromage, panier) et cinq catégories : Caves & domaines, Bars à vin, Cavistes, Fromageries & terroir, Marchés. Si Google refuse ces types de lieux, la recherche de ces catégories passe automatiquement par OpenStreetMap.
