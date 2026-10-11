@@ -891,7 +891,8 @@
   .practical-line .pc-rating{background:#fff6e0;color:#7a5200;font-weight:bold;}
   .practical-line .pc-star{color:#f2a900;}
   .stars{display:inline-block;font-size:.82rem;line-height:1;letter-spacing:-.04em;background:linear-gradient(90deg,#f2a900 var(--stars-pct,0%),#d5d9de var(--stars-pct,0%));-webkit-background-clip:text;background-clip:text;color:transparent;}
-  .practical-line .pc-norating{background:#f4f5f7;color:#8a919a;font-weight:normal;}
+  .practical-line .pc-norating{background:#f4f5f7;color:#5f6770;font-weight:normal;text-decoration:none;}
+  .practical-line a.pc-norating:hover{background:#e9edf1;text-decoration:underline;}
   .practical-line .pc-sub{font-weight:normal;color:#8a6d2c;}
   .practical-line .pc-good{background:#e7f6ec;color:#1d6b3a;}
   .practical-line .pc-warn{background:#fdeee8;color:#9a3d17;}
@@ -1811,8 +1812,10 @@ function practicalItems(poi, opts){
       text: `★ ${formatRatingFr(poi.rating)}/5` + (poi.ratingCount ? ` (${formatCountFr(poi.ratingCount)} avis)` : ''),
       title: `Note Google : ${formatRatingFr(poi.rating)}/5` + (poi.ratingCount ? ` sur ${formatCountFr(poi.ratingCount)} avis` : '') });
   } else if(opts && opts.showEmptyRating){
-    items.push({ html: `${starsHtml(0)} <span class="pc-sub">Pas d'avis</span>`, cls:'pc-rating pc-norating', text:'',
-      title: "Aucune note disponible pour ce lieu (pas d'avis Google, ou résultat OpenStreetMap)" });
+    // Pas de note chargée (recherche OpenStreetMap, sans clé Google) : lien
+    // direct vers la fiche Google Maps du lieu, où se trouvent ses avis.
+    items.push({ html: `${starsHtml(0)} <span class="pc-sub">Voir les avis Google</span>`, cls:'pc-rating pc-norating', text:'',
+      href: mapsSearchLink(poi), title: 'Ouvrir les avis Google de ce lieu dans Google Maps' });
   }
   const pr = poi.practical || {};
   const isParkingPlace = poi.cat === 'parking';
@@ -1841,7 +1844,9 @@ function practicalItems(poi, opts){
    place quand les infos détaillées d'un lieu sélectionné arrivent. */
 function buildPracticalChipsHtml(poi, opts){
   const items = practicalItems(poi, opts);
-  const inner = items.map(i=>`<span class="pc ${i.cls}" title="${escapeHtml(i.title||'')}">${i.html}</span>`).join('');
+  const inner = items.map(i=>i.href
+    ? `<a class="pc ${i.cls}" href="${escapeHtml(i.href)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(i.title||'')}">${i.html}</a>`
+    : `<span class="pc ${i.cls}" title="${escapeHtml(i.title||'')}">${i.html}</span>`).join('');
   const emptyAttr = (opts && opts.showEmptyRating) ? ' data-empty-rating="1"' : '';
   return `<div class="practical-line" data-practical-id="${escapeHtml(poi.id)}"${emptyAttr}${items.length ? '' : ' hidden'}>${inner}</div>`;
 }
@@ -2691,39 +2696,6 @@ function osmTagsMatchFilter(tags, filter){
   });
 }
 
-/* v3.04 : UNE seule requête Overpass pour toutes les catégories cochées
-   (au lieu d'une par catégorie) — le serveur public limite le nombre de
-   requêtes simultanées par adresse IP, et 10 catégories cochées suffisaient
-   à le saturer, d'où le message « le service ne répond pas ». Les lieux
-   sont ensuite rangés côté navigateur dans chaque catégorie dont ils
-   portent les tags (25 au plus par catégorie, les plus proches d'abord). */
-async function searchCategoriesOverpassCombined(defs, centerLatLng, radiusKm){
-  const withFilters = defs.filter(d=>(CATEGORY_TO_OSM_TAGS[d.key]||[]).length);
-  if(!withFilters.length) return [];
-  const radiusMeters = Math.round(Math.min(Math.max(radiusKm,0.1)*1000, 50000));
-  const allFilters = [...new Set(withFilters.flatMap(d=>CATEGORY_TO_OSM_TAGS[d.key]))];
-  const clauses = allFilters
-    .map(f => `nwr(around:${radiusMeters},${centerLatLng.lat},${centerLatLng.lng})[${f}];`)
-    .join('\n  ');
-  const limit = Math.min(1500, 120 * withFilters.length);
-  const query = `[out:json][timeout:25];\n(\n  ${clauses}\n);\nout center ${limit};`;
-  const data = await fetchOverpassJson(query, 30000);
-  const byCat = new Map(withFilters.map(d=>[d.key, []]));
-  (data.elements || []).forEach(el=>{
-    const tags = el.tags || {};
-    let first = true;
-    withFilters.forEach(d=>{
-      if(!CATEGORY_TO_OSM_TAGS[d.key].some(f=>osmTagsMatchFilter(tags, f))) return;
-      const poi = toInternalPOIFromOverpass(el, d.key, centerLatLng);
-      if(!poi) return;
-      if(!first) poi.id += '_' + d.key; // même lieu rangé dans 2 catégories
-      first = false;
-      byCat.get(d.key).push(poi);
-    });
-  });
-  return [...byCat.values()].flatMap(list=>list.sort((a,b)=>a.dist-b.dist).slice(0, 25));
-}
-
 async function searchCategoryOverpass(def, centerLatLng, radiusKm){
   const tagFilters = CATEGORY_TO_OSM_TAGS[def.key];
   if(!tagFilters || !tagFilters.length) return [];
@@ -2732,7 +2704,7 @@ async function searchCategoryOverpass(def, centerLatLng, radiusKm){
     .map(f => `nwr(around:${radiusMeters},${centerLatLng.lat},${centerLatLng.lng})[${f}];`)
     .join('\n  ');
   const query = `[out:json][timeout:15];\n(\n  ${clauses}\n);\nout center 25;`;
-  const data = await fetchOverpassJson(query, 15000);
+  const data = await fetchOverpassJson(query, 20000);
   return (data.elements || [])
     .map(el => toInternalPOIFromOverpass(el, def.key, centerLatLng))
     .filter(Boolean);
@@ -3725,11 +3697,17 @@ async function searchAllCategoriesOverpass(){
   state.centerLatLng = center;
   const catsToSearch = CATEGORY_DEFS.filter(def => state.selectedCategories.has(def.key) && !def.hiddenFromFlower);
   try{
-    let failed = false;
-    const pois = await withTimeout(searchCategoriesOverpassCombined(catsToSearch, center, MAX_RADIUS_KM), 130000, 'Recherche OpenStreetMap trop longue.')
-      .catch(err=>{ failed = true; console.error('Recherche OpenStreetMap impossible (tous serveurs)', err); return []; });
-    state.searchServiceDown = catsToSearch.length > 0 && failed;
-    state.allPOIs = pois;
+    // Une requête par catégorie (25 lieux max chacune), 2 à la fois : le
+    // serveur public tolère 2 requêtes simultanées par adresse IP. La
+    // requête unique de la v3.04 ramenait trop d'éléments sur 50 km et
+    // tronquait certaines catégories.
+    let failedCats = 0;
+    const resultsByCategory = await mapWithConcurrency(catsToSearch, 2, def =>
+      withTimeout(searchCategoryOverpass(def, center, MAX_RADIUS_KM), 60000, 'Recherche de « ' + def.label + ' » trop longue (60 s).')
+        .catch(err=>{ failedCats++; console.error('Erreur catégorie OpenStreetMap', def.key, err); return []; })
+    );
+    state.searchServiceDown = catsToSearch.length > 0 && failedCats === catsToSearch.length;
+    state.allPOIs = resultsByCategory.flat();
     markOfficeTourismeSuggestions(state.allPOIs, state.ville);
     state.dataSource = 'osm';
     setApiStatus('Données OpenStreetMap chargées (' + state.allPOIs.length + ' lieux, ' + catsToSearch.length + ' catégorie(s)).', false);

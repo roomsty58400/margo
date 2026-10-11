@@ -77,6 +77,10 @@ MARGO/
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.05 — Recherche OpenStreetMap rétablie par catégorie, lien vers les avis Google (11 octobre 2026)
+- **Recherche** : retour à une requête OpenStreetMap par catégorie (25 lieux max chacune), 2 à la fois, comme avant la v3.04 : la requête unique ramenait trop d'éléments sur 50 km et tronquait certaines catégories. On garde la liste de serveurs de secours et le second essai en cas de saturation.
+- **Avis sans clé Google** : sur le site public (sans clé), les lieux viennent d'OpenStreetMap, qui ne publie aucun avis. Leur ligne d'étoiles devient un lien « Voir les avis Google » qui ouvre la fiche Google Maps du lieu. Avec une clé (en local via `apiki.env`, ou en ligne via la clé publique restreinte au domaine), les vraies notes Google s'affichent.
+
 ### v3.04 — Recherche OpenStreetMap fiabilisée (11 octobre 2026)
 - **Bug corrigé** : message « Le service de recherche de lieux (OpenStreetMap) ne répond pas » alors que le service fonctionnait. Cause : une requête Overpass par catégorie cochée (jusqu'à 3 en parallèle), alors que le serveur public limite les requêtes simultanées par adresse IP ; avec beaucoup de catégories (dont les nouvelles catégories vins & gastronomie), il répondait 429/504, et le serveur de secours `maps.mail.ru` ne répond plus.
 - **Corrigé** (Margo et Bourgou) : une seule requête Overpass pour toutes les catégories, lieux rangés ensuite dans chaque catégorie côté navigateur ; trois serveurs publics essayés dans l'ordre (overpass-api.de, overpass.private.coffee, overpass.kumi.systems), avec un second essai après une courte pause si un serveur est saturé.
