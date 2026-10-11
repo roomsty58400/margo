@@ -64,28 +64,43 @@ MARGO/
 ├── manifest.json, sw.js         Fichiers PWA (installation écran d'accueil, usage hors-ligne)
 ├── lancer-margo-app.bat         Lance un serveur local (port 8000) et ouvre Margo
 ├── lancer-bourgo-app.bat        Lance un serveur local (port 8000) et ouvre Bourgou
-├── bourgo.html (non versionné)  Bourgou, carnet de route œnotouristique en Bourgogne (usage local)
+├── bourgo.html                  Bourgou, carnet de route œnotouristique en Bourgogne (même moteur que Margo)
 ├── publier-github.bat           Publie les changements sur le dépôt GitHub
 ├── apiki.env  (non versionné)   Clé API Google Maps, chargée automatiquement si présente
 ├── AQ.env     (non versionné)   Clé API Gemini (IA Roadbook), chargée automatiquement si présente
 ├── README.md, .gitignore
-├── MARGO_fiche_commerciale.pdf  Fiche commerciale/présentation du projet
+├── MARGO_fiche_commerciale.pdf    Fiche technique et commerciale de Margo (2 pages)
+├── BOURGOU_fiche_commerciale.pdf  Fiche technique et commerciale de Bourgou (2 pages)
 ├── assets/
 │   ├── images/                  margo-logo.png, margo.png, snail-route.svg, snail-route.gif
 │   └── icons/                   margo.ico, icon-192*.png, icon-512*.png, apple-touch-icon.png
 └── pages/
     ├── mentions-legales.html    Mentions légales / RGPD / cookies de Margo
-    └── mentions-legales-bourgou.html  Mentions légales / RGPD / cookies de Bourgou (usage local)
+    └── mentions-legales-bourgou.html  Mentions légales / RGPD / cookies de Bourgou
 ```
+
+## Bourgou (`bourgo.html`)
+
+Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même moteur, mêmes clés (`apiki.env`, `AQ.env`), habillage vigne, tonneau et pressoir. Lancement : `lancer-bourgo-app.bat`. En ligne (une fois publiée) : `https://roomsty58400.github.io/margo/bourgo.html`.
+
+- **Écran Itinéraire & Vins** : liste des lieux proposés (arbre catégorie > sous-catégorie, photo, note Google, infos pratiques, bulle de détails, recommandations « Conseillé »), roue des 8 catégories au fond de tonneau avec onglets de 26 sous-catégories, suggestions Google des villes et villages, carte Google Maps (repli carte libre).
+- **IA Carnet** : depuis la liste, l'IA Gemini compose la journée (lieux cochés + dégustation, table du midi, visite, hébergement) et la rédige ; « Valider » coche ces lieux et ouvre le carnet.
+- **Carnet de Voyage** (comme le ROADBOOK de Margo) : bannière (durée, distance, mode, impression, export HTML, partage, lien Maps + QR), avis de l'IA par étape, liste glisser-déposer + carte, fiche par étape avec QR code, notes pratiques.
+- **15 langues**, **mentions légales & RGPD** (`pages/mentions-legales-bourgou.html`) avec la mention loi Évin.
+- Fiche technique et commerciale : `BOURGOU_fiche_commerciale.pdf`.
 
 ## Historique des versions
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.09 — Bourgou publié, fiches techniques et commerciales (11 octobre 2026)
+- **Bourgou** (`bourgo.html`) rejoint le dépôt : roue et onglets de sous-catégories comme Margo, Google Maps et suggestions de villages, IA Carnet, carnet façon ROADBOOK, 15 langues, habillage vigne / tonneau / pressoir, mentions légales et RGPD.
+- **Fiches techniques et commerciales** (2 pages chacune) : `MARGO_fiche_commerciale.pdf` (mise à jour, page technique ajoutée) et `BOURGOU_fiche_commerciale.pdf` (nouvelle) ; présentation, fonctionnalités, capture d'écran, architecture, prérequis, services et API, RGPD.
+
 ### v3.08 — Traduction en 15 langues, mentions légales mises à jour (11 octobre 2026)
 - **Traduction internationale** : le menu à drapeaux propose 15 langues (français, anglais, allemand, espagnol, italien, portugais, néerlandais, polonais, tchèque, russe, turc, arabe, chinois, japonais, coréen) ; la langue choisie est retrouvée au rechargement, et la bannière de Google Traduction reste masquée.
 - **Mentions légales & RGPD** : ajout des avis Google, de Google Traduction (cookie `googtrans`), de geo.api.gouv.fr, des QR codes et des drapeaux, et d'un paragraphe sur la propriété intellectuelle et les textes rédigés par l'IA.
-- **Bourgou** (local) : même traduction en 15 langues, page `pages/mentions-legales-bourgou.html` (RGPD, cookies, mention « L'abus d'alcool est dangereux pour la santé »), lien dans le pied de page.
+- **Bourgou** : même traduction en 15 langues, page `pages/mentions-legales-bourgou.html` (RGPD, cookies, mention « L'abus d'alcool est dangereux pour la santé »), lien dans le pied de page.
 - **Lanceurs** : `lancer-margo-app.bat` et `lancer-bourgo-app.bat` remplacent `lancer-app.bat`, `lancer-margo.bat` et `lancer-bourgo.bat`.
 
 ### v3.07 — Avis Google récents, note des lieux OpenStreetMap, Bourgou, lanceurs (11 octobre 2026)

@@ -1,0 +1,2588 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bourgou — Carnet de route en Bourgogne</title>
+<meta name="theme-color" content="#591629">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{
+  --wine-900:#33101c; --wine-800:#4a1425; --wine-700:#661a32; --wine-600:#84223f; --wine-500:#a02d4c;
+  --gold-700:#8f6420; --gold-600:#b9862c; --gold-500:#cf9d3e; --gold-400:#e0b563; --gold-200:#efd699;
+  --cream-050:#fbf6ea; --cream-100:#f6ecd6; --cream-200:#eeddb9; --cream-300:#e3cd9c;
+  --line:#e0cd9e; --line-soft:#ecdfba;
+  --ink-900:#33211a; --ink-700:#5b4536; --ink-500:#8a7562; --ink-300:#b3a48e;
+  --white:#fffcf5;
+  --ok:#3f7d47; --danger:#a5323f;
+  --c-degustation:#7c1f37; --c-vignobles:#a13a58; --c-gastronomie:#b9862c; --c-hebergement:#5f6b3d;
+  --c-transport:#3c6478; --c-visite:#6b4a80; --c-loisir:#2f7a5a; --c-artisanat:#a15a2d;
+  --radius-sm:8px; --radius-md:14px; --radius-lg:22px; --radius-pill:999px;
+  --shadow-sm:0 3px 10px -4px rgba(51,16,25,.22);
+  --shadow-md:0 10px 26px -8px rgba(51,16,25,.28);
+  --shadow-lg:0 20px 46px -14px rgba(51,16,25,.34);
+  --font-display:'Fraunces',Georgia,'Times New Roman',serif;
+  --font-body:'Work Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --cream-050:#221019; --cream-100:#2a1420; --cream-200:#341827; --cream-300:#3e1c2d;
+    --line:#4a2333; --line-soft:#3e1c2d;
+    --ink-900:#f3e6d3; --ink-700:#d9c4ab; --ink-500:#b39c86; --ink-300:#7c6555;
+    --white:#2a1420;
+    --gold-500:#e0b563; --gold-400:#eccb87;
+  }
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  font-family:var(--font-body);
+  background:var(--cream-050);
+  color:var(--ink-900);
+  line-height:1.5;
+  padding-bottom:96px;
+  min-height:100vh;
+}
+h1,h2,h3{font-family:var(--font-display);color:var(--wine-800);text-wrap:balance;}
+@media (prefers-color-scheme: dark){ h1,h2,h3{color:var(--gold-200);} }
+button{font-family:inherit;}
+a{color:inherit;}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+/* ---------- icons ---------- */
+svg.ic{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;display:block;flex-shrink:0;}
+
+/* ---------- header ---------- */
+header.app-header{
+  background:linear-gradient(120deg,var(--wine-800) 0%,var(--wine-700) 45%,var(--gold-600) 130%);
+  color:var(--white);
+  padding:.9rem 1.4rem;
+  position:sticky; top:0; z-index:100;
+  box-shadow:0 10px 28px -6px rgba(51,16,25,.4);
+}
+.header-row{display:flex;align-items:center;gap:1rem;min-height:64px;max-width:1320px;margin:0 auto;}
+.header-spacer{flex:1 1 auto;}
+.pill-btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  background:rgba(255,255,255,.14);backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.38);
+  color:var(--white);
+  border-radius:var(--radius-pill);
+  padding:.55rem 1.1rem;
+  font-size:.86rem;font-weight:700;letter-spacing:.01em;
+  cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.2);
+  transition:background .16s, transform .16s;
+  white-space:nowrap;
+}
+.pill-btn:hover{background:rgba(255,255,255,.24);transform:translateY(-1px);}
+.pill-btn:active{transform:translateY(0) scale(.97);}
+.pill-btn svg{width:18px;height:18px;}
+.brand{display:flex;align-items:center;gap:.75rem;flex-shrink:0;}
+.brand-logo{width:52px;height:52px;flex-shrink:0;filter:drop-shadow(0 4px 10px rgba(0,0,0,.3));}
+.brand-text{display:flex;flex-direction:column;line-height:1.15;}
+.brand-title{font-family:var(--font-display);font-weight:800;font-size:1.7rem;letter-spacing:.01em;color:var(--white);}
+.brand-tagline{font-family:var(--font-display);font-style:italic;font-weight:500;font-size:.94rem;color:var(--gold-200);margin-top:.12rem;}
+@media (max-width:760px){ .header-row{flex-wrap:wrap;justify-content:center;} .header-spacer{display:none;} .brand-title{font-size:1.4rem;} }
+
+.lang-dropdown{position:relative;flex-shrink:0;}
+.lang-btn{display:flex;align-items:center;gap:.4rem;height:40px;background:rgba(255,255,255,.14);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.38);color:var(--white);border-radius:11px;padding:0 .7rem;font-size:.82rem;font-weight:700;cursor:pointer;}
+.lang-btn img{width:22px;height:16px;border-radius:2px;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.18);}
+.lang-btn svg{width:12px;height:12px;opacity:.85;}
+.lang-menu{position:absolute;top:calc(100% + .5rem);right:0;background:var(--white);border-radius:12px;box-shadow:var(--shadow-lg);padding:.4rem;min-width:172px;z-index:200;display:flex;flex-direction:column;gap:.1rem;}
+.lang-menu{max-height:min(70vh,520px);overflow-y:auto;}
+.lang-menu[hidden]{display:none;}
+/* Le widget Google Traduction reste invisible : il est piloté par notre menu
+   (même technique que Margo), sa bannière est masquée. */
+#google_translate_element{display:none !important;}
+/* Bannière récente de Google Traduction (« Traduction en cours », barre du haut) et infobulle au survol : masquées. */
+body > .skiptranslate, iframe.VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-yAWNEb-L7lbkb, .VIpgJd-ZVi9od-aZ2wEe-wOHMyf, .VIpgJd-ZVi9od-aZ2wEe-OiiCO{display:none !important;}
+
+.goog-te-banner-frame.skiptranslate, iframe.goog-te-banner-frame, .goog-te-banner-frame, body > .goog-te-banner-frame{display:none !important;height:0 !important;visibility:hidden !important;}
+body{top:0 !important;}
+.goog-tooltip, .goog-tooltip:hover, #goog-gt-tt{display:none !important;}
+.goog-text-highlight{background:none !important;box-shadow:none !important;}
+.lang-opt{display:flex;align-items:center;gap:.55rem;background:none;border:none;border-radius:8px;padding:.5rem .6rem;font-size:.82rem;font-weight:600;color:var(--ink-900);cursor:pointer;text-align:left;width:100%;}
+.lang-opt:hover{background:var(--cream-100);}
+.lang-opt img{width:20px;height:15px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.12);}
+.lang-opt.soon{opacity:.55;cursor:default;}
+.lang-opt.soon:hover{background:none;}
+
+/* ---------- stepper ---------- */
+.stepper{display:flex;justify-content:center;gap:.9rem;margin:1.3rem auto .3rem;max-width:900px;padding:0 1rem;flex-wrap:wrap;}
+.step-btn{
+  display:flex;align-items:center;gap:.55rem;
+  background:linear-gradient(160deg,var(--white),var(--cream-100));
+  border:1.5px solid var(--line);
+  color:var(--ink-700);
+  border-radius:var(--radius-pill);
+  padding:.55rem 1.3rem .6rem .6rem;
+  font-weight:700;font-size:.92rem;
+  cursor:pointer;
+  box-shadow:var(--shadow-sm);
+  transition:transform .15s, box-shadow .15s, border-color .15s, color .15s;
+}
+.step-btn:hover{transform:translateY(-1px);border-color:var(--gold-500);}
+.step-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:50%;
+  background:var(--cream-200);color:var(--wine-700);
+  font-family:var(--font-display);font-weight:800;font-size:.95rem;
+  flex-shrink:0;
+}
+.step-btn.active{
+  background:linear-gradient(120deg,var(--wine-700),var(--wine-600));
+  border-color:var(--wine-800);color:var(--white);
+  box-shadow:0 6px 18px -4px rgba(102,26,50,.5);
+}
+.step-btn.active .step-num{background:var(--gold-500);color:var(--wine-900);}
+.step-btn small{font-weight:600;opacity:.85;text-transform:uppercase;letter-spacing:.03em;font-size:.72rem;}
+
+main{max-width:1320px;margin:0 auto;padding:.5rem 1.25rem 0;}
+.screen{display:none;}
+.screen.active{display:block;}
+
+.card{
+  background:radial-gradient(circle at 50% 6%,var(--white),var(--cream-100));
+  border:1.5px solid var(--line);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-md), inset 0 0 0 4px var(--white);
+  padding:1.4rem 1.5rem;
+}
+@media (prefers-color-scheme: dark){ .card{box-shadow:var(--shadow-md), inset 0 0 0 4px var(--cream-200);} }
+
+/* ---------- layout 3 col ---------- */
+.layout-3col{display:flex;gap:1.2rem;align-items:stretch;margin-top:1.1rem;}
+.col-left{flex:1 1 0;min-width:280px;display:flex;flex-direction:column;gap:1.1rem;}
+.col-wheel{flex:1.3 1 0;min-width:300px;display:flex;flex-direction:column;gap:.9rem;}
+.col-map{flex:1.15 1 0;min-width:320px;display:flex;}
+@media (max-width:1020px){
+  .layout-3col{flex-direction:column;}
+  .col-wheel{order:-1;}
+  .col-left,.col-wheel,.col-map{min-width:0;}
+}
+
+.intro-card{position:relative;overflow:hidden;}
+.deco-grape{position:absolute;width:40px;height:40px;color:var(--gold-500);opacity:.5;}
+.deco-grape.tl{top:10px;left:10px;transform:rotate(-14deg);}
+.deco-grape.br{bottom:6px;right:10px;transform:rotate(160deg);}
+.intro-card p{font-size:.98rem;line-height:1.6;color:var(--ink-700);max-width:32ch;}
+.intro-card p strong{color:var(--wine-700);}
+@media (prefers-color-scheme: dark){ .intro-card p strong{color:var(--gold-400);} }
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  border-radius:var(--radius-pill);
+  padding:.68rem 1.5rem;
+  font-weight:800;font-size:.92rem;
+  cursor:pointer;border:2px solid transparent;
+  transition:transform .16s, box-shadow .16s, opacity .16s;
+}
+.btn svg{width:19px;height:19px;}
+.btn-primary{background:linear-gradient(135deg,var(--wine-600),var(--wine-700));color:var(--white);border-color:var(--wine-800);box-shadow:0 6px 16px -4px rgba(102,26,50,.5), inset 0 1px 0 rgba(255,255,255,.18);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 22px -4px rgba(102,26,50,.55);}
+.btn-gold{background:linear-gradient(135deg,var(--gold-500),var(--gold-600));color:var(--wine-900);border-color:var(--gold-700);box-shadow:0 6px 16px -4px rgba(185,134,44,.5), inset 0 1px 0 rgba(255,255,255,.35);}
+.btn-gold:hover{transform:translateY(-2px);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none !important;box-shadow:none !important;}
+.btn-ghost{background:var(--cream-100);color:var(--wine-700);border-color:var(--line);}
+.btn-ghost:hover{border-color:var(--gold-500);}
+.btn-block{width:100%;}
+.btn[hidden]{display:none !important;}
+.btn-row{display:flex;gap:.6rem;margin-top:.95rem;flex-wrap:wrap;}
+
+.selection-card{display:flex;flex-direction:column;gap:.85rem;text-align:center;}
+.sel-count-row{display:flex;align-items:center;justify-content:center;gap:.6rem;color:var(--gold-600);}
+.sel-count-row svg{width:26px;height:26px;}
+.sel-count-text{font-size:.95rem;font-weight:700;color:var(--ink-800,var(--ink-900));}
+.sel-count-num{font-family:var(--font-display);font-size:1.3rem;color:var(--wine-700);font-variant-numeric:tabular-nums;}
+@media (prefers-color-scheme: dark){ .sel-count-num{color:var(--gold-400);} }
+
+/* ---------- wheel ---------- */
+.wheel-card{padding:1.2rem;}
+.wheel-frame{position:relative;width:100%;max-width:340px;aspect-ratio:1/1;margin:0 auto;}
+.wheel-lines{position:absolute;inset:0;width:100%;height:100%;color:var(--line);}
+.wheel-center{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:42%;height:42%;border-radius:50%;
+  background:radial-gradient(circle at 30% 24%,var(--white) 0%,var(--cream-100) 60%,var(--cream-200) 100%);
+  border:1px solid var(--line);
+  box-shadow:0 18px 34px -12px rgba(51,16,25,.35),0 0 0 5px var(--white),0 0 0 9px rgba(102,26,50,.1);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;
+  padding:.5rem;text-align:center;z-index:3;
+}
+@media (prefers-color-scheme: dark){ .wheel-center{box-shadow:0 18px 34px -12px rgba(0,0,0,.5),0 0 0 5px var(--cream-100),0 0 0 9px rgba(224,181,99,.15);} }
+.wheel-center svg{width:22px;height:22px;color:var(--gold-600);}
+.wheel-center label{font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-500);}
+.village-suggest{position:absolute;left:50%;top:71%;transform:translateX(-50%);width:min(290px,96%);z-index:50;background:var(--white);border:1.5px solid var(--gold-400);border-radius:12px;box-shadow:var(--shadow-lg);padding:.3rem;display:flex;flex-direction:column;}
+.village-suggest[hidden]{display:none;}
+.vs-item{display:flex;align-items:center;gap:.5rem;text-align:left;border:none;background:none;padding:.45rem .55rem;border-radius:8px;cursor:pointer;font-family:var(--font-body);color:var(--ink-900);}
+.vs-item svg{width:16px;height:16px;color:var(--gold-600);flex-shrink:0;}
+.vs-item span{display:flex;flex-direction:column;line-height:1.2;}
+.vs-item strong{font-size:.86rem;}
+.vs-item small{font-size:.7rem;color:var(--ink-500);}
+.vs-item:hover,.vs-item.active{background:var(--cream-100);}
+.wheel-center input{
+  width:88%;border:none;background:transparent;text-align:center;
+  font-family:var(--font-display);font-weight:700;font-size:1.05rem;color:var(--wine-800);
+  outline:none;border-bottom:1.5px dashed var(--line);padding-bottom:.15rem;
+}
+@media (prefers-color-scheme: dark){ .wheel-center input{color:var(--gold-200);} }
+.wheel-center input::placeholder{color:var(--ink-300);font-weight:600;}
+.wheel-node{
+  position:absolute;width:27%;aspect-ratio:1/1;
+  border-radius:50%;
+  background:linear-gradient(160deg,var(--white),var(--cream-100));
+  border:2px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem;
+  cursor:pointer;z-index:2;
+  box-shadow:var(--shadow-sm);
+  transition:transform .16s, box-shadow .16s, border-color .16s, background .16s;
+  padding:.2rem;
+}
+.wheel-node svg{width:34%;height:34%;color:var(--cat-color);stroke-width:1.5;}
+.wheel-node .wn-label{font-size:.62rem;font-weight:800;text-align:center;line-height:1.1;color:var(--ink-700);}
+.wheel-node:hover{transform:translateY(-2px) scale(1.04);}
+.wheel-node.active{background:linear-gradient(160deg,var(--cat-color),var(--cat-color));border-color:transparent;box-shadow:0 10px 22px -6px color-mix(in srgb, var(--cat-color) 70%, transparent);}
+.wheel-node.active svg,.wheel-node.active .wn-label{color:var(--white);}
+.n-degustation{top:0;left:11%;}
+.n-hebergement{top:0;right:11%;}
+.n-transport{bottom:0;left:11%;}
+.n-gastronomie{bottom:0;right:11%;}
+
+.radius-row{display:flex;align-items:center;justify-content:center;gap:.7rem;margin-top:.3rem;font-size:.82rem;color:var(--ink-700);font-weight:600;}
+.stepper-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);background:var(--white);color:var(--wine-700);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.stepper-btn svg{width:14px;height:14px;}
+.stepper-btn:hover{border-color:var(--gold-500);}
+.radius-val{min-width:5.2em;text-align:center;font-variant-numeric:tabular-nums;}
+
+.results-card{flex:1;display:flex;flex-direction:column;min-height:180px;padding:1rem .9rem .9rem;}
+.col-left .results-card{max-height:calc(100vh - 230px);min-height:520px;}
+@media (min-width:1021px){
+  .layout-3col.fit{overflow:hidden;}
+  .layout-3col.fit > div{min-height:0;}
+  .layout-3col.fit .col-left .results-card{max-height:none;min-height:0;flex:1;}
+  .layout-3col.fit .col-wheel .wheel-card{flex:1;min-height:0;overflow:visible;display:flex;flex-direction:column;justify-content:center;}
+  .layout-3col.fit .map-frame{min-height:0;}
+  .layout-3col.fit .wheel-card{padding:.9rem 1rem;}
+  .layout-3col.fit .wheel-hint{display:none;}
+  .layout-3col.fit #btnSearch{margin-top:.7rem;padding:.55rem 1rem;}
+}
+.cat-tab-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:.3rem;margin-top:.6rem;}
+.cat-tab{display:flex;align-items:center;gap:.3rem;padding:.32rem .55rem;border-radius:11px;border:2px solid var(--cat-color);background:var(--white);color:var(--cat-color);font-family:var(--font-body);font-weight:800;font-size:.7rem;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .15s,background .2s,color .2s;}
+.cat-tab:hover{transform:translateY(-1px);}
+.cat-tab svg{width:15px;height:15px;}
+.cat-tab.expanded{background:var(--cat-color);color:var(--white);}
+.cat-tab-caret{font-size:.6rem;transition:transform .15s;}
+.cat-tab.expanded .cat-tab-caret{transform:rotate(180deg);}
+.cat-tab-selcount{background:var(--cat-color);color:var(--white);border-radius:9px;font-size:.62rem;padding:0 .35rem;min-width:1.1rem;text-align:center;}
+.cat-tab.expanded .cat-tab-selcount{background:var(--white);color:var(--cat-color);}
+.cat-chip-panel{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem;margin-top:.6rem;padding:.6rem;border-radius:var(--radius-md);background:var(--cream-100);border:1px dashed var(--line);}
+.cat-chip-panel[hidden]{display:none;}
+.sub-card{display:flex;align-items:center;gap:.35rem;padding:.4rem .65rem;border-radius:10px;border:1.5px solid var(--line);background:var(--white);font-family:var(--font-body);font-size:.76rem;font-weight:700;color:var(--ink-700);cursor:pointer;transition:border-color .15s,background .15s;}
+.sub-card:hover{border-color:var(--cat-color);}
+.sub-card.selected{border-color:var(--cat-color);background:color-mix(in srgb, var(--cat-color) 12%, var(--white));color:var(--ink-900);}
+.sub-check{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--cat-color);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--white);}
+.sub-card.selected .sub-check{background:var(--cat-color);}
+.sub-ic{width:16px;height:16px;color:var(--cat-color);}
+.tree-sub > summary .sub-ic{width:15px;height:15px;color:var(--cat-color);}
+.sub-count{background:var(--cat-color);color:var(--white);border-radius:9px;font-size:.62rem;padding:0 .35rem;}
+.wheel-hint{font-size:.8rem;color:var(--ink-500);text-align:center;margin:.7rem auto .7rem;max-width:300px;line-height:1.45;}
+/* ---- Liste des lieux proposés, présentée comme dans Margo : arbre par
+   catégorie (repliable), carte par lieu avec vignette photo, note et infos
+   pratiques ; le détail (adresse, horaires, téléphone, site, avis) s'affiche
+   dans une bulle au survol. ---- */
+.tree-cat{border-bottom:1px solid var(--line-soft);}
+.tree-cat:last-child{border-bottom:none;}
+.tree-cat > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.45rem;padding:.55rem .2rem;font-weight:800;font-size:.86rem;color:var(--cat-color);}
+.tree-cat > summary::-webkit-details-marker{display:none;}
+.tree-cat > summary .caret{font-size:.6rem;transition:transform .15s;color:var(--ink-500);}
+.tree-cat[open] > summary .caret{transform:rotate(90deg);}
+.tree-cat > summary svg{width:17px;height:17px;}
+.tree-cat > summary .count{color:var(--ink-500);font-weight:600;}
+.tree-cat > summary .reco-hint{font-weight:500;font-size:.72rem;color:var(--ink-500);}
+.tree-sub{--cat-color:inherit;margin:0 0 .2rem .55rem;border-left:2px solid color-mix(in srgb, var(--cat-color) 30%, transparent);padding-left:.4rem;}
+.tree-sub > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.4rem;padding:.35rem .2rem;font-weight:700;font-size:.8rem;color:var(--ink-700);}
+.tree-sub > summary::-webkit-details-marker{display:none;}
+.tree-sub > summary .caret{font-size:.55rem;transition:transform .15s;color:var(--ink-500);}
+.tree-sub[open] > summary .caret{transform:rotate(90deg);}
+.tree-sub > summary .count{color:var(--ink-500);font-weight:600;}
+.tree-sub > summary .reco-hint{font-weight:500;font-size:.7rem;color:var(--ink-500);}
+.leaf{position:relative;display:flex;gap:.6rem;align-items:flex-start;padding:.55rem .35rem;border-radius:var(--radius-sm);border:1px solid transparent;transition:background .15s,border-color .15s;}
+.leaf:hover,.leaf.hl{background:var(--cream-100);border-color:var(--line);}
+.leaf.selected{background:color-mix(in srgb, var(--cat-color) 9%, var(--white));border-color:color-mix(in srgb, var(--cat-color) 45%, transparent);}
+.leaf input[type=checkbox]{margin-top:.3rem;width:17px;height:17px;flex-shrink:0;accent-color:var(--wine-600);cursor:pointer;}
+.leaf-thumb{width:72px;height:72px;border-radius:10px;flex-shrink:0;overflow:hidden;background:var(--cream-200);display:flex;align-items:center;justify-content:center;color:var(--cat-color);cursor:pointer;transition:transform .12s;}
+.leaf-thumb:hover{transform:scale(1.04);}
+.leaf-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.leaf-thumb svg{width:30px;height:30px;}
+.leaf-thumb img + svg{display:none;}
+.leaf-info{flex:1;min-width:0;align-self:flex-start;position:relative;}
+.leaf-info h4{font-family:var(--font-body);font-size:.88rem;font-weight:800;color:var(--wine-800);line-height:1.25;margin:.05rem 0 .2rem;}
+.leaf-meta{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .4rem;font-size:.72rem;color:var(--ink-500);}
+.leaf-meta .stars{position:relative;display:inline-block;color:var(--line);letter-spacing:1px;font-size:.78rem;}
+.leaf-meta .stars::before{content:'★★★★★';position:absolute;left:0;top:0;width:var(--pct);overflow:hidden;color:var(--gold-500);white-space:nowrap;}
+.leaf-meta .rt{font-weight:800;color:var(--gold-700);}
+.leaf-meta .chip{background:var(--cream-100);border:1px solid var(--line-soft);border-radius:var(--radius-pill);padding:0 .45rem;white-space:nowrap;}
+.leaf-meta .chip.good{color:var(--ok);border-color:color-mix(in srgb, var(--ok) 35%, transparent);}
+.leaf-meta .chip.warn{color:var(--gold-700);}
+.reco-badge{display:inline-block;background:#e8f1e6;color:#2f6b3a;border:1px solid #a8cfa0;border-radius:var(--radius-pill);padding:.02rem .5rem;font-size:.68rem;font-weight:800;margin-bottom:.2rem;}
+.leaf-details{position:absolute;top:100%;left:0;z-index:30;margin-top:4px;width:calc(100% - 4px);background:var(--white);border:1.5px solid var(--gold-400);border-radius:12px;box-shadow:var(--shadow-lg);padding:.6rem .75rem;font-size:.76rem;color:var(--ink-700);opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .15s,transform .15s,visibility .15s;pointer-events:none;}
+.leaf:hover .leaf-details,.leaf-info:focus-within .leaf-details{opacity:1;visibility:visible;transform:none;pointer-events:auto;}
+.leaf-details p{display:flex;gap:.45rem;margin:.25rem 0;line-height:1.4;}
+.leaf-details p .i{flex:0 0 1.1rem;text-align:center;}
+.leaf-details p .t{flex:1;min-width:0;overflow-wrap:anywhere;}
+.leaf-details .lbl{font-weight:800;color:var(--wine-700);}
+.leaf-details ul{list-style:none;margin:.1rem 0 .3rem 1.55rem;padding:0;}
+.leaf-details li{font-size:.72rem;line-height:1.45;}
+.leaf-details p.rev{display:block;margin:.2rem 0 .35rem 1.55rem;font-size:.72rem;}
+.leaf-details .rev .who{color:var(--ink-500);font-style:italic;}
+.leaf-details a{color:var(--wine-600);font-weight:700;}
+.sel-footer{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;border-top:1.5px solid var(--line);margin-top:.6rem;padding-top:.7rem;}
+.sel-footer[hidden]{display:none;}
+.sel-footer .sel-count-text{display:flex;align-items:center;gap:.35rem;color:var(--ink-900);}
+.sel-footer .sel-count-text svg{width:20px;height:20px;color:var(--gold-600);}
+.sel-footer .btn{padding:.55rem 1rem;}
+.results-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.6rem;}
+.results-head h3{font-size:.92rem;}
+.results-head span{font-size:.76rem;color:var(--ink-500);font-weight:600;}
+.results-head{align-items:center;}
+.results-head-right{display:flex;align-items:center;gap:.5rem;}
+.btn-ai{padding:.35rem .7rem;font-size:.74rem;border-radius:var(--radius-pill);}
+.btn-ai svg{width:15px;height:15px;}
+.ai-modal{position:fixed;inset:0;z-index:2000;background:rgba(51,16,28,.45);display:flex;align-items:center;justify-content:center;padding:1rem;}
+.ai-modal[hidden]{display:none;}
+.ai-modal-box{width:min(760px,100%);max-height:calc(100vh - 2rem);display:flex;flex-direction:column;padding:1.1rem 1.2rem;}
+.ai-modal-box .ai-carnet-out{flex:1;min-height:0;overflow-y:auto;padding-right:.3rem;}
+.ai-modal-intro{font-size:.84rem;color:var(--ink-700);margin:.4rem 0 .2rem;line-height:1.5;}
+.results-list{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;flex:1;min-height:0;padding-right:.2rem;}
+.result-row{
+  display:flex;align-items:center;gap:.6rem;
+  background:var(--white);border:1px solid var(--line-soft);border-radius:var(--radius-sm);
+  padding:.5rem .6rem;font-size:.82rem;cursor:pointer;
+  transition:border-color .15s, background .15s;
+}
+.result-row:hover{border-color:var(--gold-500);}
+.result-row.selected{background:var(--cream-200);border-color:var(--cat-color);}
+.result-dot{width:11px;height:11px;border-radius:50%;background:var(--cat-color);flex-shrink:0;}
+.result-name{flex:1;font-weight:700;color:var(--ink-900);}
+.result-rating{font-size:.72rem;color:var(--gold-700);font-weight:700;white-space:nowrap;flex-shrink:0;}
+.result-rating .n{font-weight:400;color:var(--ink-500);}
+.result-dist{font-size:.72rem;color:var(--ink-500);font-variant-numeric:tabular-nums;flex-shrink:0;}
+.result-add{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--cat-color);color:var(--cat-color);background:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.result-add svg{width:14px;height:14px;}
+.result-row.selected .result-add{background:var(--cat-color);color:var(--white);}
+.results-empty{color:var(--ink-500);font-size:.84rem;text-align:center;padding:1.4rem .5rem;}
+.results-loading{color:var(--ink-500);font-size:.84rem;text-align:center;padding:1.4rem .5rem;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+.spin{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--gold-600);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ---------- map ---------- */
+.map-frame{position:relative;width:100%;border-radius:var(--radius-lg);overflow:hidden;border:1.5px solid var(--line);box-shadow:var(--shadow-md);min-height:340px;flex:1;}
+#leafletMap{position:absolute;inset:0;width:100%;height:100%;}
+.map-toggle{position:absolute;top:12px;left:12px;z-index:400;display:flex;background:var(--white);border-radius:var(--radius-pill);padding:3px;box-shadow:var(--shadow-sm);}
+.map-toggle button{border:none;background:none;padding:.4rem .9rem;border-radius:var(--radius-pill);font-size:.78rem;font-weight:700;color:var(--ink-700);cursor:pointer;}
+.map-toggle button.active{background:var(--wine-700);color:var(--white);}
+.map-fab{position:absolute;z-index:400;width:36px;height:36px;border-radius:9px;background:var(--white);border:none;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--wine-700);}
+.map-fab svg{width:18px;height:18px;}
+.map-fab.fullscreen{top:12px;right:12px;}
+.map-fab.locate{bottom:16px;right:12px;}
+.leaflet-popup-content-wrapper{border-radius:12px;font-family:var(--font-body);}
+.poi-popup{min-width:170px;}
+.poi-popup .pp-name{font-weight:800;color:var(--wine-800);margin-bottom:.15rem;}
+.poi-popup img{width:100%;height:96px;object-fit:cover;border-radius:8px;margin-bottom:.4rem;display:block;}
+.poi-popup .pp-rt{font-size:.74rem;color:var(--gold-700);font-weight:800;margin-bottom:.15rem;}
+.poi-popup .pp-cat{font-size:.72rem;color:var(--ink-500);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
+.poi-popup button{width:100%;border:none;border-radius:var(--radius-pill);padding:.4rem;font-weight:800;font-size:.78rem;cursor:pointer;}
+
+/* ---------- category grid ---------- */
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.4rem;}
+@media (max-width:760px){ .cat-grid{grid-template-columns:repeat(2,1fr);} }
+.cat-card{
+  background:linear-gradient(160deg,var(--white),var(--cream-100));
+  border:1.5px solid var(--line);border-radius:var(--radius-lg);
+  padding:1.2rem 1rem;display:flex;flex-direction:column;align-items:center;gap:.6rem;
+  cursor:pointer;box-shadow:var(--shadow-sm);
+  transition:transform .16s,box-shadow .16s,border-color .16s;
+}
+.cat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
+.cat-card.active{border-color:var(--cat-color);background:linear-gradient(160deg,color-mix(in srgb, var(--cat-color) 14%, var(--white)),var(--cream-100));}
+.cat-card-icon{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 32% 26%,var(--white),var(--cream-200));border:2px solid var(--cat-color);color:var(--cat-color);}
+.cat-card.active .cat-card-icon{background:var(--cat-color);color:var(--white);}
+.cat-card-icon svg{width:28px;height:28px;}
+.cat-card-label{font-weight:800;font-size:.88rem;text-align:center;color:var(--ink-900);}
+.cat-card-count{font-size:.7rem;color:var(--ink-500);font-weight:700;}
+
+/* ---------- OT carousel ---------- */
+.ot-carousel{position:fixed;left:0;right:0;bottom:15px;z-index:90;background:linear-gradient(90deg,var(--wine-800),var(--wine-700) 40%,var(--gold-600));padding:.55rem 0;overflow:hidden;box-shadow:0 -6px 16px -8px rgba(0,0,0,.3);}
+.ot-track{display:flex;gap:.7rem;width:max-content;animation:ot-scroll 38s linear infinite;}
+.ot-carousel:hover .ot-track{animation-play-state:paused;}
+@keyframes ot-scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.ot-badge{
+  display:flex;align-items:center;gap:.5rem;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3);
+  border-radius:var(--radius-pill);padding:.35rem .9rem .35rem .4rem;
+  color:var(--white);font-size:.78rem;font-weight:700;white-space:nowrap;
+  text-decoration:none;flex-shrink:0;
+}
+.ot-badge img{width:20px;height:20px;border-radius:50%;background:var(--white);flex-shrink:0;}
+.ot-badge .ot-emoji{width:20px;height:20px;border-radius:50%;background:var(--white);display:flex;align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;}
+
+/* ---------- legal footer ---------- */
+.legal-bar a{color:var(--gold-200);font-weight:700;}
+.legal-bar{position:fixed;left:0;right:0;bottom:0;height:15px;line-height:15px;background:linear-gradient(90deg,var(--wine-900),var(--wine-800) 60%,var(--gold-700));color:var(--white);font-size:.6rem;text-align:center;z-index:95;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+
+/* ---------- carnet screen ---------- */
+.carnet-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-top:1.1rem;}
+.carnet-head h2{font-size:1.4rem;}
+.carnet-sub{color:var(--ink-500);font-size:.86rem;font-weight:600;}
+.summary-pills{display:flex;gap:.6rem;flex-wrap:wrap;}
+.summary-pill{display:flex;align-items:center;gap:.4rem;background:var(--white);border:1.5px solid var(--line);border-radius:var(--radius-pill);padding:.4rem .9rem;font-size:.8rem;font-weight:700;color:var(--wine-700);box-shadow:var(--shadow-sm);}
+.summary-pill svg{width:16px;height:16px;color:var(--gold-600);}
+.mode-toggle{display:flex;background:var(--white);border:1.5px solid var(--line);border-radius:var(--radius-pill);padding:3px;}
+.mode-btn{border:none;background:none;padding:.45rem .8rem;border-radius:var(--radius-pill);cursor:pointer;color:var(--ink-700);display:flex;align-items:center;}
+.mode-btn svg{width:17px;height:17px;}
+.mode-btn.active{background:var(--wine-700);color:var(--white);}
+
+.carnet-layout{display:flex;gap:1.2rem;margin-top:1.2rem;align-items:flex-start;}
+.carnet-list{flex:1.3 1 0;min-width:300px;display:flex;flex-direction:column;gap:.9rem;}
+.carnet-map-col{flex:1 1 0;min-width:300px;position:sticky;top:190px;}
+@media (max-width:980px){ .carnet-layout{flex-direction:column;} .carnet-map-col{position:static;width:100%;} }
+#carnetMap{width:100%;height:360px;border-radius:var(--radius-lg);border:1.5px solid var(--line);box-shadow:var(--shadow-md);}
+
+.journal-card{display:flex;gap:1rem;padding:1.1rem 1.2rem;position:relative;}
+.journal-pin{flex-shrink:0;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;color:var(--white);background:var(--cat-color);box-shadow:var(--shadow-sm);}
+.journal-body{flex:1;min-width:0;}
+.journal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.6rem;}
+.journal-title{font-family:var(--font-display);font-weight:700;font-size:1.08rem;color:var(--wine-800);}
+@media (prefers-color-scheme: dark){ .journal-title{color:var(--gold-200);} }
+.journal-cat{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--cat-color);}
+.journal-leg{font-size:.76rem;color:var(--ink-500);font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.journal-actions{display:flex;gap:.3rem;flex-shrink:0;}
+.jbtn{width:28px;height:28px;border-radius:8px;border:1.5px solid var(--line);background:var(--white);color:var(--ink-700);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.jbtn:hover{border-color:var(--gold-500);}
+.jbtn svg{width:14px;height:14px;}
+.journal-note{
+  width:100%;margin-top:.6rem;resize:vertical;min-height:44px;
+  border:1.5px dashed var(--line);border-radius:var(--radius-sm);
+  background:var(--cream-050);padding:.5rem .6rem;font-family:var(--font-body);
+  font-size:.84rem;color:var(--ink-700);outline:none;
+}
+.journal-note::placeholder{color:var(--ink-300);}
+.journal-note:focus{border-color:var(--gold-500);}
+
+.empty-state{text-align:center;padding:3rem 1.5rem;color:var(--ink-600);}
+.empty-state svg{width:52px;height:52px;color:var(--gold-500);margin-bottom:.8rem;}
+.empty-state h3{margin-bottom:.4rem;}
+.empty-state p{max-width:38ch;margin:0 auto 1.2rem;font-size:.9rem;}
+
+.ai-carnet{padding:1rem 1.15rem;}
+#journalList{display:flex;flex-direction:column;gap:.9rem;}
+.ai-carnet-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;}
+.ai-carnet-head h3{font-family:var(--font-display);color:var(--wine-700);font-size:1.12rem;margin:0;display:flex;align-items:center;gap:.4rem;}
+.ai-carnet-head h3 svg{width:20px;height:20px;color:var(--gold-600);}
+.ai-carnet-head .btn-row{margin-top:0;}
+.ai-carnet-status{font-size:.8rem;color:var(--ink-500);margin-top:.5rem;display:flex;align-items:center;gap:.45rem;}
+.ai-carnet-status.err{color:var(--danger);font-weight:600;}
+.ai-carnet-status:empty{display:none;}
+.ai-carnet-out{margin-top:.6rem;font-size:.9rem;line-height:1.55;color:var(--ink-900);}
+.ai-carnet-out:empty{display:none;}
+.ai-carnet-out h4{font-family:var(--font-display);color:var(--wine-700);font-size:1rem;margin:.9rem 0 .25rem;}
+.ai-carnet-out p{margin:.3rem 0;}
+.ai-carnet-out ul{margin:.25rem 0 .4rem 1.1rem;padding:0;}
+.ai-carnet-out strong{color:var(--wine-800);}
+/* ---------- Carnet façon ROADBOOK de Margo ---------- */
+.rb-hero{display:flex;gap:1.4rem;align-items:stretch;justify-content:space-between;flex-wrap:wrap;background:linear-gradient(120deg,var(--wine-900),var(--wine-700) 55%,var(--gold-700));color:var(--white);border-radius:var(--radius-lg);padding:1.3rem 1.5rem;box-shadow:var(--shadow-md);margin-bottom:1rem;}
+.rb-hero h2{color:var(--white);font-size:1.6rem;margin:0;}
+.rb-hero-info{flex:1 1 420px;min-width:0;display:flex;flex-direction:column;gap:.55rem;}
+.rb-meta{color:var(--gold-200);font-size:.86rem;font-weight:600;margin:0;}
+.rb-pills{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;}
+.rb-pill{display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);border-radius:var(--radius-pill);padding:.32rem .8rem;font-size:.82rem;}
+.rb-pill svg{width:16px;height:16px;color:var(--gold-400);}
+.rb-pill-accent{background:var(--gold-500);color:var(--wine-900);border-color:var(--gold-600);font-weight:700;}
+.rb-hero .mode-toggle{background:rgba(255,255,255,.95);}
+.rb-order{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;}
+.rb-order[hidden]{display:none;}
+.rb-toolbar{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.2rem;}
+.rb-small{padding:.4rem .8rem;font-size:.78rem;}
+.rb-small svg{width:15px;height:15px;}
+.rb-hero-action{order:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;min-width:200px;max-width:230px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:.75rem;}
+#carnetMapsLinks{display:flex;flex-direction:column;gap:.35rem;width:100%;}
+#carnetMapsLinks .btn{justify-content:center;}
+.rb-qr img{background:#fff;border-radius:10px;padding:5px;display:block;}
+.rb-qr-hint{font-size:.7rem;color:var(--gold-200);text-align:center;max-width:190px;margin:0;}
+.share-wrap{position:relative;}
+.share-popover{position:absolute;top:calc(100% + 6px);left:0;z-index:60;background:var(--white);border:1.5px solid var(--line);border-radius:12px;box-shadow:var(--shadow-lg);padding:.35rem;display:flex;flex-direction:column;min-width:170px;}
+.share-popover[hidden]{display:none;}
+.share-popover a,.share-popover button{display:block;text-align:left;border:none;background:none;padding:.45rem .6rem;border-radius:8px;font:inherit;font-size:.84rem;font-weight:700;color:var(--wine-700);text-decoration:none;cursor:pointer;}
+.share-popover a:hover,.share-popover button:hover{background:var(--cream-100);}
+.rb-map-row{display:flex;gap:1rem;margin:1rem 0;align-items:stretch;}
+.rb-steps-list{flex:0 0 300px;list-style:none;margin:0;padding:.6rem;background:var(--white);border:1.5px solid var(--line);border-radius:var(--radius-lg);display:flex;flex-direction:column;gap:.3rem;max-height:380px;overflow-y:auto;}
+.rb-steps-list li{display:flex;align-items:center;gap:.5rem;padding:.4rem .5rem;border-radius:9px;font-size:.84rem;font-weight:700;color:var(--ink-900);background:var(--cream-050);border:1px solid var(--line-soft);}
+.rb-steps-list li .n{flex:0 0 24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--cat-color,var(--wine-700));color:#fff;font-size:.72rem;}
+.rb-steps-list li.endpoint{background:var(--cream-200);}
+.rb-steps-list li.endpoint .n{background:var(--wine-900);}
+.drag-handle{cursor:grab;color:var(--ink-300);font-size:1rem;user-select:none;}
+.draggable-step.dragging{opacity:.45;}
+.draggable-step.drag-over{outline:2px dashed var(--gold-500);outline-offset:2px;}
+.rb-map-row #carnetMap{flex:1;height:380px;}
+.rb-step{display:flex;gap:1rem;padding:1.1rem 1.2rem;margin-bottom:.9rem;align-items:flex-start;}
+.rb-step .num{flex:0 0 40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--cat-color);color:#fff;font-family:var(--font-display);font-weight:800;font-size:1.05rem;box-shadow:var(--shadow-sm);}
+.rb-step-body{flex:1;min-width:0;}
+.rb-step h3{font-size:1.12rem;margin:0 0 .2rem;display:flex;align-items:center;gap:.4rem;}
+.rb-step h3 svg{width:20px;height:20px;color:var(--cat-color);}
+.rb-step .rb-sub{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--cat-color);margin-bottom:.35rem;}
+.rb-step p{margin:.2rem 0;font-size:.84rem;color:var(--ink-700);}
+.rb-step p strong{color:var(--ink-900);}
+.rb-step .leaf-meta{margin:.15rem 0 .4rem;}
+.step-ai{margin:.6rem 0;padding:.6rem .8rem;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb, var(--gold-200) 45%, var(--white)),var(--white));border:1px solid var(--gold-400);font-size:.86rem;line-height:1.55;}
+.step-ai[hidden]{display:none;}
+.step-ai-head{font-weight:800;color:var(--wine-700);display:flex;align-items:center;gap:.35rem;margin-bottom:.2rem;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;}
+.step-ai-head svg{width:15px;height:15px;color:var(--gold-600);}
+.step-ai p{margin:.2rem 0;}
+.rb-step-actions{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin-top:.6rem;}
+.rb-step-actions .leg{font-size:.78rem;color:var(--ink-500);font-weight:700;margin-right:.3rem;}
+.rb-step-actions .btn{padding:.35rem .75rem;font-size:.76rem;}
+.rb-step-media{flex:0 0 140px;display:flex;flex-direction:column;gap:.5rem;align-items:center;}
+.rb-step-media img.ph{width:140px;height:100px;object-fit:cover;border-radius:10px;}
+.rb-step-media .qr img{display:block;border-radius:6px;}
+.rb-step .journal-note{margin-top:.6rem;}
+.rb-notes h3{font-size:1.05rem;margin-bottom:.4rem;}
+.rb-notes ul{margin:.2rem 0 .4rem 1.1rem;font-size:.86rem;color:var(--ink-700);}
+.ai-full-toggle{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;}
+.ai-hint{font-size:.78rem;color:var(--ink-500);font-style:italic;margin-top:.4rem;}
+@media (max-width:860px){ .rb-map-row{flex-direction:column;} .rb-steps-list{flex:none;max-height:none;} .rb-step{flex-wrap:wrap;} .rb-step-media{flex-direction:row;flex:1 1 100%;} }
+
+/* ================= Habillage « vin » : vigne, tonneau, pressoir ================= */
+/* Fond de page : feuilles de vigne et grappes en filigrane */
+body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220' fill='none' stroke='%23b9862c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' opacity='0.13'%3E%3Cg transform='translate%2848 52%29 rotate%28-18%29 scale%280.42%29 translate%28-50 -50%29' %3E%3Cpath d='M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z'/%3E%3Cpath d='M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58'/%3E%3C/g%3E%3Cg transform='translate%28168 150%29 rotate%2824%29 scale%280.36%29 translate%28-50 -50%29' %3E%3Cpath d='M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z'/%3E%3Cpath d='M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58'/%3E%3C/g%3E%3Cg%3E%3Ccircle cx='150.0' cy='30.0' r='4.8'/%3E%3Ccircle cx='160.0' cy='30.0' r='4.8'/%3E%3Ccircle cx='170.0' cy='30.0' r='4.8'/%3E%3Ccircle cx='155.0' cy='38.5' r='4.8'/%3E%3Ccircle cx='165.0' cy='38.5' r='4.8'/%3E%3Ccircle cx='160.0' cy='47.0' r='4.8'/%3E%3C/g%3E%3Cg%3E%3Ccircle cx='40.0' cy='160.0' r='4.3'/%3E%3Ccircle cx='49.0' cy='160.0' r='4.3'/%3E%3Ccircle cx='58.0' cy='160.0' r='4.3'/%3E%3Ccircle cx='44.5' cy='167.7' r='4.3'/%3E%3Ccircle cx='53.5' cy='167.7' r='4.3'/%3E%3Ccircle cx='49.0' cy='175.3' r='4.3'/%3E%3C/g%3E%3Cpath d='M84 66c8-10 22-8 22 3c0 7-9 9-12 5c-2-3 1-6 3-5'/%3E%3Cpath d='M128 168c-6 9-18 9-19 0c0-6 7-8 10-4'/%3E%3C/svg%3E");background-size:220px 220px;}
+/* En-tête : guirlande de vigne dorée */
+header.app-header{overflow:hidden;}
+header.app-header .vine-garland{position:absolute;right:-10px;bottom:-6px;width:430px;height:92px;color:var(--gold-400);opacity:.38;pointer-events:none;}
+header.app-header .vine-garland.left{right:auto;left:240px;bottom:auto;top:-18px;width:300px;transform:scaleY(-1);opacity:.22;}
+.header-row{position:relative;z-index:1;}
+@media (max-width:760px){ header.app-header .vine-garland.left{display:none;} }
+/* Bandeau en douelles de chêne (bois de tonneau) sous l'en-tête */
+header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;height:5px;
+  background:repeating-linear-gradient(90deg,#7a4e2a 0 46px,#5c3a1f 46px 48px,#8b5a32 48px 94px,#5c3a1f 94px 96px);opacity:.9;}
+/* Centre de la roue : fond de tonneau (planches + cercle de fer) */
+.wheel-center{
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,250,238,.0) 0 58%, rgba(92,58,31,.18) 70%, rgba(92,58,31,.0) 71%),
+    repeating-linear-gradient(0deg,#f3e2c2 0 15%,#e3c896 15% 16%,#efd9b1 16% 31%,#e3c896 31% 32%);
+  box-shadow:0 18px 34px -12px rgba(51,16,25,.4),0 0 0 4px #8b5a32,0 0 0 8px #3a2a20,0 0 0 11px #a77446;
+  border:none;
+}
+.wheel-center label{color:#6b4a2f;}
+.wheel-center input{color:var(--wine-800);border-bottom-color:rgba(92,58,31,.45);}
+@media (prefers-color-scheme: dark){ .wheel-center input{color:var(--wine-800);} .wheel-center label{color:#5c3a1f;} }
+/* Cadres : feuille de vigne en coin */
+.results-card,.wheel-card,.rb-notes,.ai-carnet{position:relative;}
+.results-card::before,.wheel-card::before,.ai-carnet::before,.rb-notes::before{content:'';position:absolute;top:-6px;right:-4px;width:58px;height:58px;pointer-events:none;opacity:.55;
+  background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 fill=%22none%22 stroke=%22%238a9a4a%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z%22 fill=%22%23b7c47a%22 fill-opacity=%22.35%22/%3E%3Cpath d=%22M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58%22/%3E%3C/svg%3E");transform:rotate(18deg);}
+.wheel-card::before{left:-6px;right:auto;transform:rotate(-24deg) scaleX(-1);}
+.results-card::before{top:auto;bottom:-8px;right:-6px;transform:rotate(200deg);opacity:.4;}
+/* Bannière du carnet : guirlande + pressoir en filigrane */
+.rb-hero{position:relative;overflow:hidden;}
+.rb-hero > *{position:relative;z-index:1;}
+.rb-hero{padding-bottom:3.4rem;align-items:center;}
+.rb-hero-info{flex:0 1 620px;order:1;}
+.rb-hero .vine-garland{position:absolute;left:50%;transform:translateX(-50%);bottom:-6px;width:min(900px,100%);height:64px;color:var(--gold-400);opacity:.4;pointer-events:none;z-index:0;}
+.rb-hero .press-art{position:relative;order:2;flex:0 1 170px;width:150px;height:160px;margin:0 auto;color:var(--gold-200);opacity:.42;pointer-events:none;z-index:0;}
+@media (max-width:980px){ .rb-hero .press-art{display:none;} .rb-hero-action{max-width:none;} }
+/* Fiches d'étape : douelle de bois à gauche */
+.rb-step{box-shadow:inset 7px 0 0 #8b5a32, inset 9px 0 0 #6d4526, var(--shadow-sm);padding-left:1.5rem;}
+/* Notes pratiques : petit tonneau */
+.rb-notes{padding-right:120px;}
+.rb-notes .barrel-art{position:absolute;right:18px;bottom:14px;width:84px;height:84px;color:#8b5a32;opacity:.5;}
+/* Écran carnet vide : pressoir et tonneau */
+.empty-state .wine-illus{display:flex;justify-content:center;align-items:flex-end;gap:1.2rem;margin-bottom:.8rem;color:var(--gold-600);}
+.empty-state .wine-illus svg{width:90px;height:96px;margin:0;}
+.empty-state .wine-illus .barrel-art{width:64px;height:64px;color:#8b5a32;}
+/* Mode sombre : --white y devient une couleur de fond foncée ; les textes
+   posés sur les fonds bordeaux/dorés gardent donc un vrai blanc crème. */
+@media (prefers-color-scheme: dark){
+  header.app-header,.brand-title,.pill-btn,.lang-btn,.rb-hero,.rb-hero h2,.cat-tab.expanded,.wheel-node.active svg,.wheel-node.active .wn-label,.mode-btn.active,.btn-primary,.rb-steps-list li .n,.rb-step .num,.sub-count,.cat-tab-selcount,.sub-card.selected .sub-check{color:#fffcf5;}
+  .cat-tab.expanded .cat-tab-selcount{background:#fffcf5;}
+  .leaf-info h4{color:var(--gold-200);}
+  .wheel-center{color:#33211a;}
+}
+@media print{ body{background-image:none;} .vine-garland,.press-art,.barrel-art{display:none !important;} .rb-step{box-shadow:none;} }
+@media print{
+  .no-print{display:none !important;}
+  .rb-hero{background:#fff !important;color:#000 !important;box-shadow:none;border:1px solid #ccc;}
+  .rb-hero h2,.rb-meta,.rb-qr-hint{color:#000 !important;}
+  .rb-pill{border-color:#ccc;background:#fff;color:#000;}
+  .rb-map-row{display:none !important;}
+  .rb-step{break-inside:avoid;}
+  .journal-note:placeholder-shown{display:none;}
+  .ai-carnet .btn-row, .ai-carnet-status{display:none !important;}
+  header.app-header,.stepper,.ot-carousel,.legal-bar,.journal-actions{display:none !important;}
+  body{padding-bottom:0;background:#fff;}
+  .card,.journal-card{box-shadow:none;border:1px solid #ccc;}
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <svg class="vine-garland" viewBox="0 0 420 90" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 70C60 40 110 78 170 52S280 20 330 44S400 62 418 30"/><g transform="translate(70 46) rotate(-30) scale(0.36) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(150 70) rotate(160) scale(0.3) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(232 34) rotate(12) scale(0.38) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(318 64) rotate(200) scale(0.3) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(388 30) rotate(-10) scale(0.32) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g fill="currentColor" fill-opacity=".35"><circle cx="104.0" cy="62.0" r="4.0"/><circle cx="112.4" cy="62.0" r="4.0"/><circle cx="120.8" cy="62.0" r="4.0"/><circle cx="108.2" cy="69.1" r="4.0"/><circle cx="116.6" cy="69.1" r="4.0"/><circle cx="112.4" cy="76.3" r="4.0"/><circle cx="272.0" cy="44.0" r="4.4"/><circle cx="281.2" cy="44.0" r="4.4"/><circle cx="290.4" cy="44.0" r="4.4"/><circle cx="276.6" cy="51.8" r="4.4"/><circle cx="285.8" cy="51.8" r="4.4"/><circle cx="281.2" cy="59.6" r="4.4"/></g><path d="M190 52c6-12 20-12 20-2c0 6-8 8-11 4c-2-3 1-6 3-4"/><path d="M350 46c-4 12-17 14-19 5c-1-6 6-8 9-5"/></svg>
+  <svg class="vine-garland left" viewBox="0 0 420 90" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 70C60 40 110 78 170 52S280 20 330 44S400 62 418 30"/><g transform="translate(70 46) rotate(-30) scale(0.36) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(150 70) rotate(160) scale(0.3) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(232 34) rotate(12) scale(0.38) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(318 64) rotate(200) scale(0.3) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(388 30) rotate(-10) scale(0.32) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g fill="currentColor" fill-opacity=".35"><circle cx="104.0" cy="62.0" r="4.0"/><circle cx="112.4" cy="62.0" r="4.0"/><circle cx="120.8" cy="62.0" r="4.0"/><circle cx="108.2" cy="69.1" r="4.0"/><circle cx="116.6" cy="69.1" r="4.0"/><circle cx="112.4" cy="76.3" r="4.0"/><circle cx="272.0" cy="44.0" r="4.4"/><circle cx="281.2" cy="44.0" r="4.4"/><circle cx="290.4" cy="44.0" r="4.4"/><circle cx="276.6" cy="51.8" r="4.4"/><circle cx="285.8" cy="51.8" r="4.4"/><circle cx="281.2" cy="59.6" r="4.4"/></g><path d="M190 52c6-12 20-12 20-2c0 6-8 8-11 4c-2-3 1-6 3-4"/><path d="M350 46c-4 12-17 14-19 5c-1-6 6-8 9-5"/></svg>
+  <div class="header-row">
+    <button class="pill-btn" id="btnHome"><svg class="ic"><use href="#icon-arrow-up"></use></svg> Accueil</button>
+    <div class="brand">
+      <svg class="brand-logo" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="23" fill="url(#logoGrad)"/>
+        <path d="M24 12c-6 3-11 9-11 15a11 11 0 0 0 22 0c0-6-5-12-11-15z" fill="var(--cream-050)"/>
+        <path d="M24 15v18M24 21c-3 0-6 1.5-7.5 4.5M24 27c3 0 6 1.5 7.5 4.5" stroke="var(--wine-700)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="48" y2="48"><stop offset="0" stop-color="#84223f"/><stop offset="1" stop-color="#cf9d3e"/></linearGradient></defs>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-title">Bourgou</span>
+        <span class="brand-tagline">L'art de vivre en Bourgogne</span>
+      </div>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="lang-dropdown">
+      <button class="lang-btn" id="langBtn" title="Traduire le site" aria-haspopup="true"><img id="langFlag" src="https://flagcdn.com/24x18/fr.png" alt=""><span id="langCode">FR</span><svg class="ic"><use href="#icon-chevron-down"></use></svg></button>
+      <div class="lang-menu" id="langMenu" hidden></div>
+    </div>
+  </div>
+</header>
+
+<nav class="stepper">
+  <button class="step-btn active" id="tabItin" data-screen="screen-itin"><span class="step-num">1</span> Itinéraire &amp; Vins</button>
+  <button class="step-btn" id="tabCarnet" data-screen="screen-carnet"><span class="step-num">2</span> Carnet de Voyage</button>
+</nav>
+
+<main>
+  <!-- SCREEN 1 : ITINERAIRE & VINS -->
+  <section class="screen active" id="screen-itin">
+    <div class="layout-3col">
+      <div class="col-left">
+        <div class="card results-card">
+          <div class="results-head"><h3>Lieux proposés</h3><span class="results-head-right"><span id="resultsCount"></span><button type="button" class="btn btn-gold btn-ai" id="btnAiFromList" title="Faire composer et rédiger ton carnet de voyage par l'IA à partir des lieux proposés"><svg class="ic"><use href="#icon-sparkles"></use></svg> IA Carnet</button></span></div>
+          <div class="results-list" id="resultsList"><div class="results-empty">Lance une recherche pour découvrir les pépites autour de ton village.</div></div>
+          <div class="sel-footer" id="selFooter" hidden>
+            <span class="sel-count-text"><svg class="ic"><use href="#icon-glass"></use></svg> <span class="sel-count-num" id="selCount">0</span> <span id="selCountLabel">lieu sélectionné</span></span>
+            <button class="btn btn-gold" id="btnVoirItineraire" disabled>Voir l'itinéraire →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-wheel">
+        <div class="card wheel-card">
+          <div class="wheel-frame" id="wheelFrame">
+            <svg class="wheel-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <line x1="50" y1="50" x2="27" y2="15" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="73" y2="15" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="27" y2="85" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="73" y2="85" stroke="currentColor" stroke-width="1"/>
+            </svg>
+            <div class="wheel-node n-degustation" data-cat="degustation" style="--cat-color:var(--c-degustation)">
+              <svg class="ic"><use href="#icon-glass"></use></svg>
+              <span class="wn-label">Dégustation</span>
+            </div>
+            <div class="wheel-node n-hebergement" data-cat="hebergement" style="--cat-color:var(--c-hebergement)">
+              <svg class="ic"><use href="#icon-bed"></use></svg>
+              <span class="wn-label">Hébergement</span>
+            </div>
+            <div class="wheel-node n-transport" data-cat="transport" style="--cat-color:var(--c-transport)">
+              <svg class="ic"><use href="#icon-car"></use></svg>
+              <span class="wn-label">Transport</span>
+            </div>
+            <div class="wheel-node n-gastronomie" data-cat="gastronomie" style="--cat-color:var(--c-gastronomie)">
+              <svg class="ic"><use href="#icon-cloche"></use></svg>
+              <span class="wn-label">Gastronomie</span>
+            </div>
+            <div class="wheel-center">
+              <svg class="ic"><use href="#icon-pin"></use></svg>
+              <label for="villageInput">Destination</label>
+              <input id="villageInput" type="text" placeholder="ex. Beaune" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="villageSuggest">
+            </div>
+            <div class="village-suggest" id="villageSuggest" role="listbox" hidden></div>
+          </div>
+          <div class="radius-row">
+            <button class="stepper-btn" id="radiusMinus" aria-label="Réduire le rayon"><svg class="ic"><use href="#icon-minus"></use></svg></button>
+            <span class="radius-val" id="radiusVal">Rayon : 12 km</span>
+            <button class="stepper-btn" id="radiusPlus" aria-label="Augmenter le rayon"><svg class="ic"><use href="#icon-plus"></use></svg></button>
+          </div>
+          <div class="cat-tab-bar" id="catTabBar"></div>
+          <div class="cat-chip-panel" id="catChipPanel" hidden></div>
+          <p class="wheel-hint">Choisis un <strong>village</strong>, puis des <strong>catégories</strong> sur la roue ou dans les onglets : la liste se met à jour toute seule.</p>
+          <button class="btn btn-primary btn-block" id="btnSearch"><svg class="ic"><use href="#icon-search"></use></svg> Rechercher</button>
+        </div>
+      </div>
+
+      <div class="col-map">
+        <div class="map-frame">
+          <div id="leafletMap"></div>
+          <div class="map-toggle">
+            <button class="active" data-layer="plan">Plan</button>
+            <button data-layer="sat">Satellite</button>
+          </div>
+          <button class="map-fab fullscreen" id="btnFullscreen" aria-label="Plein écran"><svg class="ic"><use href="#icon-expand"></use></svg></button>
+          <button class="map-fab locate" id="btnLocate" aria-label="Recentrer"><svg class="ic"><use href="#icon-target"></use></svg></button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- SCREEN 2 : CARNET DE VOYAGE -->
+  <section class="screen" id="screen-carnet">
+    <div id="carnetEmpty" class="empty-state" hidden>
+      <div class="wine-illus"><svg class="press-art" viewBox="0 0 140 150" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="12" y="122" width="116" height="12" rx="3"/><path d="M22 122V18M118 122V18"/><rect x="14" y="10" width="112" height="12" rx="3"/><path d="M30 74h80v48H30z"/><path d="M40 74v48M50 74v48M60 74v48M70 74v48M80 74v48M90 74v48M100 74v48"/><path d="M28 80h84M28 114h84"/><rect x="34" y="64" width="72" height="10" rx="2"/><path d="M66 22v42M74 22v42"/><path d="M66 30l8 5M66 38l8 5M66 46l8 5M66 54l8 5"/><path d="M36 34h68"/><circle cx="34" cy="34" r="4"/><circle cx="106" cy="34" r="4"/><path d="M128 128c6 0 8 4 8 8"/><path d="M136 142c-2 3-2 5 0 6c2-1 2-3 0-6z"/></svg><svg class="barrel-art" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="60" cy="60" rx="34" ry="44"/><path d="M26 60h68"/><path d="M30 32c18 6 42 6 60 0M30 88c18-6 42-6 60 0"/><path d="M44 18c-6 26-6 58 0 84M60 16v88M76 18c6 26 6 58 0 84"/><circle cx="60" cy="60" r="4"/><path d="M14 106h92"/></svg></div>
+      <h3>Ton carnet est encore vierge</h3>
+      <p>Retourne à l'onglet Itinéraire &amp; Vins pour choisir des caves, des tables et des étapes à ajouter à ton roadtrip.</p>
+      <button class="btn btn-primary" id="btnBackToItin2">Choisir des étapes</button>
+    </div>
+    <div id="carnetContent" hidden>
+      <!-- Bannière (comme le ROADBOOK de Margo) : titre, résumé, durée,
+           distance, mode, ordre, export / impression / partage, lien Maps + QR -->
+      <div class="rb-hero">
+        <svg class="vine-garland" viewBox="0 0 420 90" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 70C60 40 110 78 170 52S280 20 330 44S400 62 418 30"/><g transform="translate(70 46) rotate(-30) scale(0.36) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(150 70) rotate(160) scale(0.3) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(232 34) rotate(12) scale(0.38) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(318 64) rotate(200) scale(0.3) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g transform="translate(388 30) rotate(-10) scale(0.32) translate(-50 -50)" ><path d="M50 90C48 80 47 72 46 66C38 70 28 72 20 66C26 62 28 56 26 50C18 50 10 44 8 36C16 36 22 32 24 26C20 20 22 12 28 8C32 14 38 16 44 14C44 8 48 4 50 2C52 4 56 8 56 14C62 16 68 14 72 8C78 12 80 20 76 26C78 32 84 36 92 36C90 44 82 50 74 50C72 56 74 62 80 66C72 72 62 70 54 66C53 72 52 80 50 90Z"/><path d="M50 86V14M50 58L26 32M50 58L74 32M50 70L28 58M50 70L72 58"/></g><g fill="currentColor" fill-opacity=".35"><circle cx="104.0" cy="62.0" r="4.0"/><circle cx="112.4" cy="62.0" r="4.0"/><circle cx="120.8" cy="62.0" r="4.0"/><circle cx="108.2" cy="69.1" r="4.0"/><circle cx="116.6" cy="69.1" r="4.0"/><circle cx="112.4" cy="76.3" r="4.0"/><circle cx="272.0" cy="44.0" r="4.4"/><circle cx="281.2" cy="44.0" r="4.4"/><circle cx="290.4" cy="44.0" r="4.4"/><circle cx="276.6" cy="51.8" r="4.4"/><circle cx="285.8" cy="51.8" r="4.4"/><circle cx="281.2" cy="59.6" r="4.4"/></g><path d="M190 52c6-12 20-12 20-2c0 6-8 8-11 4c-2-3 1-6 3-4"/><path d="M350 46c-4 12-17 14-19 5c-1-6 6-8 9-5"/></svg>
+        <svg class="press-art" viewBox="0 0 140 150" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="12" y="122" width="116" height="12" rx="3"/><path d="M22 122V18M118 122V18"/><rect x="14" y="10" width="112" height="12" rx="3"/><path d="M30 74h80v48H30z"/><path d="M40 74v48M50 74v48M60 74v48M70 74v48M80 74v48M90 74v48M100 74v48"/><path d="M28 80h84M28 114h84"/><rect x="34" y="64" width="72" height="10" rx="2"/><path d="M66 22v42M74 22v42"/><path d="M66 30l8 5M66 38l8 5M66 46l8 5M66 54l8 5"/><path d="M36 34h68"/><circle cx="34" cy="34" r="4"/><circle cx="106" cy="34" r="4"/><path d="M128 128c6 0 8 4 8 8"/><path d="M136 142c-2 3-2 5 0 6c2-1 2-3 0-6z"/></svg>
+        <div class="rb-hero-info">
+          <h2 id="carnetTitle">Carnet de voyage</h2>
+          <p class="rb-meta" id="carnetSub"></p>
+          <div class="rb-pills">
+            <span class="rb-pill" title="Trajets + temps de visite conseillés"><svg class="ic"><use href="#icon-clock"></use></svg> Durée estimée : <strong id="pillTime">–</strong></span>
+            <span class="rb-pill"><svg class="ic"><use href="#icon-car"></use></svg> Distance : <strong id="pillDist">–</strong></span>
+            <div class="mode-toggle no-print">
+              <button class="mode-btn active" data-mode="DRIVING" title="Voiture"><svg class="ic"><use href="#icon-car"></use></svg></button>
+              <button class="mode-btn" data-mode="BICYCLING" title="Vélo"><svg class="ic"><use href="#icon-bike"></use></svg></button>
+              <button class="mode-btn" data-mode="WALKING" title="À pied"><svg class="ic"><use href="#icon-steps"></use></svg></button>
+            </div>
+          </div>
+          <div class="rb-order no-print" id="carnetOrderBox" hidden>
+            <span class="rb-pill rb-pill-accent">✋ Ordre personnalisé (l'optimisation automatique est désactivée)</span>
+            <button type="button" class="btn btn-ghost rb-small" id="btnResetOrder">↺ Revenir à l'ordre optimisé</button>
+          </div>
+          <div class="rb-toolbar no-print">
+            <button class="btn btn-ghost rb-small" id="btnPrint"><svg class="ic"><use href="#icon-print"></use></svg> Imprimer / PDF</button>
+            <button class="btn btn-ghost rb-small" id="btnExportHtml"><svg class="ic"><use href="#icon-copy"></use></svg> Export HTML</button>
+            <div class="share-wrap">
+              <button class="btn btn-ghost rb-small" id="btnShare" type="button"><svg class="ic"><use href="#icon-sparkles"></use></svg> Partager</button>
+              <div class="share-popover" id="sharePopover" hidden>
+                <a href="#" id="shareSmsLink" target="_blank" rel="noopener noreferrer">SMS</a>
+                <a href="#" id="shareWhatsappLink" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                <a href="#" id="shareEmailLink" target="_blank" rel="noopener noreferrer">Email</a>
+                <button type="button" id="btnCopySummary">Copier le texte</button>
+              </div>
+            </div>
+            <button class="btn btn-ghost rb-small" id="btnBackToItin"><svg class="ic"><use href="#icon-chevron-down"></use></svg> Retour à l'itinéraire</button>
+          </div>
+        </div>
+        <div class="rb-hero-action">
+          <div class="rb-qr" id="carnetQr"></div>
+          <p class="rb-qr-hint">Scanne ce QR pour ouvrir l'itinéraire sur ton téléphone.</p>
+          <div id="carnetMapsLinks"></div>
+        </div>
+      </div>
+
+      <div class="card ai-carnet" id="aiCarnet">
+        <div class="ai-carnet-head">
+          <h3><svg class="ic"><use href="#icon-sparkles"></use></svg> Carnet rédigé par l'IA</h3>
+          <div class="btn-row no-print">
+            <button class="btn btn-gold" id="btnAiCarnet"><svg class="ic"><use href="#icon-sparkles"></use></svg> Rédiger avec l'IA</button>
+            <button class="btn btn-ghost" id="btnAiCarnetStop" hidden><svg class="ic"><use href="#icon-x"></use></svg> Arrêter</button>
+            <button class="btn btn-ghost" id="btnAiCarnetCopy" hidden><svg class="ic"><use href="#icon-copy"></use></svg> Copier</button>
+          </div>
+        </div>
+        <div class="ai-carnet-status" id="aiCarnetStatus"></div>
+        <div class="ai-carnet-out" id="aiCarnetOut"></div>
+      </div>
+
+      <!-- Parcours : liste compacte des étapes (glisser-déposer) + carte -->
+      <div class="rb-map-row">
+        <ul class="rb-steps-list" id="stepsMiniList"></ul>
+        <div id="carnetMap"></div>
+      </div>
+
+      <!-- Une fiche par étape -->
+      <div id="journalList"></div>
+
+      <div class="card rb-notes" id="carnetNotes"></div>
+    </div>
+  </section>
+</main>
+
+<div class="ai-modal" id="aiModal" hidden>
+  <div class="card ai-modal-box" role="dialog" aria-modal="true" aria-labelledby="aiModalTitle">
+    <div class="ai-carnet-head">
+      <h3 id="aiModalTitle" style="font-family:var(--font-display);color:var(--wine-700);margin:0;display:flex;align-items:center;gap:.4rem;"><svg class="ic" style="width:20px;height:20px;color:var(--gold-600)"><use href="#icon-sparkles"></use></svg> IA Carnet de voyage</h3>
+      <button class="btn btn-ghost" id="btnAiModalClose" style="padding:.35rem .6rem"><svg class="ic"><use href="#icon-x"></use></svg></button>
+    </div>
+    <p class="ai-modal-intro">L'IA compose ta journée à partir des <strong>lieux proposés</strong> : elle garde les lieux que tu as cochés, ajoute les meilleures étapes autour (caves, table du midi, visite, hébergement du soir…), les met dans un ordre logique et rédige chaque étape. « Valider » coche ces lieux et ouvre ton carnet.</p>
+    <div class="btn-row" style="margin-top:.5rem">
+      <button class="btn btn-gold" id="btnAiModalGen"><svg class="ic"><use href="#icon-sparkles"></use></svg> Générer</button>
+      <button class="btn btn-ghost" id="btnAiModalStop" hidden><svg class="ic"><use href="#icon-x"></use></svg> Arrêter</button>
+      <button class="btn btn-primary" id="btnAiModalValidate" disabled><svg class="ic"><use href="#icon-check"></use></svg> Valider le carnet</button>
+    </div>
+    <div class="ai-carnet-status" id="aiModalStatus"></div>
+    <div class="ai-carnet-out" id="aiModalOut"></div>
+  </div>
+</div>
+
+<div id="google_translate_element"></div>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" defer></script>
+
+<div class="ot-carousel"><div class="ot-track" id="otTrack"></div></div>
+<div class="legal-bar">© 2026 Bourgou — Studio TopKapi · <a href="pages/mentions-legales-bourgou.html" target="_blank" rel="noopener noreferrer">Mentions légales &amp; RGPD/Cookies</a> · L'abus d'alcool est dangereux pour la santé, à consommer avec modération · données Google Maps / Places et © contributeurs OpenStreetMap</div>
+
+<!-- ============ ICON SPRITE ============ -->
+<svg hidden aria-hidden="true"><defs>
+  <symbol id="icon-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5"/><polyline points="6,11 12,5 18,11"/></symbol>
+  <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-5.5 10.2-7.4 11.8a1 1 0 0 1-1.2 0C9.5 20.2 4 15 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="icon-glass" viewBox="0 0 24 24"><path d="M8 22h8"/><path d="M7 10h10"/><path d="M12 15v7"/><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"/></symbol>
+  <symbol id="icon-bed" viewBox="0 0 24 24"><path d="M2 20v-8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8"/><path d="M4 10V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4"/><path d="M12 4v6"/><path d="M2 18h20"/></symbol>
+  <symbol id="icon-car" viewBox="0 0 24 24"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.6 5H8.4a2 2 0 0 0-1.9 1.3L5 10 3 8"/><path d="M7 14h.01"/><path d="M17 14h.01"/><rect width="18" height="8" x="3" y="10" rx="2"/><path d="M5 18v2"/><path d="M19 18v2"/></symbol>
+  <symbol id="icon-cloche" viewBox="0 0 24 24"><path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.46.32-.84.73-1.04a4 4 0 0 0-2.14-7.59 5 5 0 0 0-9.18 0 4 4 0 0 0-2.14 7.59c.41.2.73.58.73 1.04V20a1 1 0 0 0 1 1Z"/><path d="M6 17h12"/></symbol>
+  <symbol id="icon-church" viewBox="0 0 24 24"><path d="M22 20v-9H2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2Z"/><path d="M18 11V4H6v7"/><path d="M15 22v-4a3 3 0 0 0-6 0v4"/><path d="M22 11V9"/><path d="M2 11V9"/><path d="M6 4V2"/><path d="M18 4V2"/><path d="M10 4V2"/><path d="M14 4V2"/></symbol>
+  <symbol id="icon-bike" viewBox="0 0 24 24"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></symbol>
+  <symbol id="icon-grapes" viewBox="0 0 24 24"><path d="M22 5V2l-5.89 5.89"/><circle cx="16.6" cy="15.89" r="3"/><circle cx="8.11" cy="7.4" r="3"/><circle cx="12.35" cy="11.65" r="3"/><circle cx="13.91" cy="5.85" r="3"/><circle cx="18.15" cy="10.09" r="3"/><circle cx="6.56" cy="13.2" r="3"/><circle cx="10.8" cy="17.44" r="3"/><circle cx="5" cy="19" r="3"/></symbol>
+  <symbol id="icon-vase" viewBox="0 0 24 24"><path d="M10 2v5.63c0 .42-.27.8-.65.98A6 6 0 0 0 6 14c0 4 3 7 5 8"/><path d="M10 5H8a2 2 0 0 0 0 4h.68"/><path d="M14 2v5.63c0 .42.27.8.65.98A6 6 0 0 1 18 14c0 4-3 7-5 8"/><path d="M14 5h2a2 2 0 0 1 0 4h-.68"/><path d="M18 22H6"/><path d="M9 2h6"/></symbol>
+  <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.5-4.5"/></symbol>
+  <symbol id="icon-chevron-down" viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9"/></symbol>
+  <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="icon-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="icon-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="icon-print" viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="1.4"/><path d="M6 15h12v6H6z"/></symbol>
+  <symbol id="icon-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="1.5"/><path d="M5 15V5a1 1 0 0 1 1-1h10"/></symbol>
+  <symbol id="icon-up" viewBox="0 0 24 24"><polyline points="6,14 12,8 18,14"/></symbol>
+  <symbol id="icon-down" viewBox="0 0 24 24"><polyline points="6,10 12,16 18,10"/></symbol>
+  <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></symbol>
+  <symbol id="icon-expand" viewBox="0 0 24 24"><path d="M8 3H3v5"/><path d="M16 3h5v5"/><path d="M21 16v5h-5"/><path d="M3 16v5h5"/></symbol>
+  <symbol id="icon-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+  <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.4 2"/></symbol>
+  <symbol id="icon-check" viewBox="0 0 24 24"><polyline points="5,13 9,17 19,7"/></symbol>
+  <symbol id="icon-bottle" viewBox="0 0 24 24"><path d="M10 2h4"/><path d="M10.5 2v4.5c0 1-.6 1.6-1.5 2.3A4 4 0 0 0 7.5 12v8a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-8a4 4 0 0 0-1.5-3.2c-.9-.7-1.5-1.3-1.5-2.3V2"/><path d="M7.5 14h9"/><path d="M7.5 18h9"/></symbol>
+  <symbol id="icon-barrel" viewBox="0 0 24 24"><ellipse cx="12" cy="4.5" rx="6" ry="2"/><path d="M6 4.5C4.7 8 4.7 16 6 19.5"/><path d="M18 4.5c1.3 3.5 1.3 11.5 0 15"/><path d="M6 19.5c0 1.1 2.7 2 6 2s6-.9 6-2"/><path d="M4.9 9.5c2 .8 4.4 1.2 7.1 1.2s5.1-.4 7.1-1.2"/><path d="M4.9 14.5c2 .8 4.4 1.2 7.1 1.2s5.1-.4 7.1-1.2"/></symbol>
+  <symbol id="icon-utensils" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></symbol>
+  <symbol id="icon-coffee" viewBox="0 0 24 24"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></symbol>
+  <symbol id="icon-croissant" viewBox="0 0 24 24"><path d="m4.6 13.11 5.79-3.21c1.89-1.05 4.79 1.78 3.71 3.71l-3.22 5.81C8.8 23.16.79 15.23 4.6 13.11Z"/><path d="m10.5 9.5-1-2.29C9.2 6.48 8.8 6 8 6H4.5C2.79 6 2 6.5 2 8.5a7.71 7.71 0 0 0 2 4.83"/><path d="M8 6c0-1.55.24-4-2-4-2 0-2.5 2.17-2.5 4"/><path d="m14.5 13.5 2.29 1c.73.3 1.21.7 1.21 1.5v3.5c0 1.71-.5 2.5-2.5 2.5a7.71 7.71 0 0 1-4.83-2"/><path d="M18 16c1.55 0 4-.24 4 2 0 2-2.17 2.5-4 2.5"/></symbol>
+  <symbol id="icon-basket" viewBox="0 0 24 24"><path d="m15 11-1 9"/><path d="m19 11-4-7"/><path d="M2 11h20"/><path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4"/><path d="M4.5 15.5h15"/><path d="m5 11 4-7"/><path d="m9 11 1 9"/></symbol>
+  <symbol id="icon-hotel" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M10 22v-6.57"/><path d="M14 15.43V22"/><path d="M15 16a5 5 0 0 0-6 0"/><path d="M8 7h.01"/><path d="M12 7h.01"/><path d="M16 7h.01"/><path d="M8 11h.01"/><path d="M12 11h.01"/><path d="M16 11h.01"/></symbol>
+  <symbol id="icon-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .7-1.53l7-6a2 2 0 0 1 2.6 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="icon-tent" viewBox="0 0 24 24"><path d="M3.5 21 14 3"/><path d="M20.5 21 10 3"/><path d="M15.5 21 12 15l-3.5 6"/><path d="M2 21h20"/></symbol>
+  <symbol id="icon-parking" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></symbol>
+  <symbol id="icon-train" viewBox="0 0 24 24"><path d="M8 3.1V7a4 4 0 0 0 8 0V3.1"/><path d="m9 15-1-1"/><path d="m15 15 1-1"/><path d="M9 19c-2.8 0-5-2.2-5-5v-4a8 8 0 0 1 16 0v4c0 2.8-2.2 5-5 5Z"/><path d="m8 19-2 3"/><path d="m16 19 2 3"/></symbol>
+  <symbol id="icon-plug" viewBox="0 0 24 24"><path d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z"/><path d="m2 22 3-3"/><path d="M7.5 13.5 10 11"/><path d="M10.5 16.5 13 14"/><path d="m18 3-4 4h6l-4 4"/></symbol>
+  <symbol id="icon-museum" viewBox="0 0 24 24"><path d="M10 18v-7"/><path d="M11.12 2.2a2 2 0 0 1 1.76 0l7.87 3.85c.47.23.31.95-.22.95H3.47c-.53 0-.7-.72-.22-.95z"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M3 22h18"/><path d="M6 18v-7"/></symbol>
+  <symbol id="icon-abbey" viewBox="0 0 24 24"><path d="M10 9h4"/><path d="M12 7v5"/><path d="M14 22v-4a2 2 0 0 0-4 0v4"/><path d="M18 22V5.62a1 1 0 0 0-.55-.9l-4.55-2.27a2 2 0 0 0-1.8 0L6.55 4.72a1 1 0 0 0-.55.9V22"/><path d="m18 7 3.45 1.72a1 1 0 0 1 .55.9V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-9.38a1 1 0 0 1 .55-.9L6 7"/></symbol>
+  <symbol id="icon-mountain" viewBox="0 0 24 24"><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></symbol>
+  <symbol id="icon-trees" viewBox="0 0 24 24"><path d="M10 10v.2A3 3 0 0 1 8.9 16H5a3 3 0 0 1-1-5.8V10a3 3 0 0 1 6 0Z"/><path d="M7 16v6"/><path d="M13 19v3"/><path d="M12 19h8.3a1 1 0 0 0 .7-1.7L18 14h.3a1 1 0 0 0 .7-1.7L16 9h.2a1 1 0 0 0 .8-1.7L13 3l-1.4 1.5"/></symbol>
+  <symbol id="icon-steps" viewBox="0 0 24 24"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/></symbol>
+  <symbol id="icon-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></symbol>
+  <symbol id="icon-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".6" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".6" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".6" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".6" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.12a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.56-2.5 5.56-5.55C21.97 6.01 17.46 2 12 2z"/></symbol>
+  <symbol id="icon-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></symbol>
+  <symbol id="icon-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2-2.2-.8 2.2-.8z"/></symbol>
+</defs></svg>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* =========================================================================
+   BOURGOU — moteur technique inspiré de MARGO :
+   - mêmes clés API que MARGO : clé Google Maps lue dans "apiki.env" (ou celle
+     déjà enregistrée par MARGO dans ce navigateur), clé Gemini dans "AQ.env" ;
+     avec la clé Google, géocodage et recherche passent par Google (notes et
+     avis en plus), avec repli automatique sur OpenStreetMap
+   - géocodage libre via Nominatim (OpenStreetMap), sans clé API
+   - recherche de lieux réels via Overpass API (OpenStreetMap), par catégorie
+   - carte Leaflet (fond Plan/Satellite), pins colorés par catégorie
+   - construction d'itinéraire : plus proche voisin + amélioration 2-opt,
+     puis affinage des distances via le routage gratuit OSRM
+   ========================================================================= */
+
+const CATS = {
+  degustation:{ icon:'glass',  color:'var(--c-degustation)', wheelLabel:'Dégustation',   gridLabel:null,              overpass:[['shop','wine'],['shop','alcohol']] },
+  vignobles:  { icon:'grapes', color:'var(--c-vignobles)',   wheelLabel:null,             gridLabel:'Vignobles',       overpass:[['craft','winery']] },
+  gastronomie:{ icon:'cloche', color:'var(--c-gastronomie)', wheelLabel:'Gastronomie',    gridLabel:'Restau terroir',  overpass:[['amenity','restaurant'],['amenity','cafe']] },
+  hebergement:{ icon:'bed',    color:'var(--c-hebergement)', wheelLabel:'Hébergement',    gridLabel:'Gîtes et B&B',    overpass:[['tourism','guest_house'],['tourism','hotel'],['tourism','chalet']] },
+  transport:  { icon:'car',    color:'var(--c-transport)',   wheelLabel:'Transport',      gridLabel:null,              overpass:[['amenity','parking'],['railway','station'],['amenity','bicycle_rental']] },
+  visite:     { icon:'church', color:'var(--c-visite)',      wheelLabel:null,             gridLabel:'Lieux à visiter', overpass:[['tourism','attraction'],['tourism','museum'],['historic','castle'],['historic','church'],['tourism','viewpoint']] },
+  loisir:     { icon:'bike',   color:'var(--c-loisir)',      wheelLabel:null,             gridLabel:'Loisirs & sport', overpass:[['leisure','sports_centre'],['tourism','picnic_site'],['leisure','park']] },
+  artisanat:  { icon:'vase',   color:'var(--c-artisanat)',   wheelLabel:null,             gridLabel:'Artisanat',       overpass:[['craft','pottery'],['craft','basket_maker'],['shop','gift'],['shop','art']] }
+};
+const CAT_KEYS = Object.keys(CATS);
+/* Libellé de groupe (onglets, arbre des résultats). */
+const GROUP_LABEL = { degustation:'Dégustation', vignobles:'Vignobles', gastronomie:'Gastronomie', hebergement:'Hébergement', transport:'Transport', visite:'Lieux à visiter', loisir:'Loisirs & sport', artisanat:'Artisanat' };
+CAT_KEYS.forEach(k=>{ CATS[k].label = GROUP_LABEL[k]; });
+/* Sous-catégories de chaque groupe, comme dans Margo (onglet de groupe →
+   cartes de sous-catégories à cocher). osm : tags OpenStreetMap ; google :
+   types Google Places (New). */
+const SUBCATS = [
+  {key:'caves', icon:'bottle',          group:'degustation', label:'Caves & cavistes',        osm:[['shop','wine']],                          google:['liquor_store']},
+  {key:'bars-vin', icon:'glass',       group:'degustation', label:'Bars à vin',              osm:[['amenity','bar']],                        google:['wine_bar','bar']},
+  {key:'domaines', icon:'grapes',       group:'vignobles',   label:'Domaines viticoles',      osm:[['craft','winery']],                       google:['winery']},
+  {key:'caveaux', icon:'barrel',        group:'vignobles',   label:'Caveaux & spiritueux',    osm:[['shop','alcohol']],                       google:['liquor_store']},
+  {key:'restaurants', icon:'utensils',    group:'gastronomie', label:'Restaurants',             osm:[['amenity','restaurant']],                 google:['restaurant','french_restaurant']},
+  {key:'cafes', icon:'coffee',          group:'gastronomie', label:'Cafés & salons de thé',   osm:[['amenity','cafe']],                       google:['cafe','tea_house']},
+  {key:'boulangeries', icon:'croissant',   group:'gastronomie', label:'Boulangeries',            osm:[['shop','bakery']],                        google:['bakery']},
+  {key:'epiceries', icon:'basket',      group:'gastronomie', label:'Fromageries & épiceries fines', osm:[['shop','cheese'],['shop','deli']],  google:['deli']},
+  {key:'hotels', icon:'hotel',         group:'hebergement', label:'Hôtels',                  osm:[['tourism','hotel']],                      google:['hotel']},
+  {key:'chambres-hotes', icon:'bed', group:'hebergement', label:"Chambres d'hôtes & B&B",  osm:[['tourism','guest_house']],                google:['bed_and_breakfast','guest_house']},
+  {key:'gites', icon:'house',          group:'hebergement', label:'Gîtes & locations',       osm:[['tourism','chalet'],['tourism','apartment']], google:['cottage']},
+  {key:'campings', icon:'tent',       group:'hebergement', label:'Campings',                osm:[['tourism','camp_site']],                  google:['campground']},
+  {key:'parkings', icon:'parking',       group:'transport',   label:'Parkings',                osm:[['amenity','parking']],                    google:['parking']},
+  {key:'gares', icon:'train',          group:'transport',   label:'Gares',                   osm:[['railway','station']],                    google:['train_station']},
+  {key:'velos', icon:'bike',          group:'transport',   label:'Location de vélos',       osm:[['amenity','bicycle_rental']],             google:['bicycle_store']},
+  {key:'bornes', icon:'plug',         group:'transport',   label:'Bornes électriques',      osm:[['amenity','charging_station']],           google:['electric_vehicle_charging_station']},
+  {key:'musees', icon:'museum',         group:'visite',      label:'Musées',                  osm:[['tourism','museum']],                     google:['museum']},
+  {key:'chateaux', icon:'church',       group:'visite',      label:'Châteaux',                osm:[['historic','castle']],                    google:['castle']},
+  {key:'eglises', icon:'abbey',        group:'visite',      label:'Églises & abbayes',       osm:[['historic','church'],['historic','monastery']], google:['church']},
+  {key:'sites', icon:'mountain',          group:'visite',      label:'Sites & points de vue',   osm:[['tourism','attraction'],['tourism','viewpoint']], google:['tourist_attraction','historical_landmark']},
+  {key:'parcs', icon:'trees',          group:'loisir',      label:'Parcs & jardins',         osm:[['leisure','park']],                       google:['park']},
+  {key:'balades', icon:'steps',        group:'loisir',      label:'Pique-nique & balades',   osm:[['tourism','picnic_site']],                google:['hiking_area','picnic_ground']},
+  {key:'sports', icon:'activity',         group:'loisir',      label:'Sports & activités',      osm:[['leisure','sports_centre']],              google:['sports_complex']},
+  {key:'ateliers', icon:'vase',       group:'artisanat',   label:"Ateliers d'artisans",     osm:[['craft','pottery'],['craft','basket_maker']], google:['art_studio']},
+  {key:'galeries', icon:'palette',       group:'artisanat',   label:"Galeries d'art",          osm:[['shop','art']],                           google:['art_gallery']},
+  {key:'boutiques', icon:'gift',      group:'artisanat',   label:'Boutiques & souvenirs',   osm:[['shop','gift']],                          google:['gift_shop']}
+];
+const SUB_BY_KEY = {}; SUBCATS.forEach(sc=>SUB_BY_KEY[sc.key]=sc);
+const subsOf = g => SUBCATS.filter(sc=>sc.group===g);
+
+const KNOWN_VILLAGES = {
+  'beaune':{lat:47.0243,lng:4.8397}, 'dijon':{lat:47.3220,lng:5.0415},
+  'nuits-saint-georges':{lat:47.1367,lng:4.9509}, 'gevrey-chambertin':{lat:47.2318,lng:4.9524},
+  'meursault':{lat:46.9698,lng:4.7702}, 'pommard':{lat:47.0034,lng:4.8034},
+  'chablis':{lat:47.8146,lng:3.7975}, 'auxerre':{lat:47.7982,lng:3.5730},
+  'macon':{lat:46.3069,lng:4.8287}, 'mâcon':{lat:46.3069,lng:4.8287},
+  'cluny':{lat:46.4342,lng:4.6588}, 'chalon-sur-saone':{lat:46.7806,lng:4.8531},
+  'chalon-sur-saône':{lat:46.7806,lng:4.8531}, 'vezelay':{lat:47.4661,lng:3.7481},
+  'vézelay':{lat:47.4661,lng:3.7481}, 'santenay':{lat:46.9134,lng:4.7994}
+};
+
+const PARTNER_OFFICES = [
+  {name:'Dijon',              url:'https://www.destinationdijon.com/'},
+  {name:'Beaune & Pays Beaunois', url:'https://www.beaune-tourisme.fr/'},
+  {name:'Gevrey-Chambertin & Nuits-St-Georges', url:'https://www.gevreynuitstourisme.com/'},
+  {name:'Chablis & Tonnerrois',url:'https://www.chablis-tonnerrois.fr/'},
+  {name:'Auxerrois',          url:'https://www.ot-auxerre.com/'},
+  {name:'Cluny Sud Bourgogne',url:'https://www.cluny-tourisme.com/'},
+  {name:'Bourgogne',          url:'https://www.bourgogne-tourisme.com/'}
+];
+
+const MODE_META = {
+  DRIVING:{osrm:'driving', speed:45, label:'en voiture'},
+  BICYCLING:{osrm:'cycling', speed:15, label:'à vélo'},
+  WALKING:{osrm:'foot', speed:4.6, label:'à pied'}
+};
+
+const state = {
+  ville:'Beaune',
+  center:{lat:47.0243,lng:4.8397},
+  radiusKm:12,
+  activeSubs:new Set(['caves','bars-vin','restaurants','musees','chateaux','sites']),
+  activeCats:new Set(),
+  results:[],
+  selectedIds:new Set(),
+  poiById:{},
+  notes:{},
+  manualOrder:null,
+  orderCustom:false,
+  route:[],
+  travelMode:'DRIVING'
+};
+
+function syncActiveCats(){
+  state.activeCats = new Set([...state.activeSubs].map(k=>SUB_BY_KEY[k].group));
+}
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function round1(n){ return Math.round(n*10)/10; }
+
+/* ---- projection km locale, identique au principe utilisé dans Margo ---- */
+function projectLatLng(lat,lng,center){
+  const kmLat=110.574, kmLng=111.320*Math.cos(center.lat*Math.PI/180);
+  return {x:(lng-center.lng)*kmLng, y:(lat-center.lat)*kmLat};
+}
+function haversineKm(a,b){
+  const R=6371, dLat=(b.lat-a.lat)*Math.PI/180, dLng=(b.lng-a.lng)*Math.PI/180;
+  const s=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(s),Math.sqrt(1-s));
+}
+
+
+/* ============ CLÉS API (mêmes fichiers et même stockage que MARGO) ============
+   apiki.env (clé Google Maps) et AQ.env (clé Gemini) sont lus à côté de ce
+   fichier, uniquement en local (http://localhost) : jamais publiés (*.env est
+   exclu du dépôt Git). À défaut, on reprend la clé Google déjà enregistrée par
+   MARGO dans ce navigateur (même origine localhost:8000 → même localStorage). */
+const IS_LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+let googleApiKey = null, geminiApiKey = null;
+async function readEnvKey(file, re){
+  if(!IS_LOCAL) return null;
+  try{
+    const res = await fetch(file, {cache:'no-store'});
+    if(!res.ok) return null;
+    const text = await res.text();
+    const m = text.match(re);
+    return m ? m[0] : null;
+  }catch(err){ return null; }
+}
+const apiKeysReady = (async ()=>{
+  googleApiKey = await readEnvKey('apiki.env', /AIza[0-9A-Za-z_\-]{10,}/);
+  if(!googleApiKey){
+    try{
+      const saved = localStorage.getItem('itineraire_google_api_key');
+      if(saved && /^AIza[0-9A-Za-z_-]{10,}$/.test(saved)) googleApiKey = saved;
+    }catch(err){}
+  }
+  geminiApiKey = await readEnvKey('AQ.env', /[0-9A-Za-z._-]{20,}/);
+})();
+
+/* Chargeur officiel Google Maps JS (même méthode que MARGO). Si la clé est
+   refusée (quota, référent HTTP...), Google appelle gm_authFailure : on
+   repasse alors définitivement sur OpenStreetMap. */
+let googleFailed = false, GPlace = null, GGeocoder = null, googleLoading = null;
+window.gm_authFailure = ()=>{ googleFailed = true; console.warn('Clé Google refusée : repli OpenStreetMap'); };
+function loadGoogle(){
+  if(googleLoading) return googleLoading;
+  googleLoading = (async ()=>{
+    await apiKeysReady;
+    if(!googleApiKey) throw new Error('Pas de clé Google');
+    (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({key:googleApiKey, v:"weekly"});
+    const places = await google.maps.importLibrary('places');
+    const geocoding = await google.maps.importLibrary('geocoding');
+    GPlace = places.Place; GGeocoder = geocoding.Geocoder;
+    await google.maps.importLibrary('maps');
+    await google.maps.importLibrary('marker');
+    return true;
+  })();
+  return googleLoading;
+}
+async function googleUsable(){
+  if(googleFailed) return false;
+  try{ await withTimeoutB(loadGoogle(), 10000); return !googleFailed; }catch(err){ return false; }
+}
+function withTimeoutB(promise, ms){
+  return Promise.race([promise, new Promise((_,rej)=>setTimeout(()=>rej(new Error('Délai dépassé')), ms))]);
+}
+
+/* Types Google Places (New) équivalents à chaque catégorie Bourgou. */
+async function nearbyGoogle(types, center, radiusM){
+  const { places } = await GPlace.searchNearby({
+    fields: ['id','displayName','location','formattedAddress','rating','userRatingCount','googleMapsURI','primaryType','photos','regularOpeningHours','nationalPhoneNumber','websiteURI','priceLevel'],
+    locationRestriction: { center, radius: Math.min(radiusM, 50000) },
+    includedPrimaryTypes: types,
+    maxResultCount: 20,
+    rankPreference: google.maps.places.SearchNearbyRankPreference.DISTANCE,
+    language: 'fr', region: 'FR'
+  });
+  return places || [];
+}
+async function searchSubGoogle(sc, center, radiusM){
+  let places;
+  try{ places = await nearbyGoogle(sc.google, center, radiusM); }
+  catch(err){
+    // Un type inconnu de l'API fait échouer toute la requête : on essaie
+    // alors chaque type séparément et on garde ceux qui répondent.
+    const parts = await Promise.all(sc.google.map(t=>nearbyGoogle([t], center, radiusM).catch(()=>null)));
+    if(parts.every(x=>x===null)) throw err;
+    places = parts.filter(Boolean).flat();
+  }
+  return places.map(pl=>{
+    const lat = pl.location.lat(), lng = pl.location.lng();
+    let photoUrl = null;
+    try{ if(pl.photos && pl.photos.length) photoUrl = pl.photos[0].getURI({ maxWidth: 320, maxHeight: 220 }); }catch(err){}
+    const hours = pl.regularOpeningHours && pl.regularOpeningHours.weekdayDescriptions;
+    return {
+      id: 'g_' + pl.id, googlePlaceId: pl.id, kind: pl.primaryType || '', lat, lng, cat: sc.group, sub: sc.key,
+      name: pl.displayName || 'Lieu sans nom',
+      dist: round1(haversineKm(state.center, {lat, lng})),
+      addr: (pl.formattedAddress || '').replace(/, France$/, ''),
+      rating: pl.rating || null, ratingCount: pl.userRatingCount || null,
+      googleMapsURI: pl.googleMapsURI || null,
+      photoUrl: photoUrl || streetViewUrl(lat, lng),
+      hours: hours && hours.length ? hours : null,
+      phone: pl.nationalPhoneNumber || null,
+      website: pl.websiteURI || null,
+      price: PRICE_LABEL[pl.priceLevel] || null,
+      practical: {}
+    };
+  });
+}
+async function searchPlacesGoogle(subKeys){
+  const center = {lat: state.center.lat, lng: state.center.lng};
+  let failed = 0;
+  const lists = await Promise.all(subKeys.map(k=>withTimeoutB(searchSubGoogle(SUB_BY_KEY[k], center, state.radiusKm*1000), 12000)
+    .catch(err=>{ failed++; console.warn('Google Places', k, err); return []; })));
+  if(failed === subKeys.length) throw new Error('Google Places indisponible');
+  const seen = new Set(), all = [];
+  lists.flat().forEach(p=>{ if(!seen.has(p.id)){ seen.add(p.id); all.push(p); } });
+  return all.sort((a,b)=>a.dist-b.dist);
+}
+const PRICE_LABEL = { PRICE_LEVEL_FREE:'Gratuit', PRICE_LEVEL_INEXPENSIVE:'€', PRICE_LEVEL_MODERATE:'€€', PRICE_LEVEL_EXPENSIVE:'€€€', PRICE_LEVEL_VERY_EXPENSIVE:'€€€€' };
+/* Vraie photo du lieu en repli (vue de rue Google), comme dans Margo. */
+function streetViewUrl(lat, lng){
+  return (googleApiKey && !googleFailed)
+    ? `https://maps.googleapis.com/maps/api/streetview?size=320x220&location=${lat},${lng}&fov=85&key=${encodeURIComponent(googleApiKey)}`
+    : null;
+}
+function ratingHtml(p){
+  if(!p.rating) return '';
+  return `<span class="result-rating" title="Note Google${p.ratingCount ? ' sur '+p.ratingCount+' avis' : ''}">★ ${String(p.rating.toFixed(1)).replace('.',',')}${p.ratingCount ? ' <span class="n">('+p.ratingCount.toLocaleString('fr-FR')+')</span>' : ''}</span>`;
+}
+
+/* ============ GEOCODAGE (Google si clé, sinon Nominatim) ============ */
+async function geocodeVillage(q){
+  const key=q.trim().toLowerCase();
+  if(KNOWN_VILLAGES[key]) return {...KNOWN_VILLAGES[key], label:q};
+  if(await googleUsable()){
+    try{
+      const { results } = await new GGeocoder().geocode({ address: q + ', Bourgogne, France', region: 'fr' });
+      if(results && results[0]){
+        const loc = results[0].geometry.location;
+        return {lat: loc.lat(), lng: loc.lng(), label: results[0].formatted_address};
+      }
+    }catch(err){ console.warn('Géocodage Google impossible, repli Nominatim', err); }
+  }
+  const url=`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=fr&q=${encodeURIComponent(q+', Bourgogne, France')}`;
+  const res=await fetch(url,{headers:{'Accept-Language':'fr'}});
+  const data=await res.json();
+  if(!data.length) throw new Error('Village introuvable');
+  return {lat:+data[0].lat, lng:+data[0].lon, label:data[0].display_name};
+}
+
+/* ============ RECHERCHE DE LIEUX (Overpass API, gratuit, sans clé) ============ */
+function buildOverpassQuery(subKeys, center, radiusM){
+  let body='[out:json][timeout:25];(';
+  subKeys.forEach(k=>{
+    SUB_BY_KEY[k].osm.forEach(([tk,tv])=>{
+      body+=`node["${tk}"="${tv}"](around:${radiusM},${center.lat},${center.lng});way["${tk}"="${tv}"](around:${radiusM},${center.lat},${center.lng});`;
+    });
+  });
+  body+=');out center 300;';
+  return body;
+}
+function matchSub(tags, subKeys){
+  for(const k of subKeys){
+    for(const [tk,tv] of SUB_BY_KEY[k].osm){ if(tags[tk]===tv) return k; }
+  }
+  return subKeys[0];
+}
+/* Nouvelle recherche (catégorie, rayon ou village changé) : on garde les
+   lieux déjà sélectionnés et les infos déjà complétées (avis, horaires...). */
+function mergeResults(all){
+  const prev = state.poiById || {};
+  const merged = all.map(p=>{
+    const old = prev[p.id];
+    return old && old._enriched ? Object.assign(p, {rating:old.rating, ratingCount:old.ratingCount, reviews:old.reviews, hours:old.hours, phone:old.phone, website:old.website, googleMapsURI:old.googleMapsURI, googlePlaceId:old.googlePlaceId, practical:old.practical, _enriched:true}) : p;
+  });
+  const ids = new Set(merged.map(p=>p.id));
+  state.selectedIds.forEach(id=>{ if(!ids.has(id) && prev[id]) merged.push(prev[id]); });
+  state.results = merged;
+  state.poiById = {}; merged.forEach(p=>state.poiById[p.id]=p);
+}
+async function searchPlaces(){
+  const keys=[...state.activeSubs];
+  const resultsListEl=document.getElementById('resultsList');
+  if(!keys.length){
+    state.results=[];
+    resultsListEl.innerHTML='<div class="results-empty">Choisis au moins une catégorie sur la roue ou dans les onglets sous la roue.</div>';
+    renderCatGrid(); renderMapMarkers();
+    return;
+  }
+  resultsListEl.innerHTML='<div class="results-loading"><span class="spin"></span> Recherche des lieux autour de '+escapeHtml(state.ville)+'…</div>';
+  if(await googleUsable()){
+    try{
+      const all = await searchPlacesGoogle(keys);
+      mergeResults(all);
+      renderResults(); renderCatGrid(); renderMapMarkers();
+      return;
+    }catch(err){ console.warn('Recherche Google impossible, repli OpenStreetMap', err); }
+  }
+  try{
+    const query=buildOverpassQuery(keys, state.center, state.radiusKm*1000);
+    const res=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(query)});
+    const data=await res.json();
+    const byCat={}; keys.forEach(k=>byCat[k]=[]);
+    const seen=new Set();
+    (data.elements||[]).forEach(el=>{
+      const lat=el.lat ?? el.center?.lat, lng=el.lon ?? el.center?.lon;
+      if(lat==null||lng==null) return;
+      const id=el.type+el.id;
+      if(seen.has(id)) return; seen.add(id);
+      const tags=el.tags||{};
+      const sub=matchSub(tags, keys), cat=SUB_BY_KEY[sub].group;
+      const name=tags.name || SUB_BY_KEY[sub].label.split(' ')[0] + ' sans nom';
+      const dist=haversineKm(state.center,{lat,lng});
+      const poi={id, lat, lng, name, cat, sub, dist:round1(dist), kind: tags.amenity || tags.tourism || '',
+        addr:[[tags['addr:housenumber'],tags['addr:street']].filter(Boolean).join(' '), tags['addr:postcode'], tags['addr:city']].filter(Boolean).join(', '),
+        hours: tags.opening_hours ? [tags.opening_hours] : null,
+        phone: tags.phone || tags['contact:phone'] || null,
+        website: tags.website || tags['contact:website'] || null,
+        photoUrl: streetViewUrl(lat, lng),
+        practical: practicalFromOsmTags(tags)};
+      byCat[sub].push(poi);
+    });
+    let all=[];
+    keys.forEach(k=>{ byCat[k].sort((a,b)=>a.dist-b.dist); all=all.concat(byCat[k].slice(0,20)); });
+    all.sort((a,b)=>a.dist-b.dist);
+    mergeResults(all);
+  }catch(err){
+    console.warn('Overpass indisponible', err);
+    resultsListEl.innerHTML='<div class="results-empty">Recherche momentanément indisponible (réseau ou service Overpass). Réessaie dans un instant.</div>';
+    state.results=[];
+  }
+  renderResults(); renderCatGrid(); renderMapMarkers();
+}
+
+/* ============ ETAT UI : roue + onglets de catégories (comme Margo) ============
+   Sous la roue : un onglet par groupe (Dégustation, Vignobles, ...) ; un clic
+   déplie juste en dessous les cartes de ses sous-catégories, à cocher une à
+   une, avec le nombre de lieux trouvés. La roue coche/décoche un groupe
+   entier d'un clic. */
+let expandedGroup = null;
+function renderWheelActive(){
+  document.querySelectorAll('.wheel-node').forEach(el=>{
+    el.classList.toggle('active', state.activeCats.has(el.dataset.cat));
+  });
+}
+function renderCatGrid(){
+  syncActiveCats();
+  const bar = document.getElementById('catTabBar');
+  bar.innerHTML = CAT_KEYS.map(g=>{
+    const c = CATS[g];
+    const n = subsOf(g).filter(sc=>state.activeSubs.has(sc.key)).length;
+    return `<button type="button" class="cat-tab ${expandedGroup===g?'expanded':''} ${n?'has-sel':''}" data-group="${g}" style="--cat-color:${c.color}">
+      <svg class="ic"><use href="#icon-${c.icon}"></use></svg><span>${c.label}</span>${n ? `<span class="cat-tab-selcount">${n}</span>` : ''}<span class="cat-tab-caret">▾</span></button>`;
+  }).join('');
+  bar.querySelectorAll('.cat-tab').forEach(t=>t.addEventListener('click',()=>{
+    expandedGroup = expandedGroup===t.dataset.group ? null : t.dataset.group;
+    renderCatGrid();
+  }));
+  const panel = document.getElementById('catChipPanel');
+  if(!expandedGroup){ panel.innerHTML=''; panel.hidden=true; }
+  else{
+    panel.hidden = false;
+    const c = CATS[expandedGroup];
+    panel.innerHTML = subsOf(expandedGroup).map(sc=>{
+      const on = state.activeSubs.has(sc.key);
+      const count = on ? state.results.filter(p=>p.sub===sc.key).length : 0;
+      return `<button type="button" class="sub-card ${on?'selected':''}" data-sub="${sc.key}" style="--cat-color:${c.color}">
+        <span class="sub-check">${on ? '✓' : ''}</span><svg class="ic sub-ic"><use href="#icon-${sc.icon}"></use></svg><span>${sc.label}</span>${count ? `<span class="sub-count">${count}</span>` : ''}</button>`;
+    }).join('');
+    panel.querySelectorAll('.sub-card').forEach(b=>b.addEventListener('click',()=>toggleSub(b.dataset.sub)));
+  }
+  renderWheelActive();
+  fitWheel();
+}
+let catSearchTimer = null;
+function scheduleSearch(){
+  // Comme dans Margo : la liste suit les catégories cochées, sans avoir à
+  // relancer la recherche (petit délai pour grouper plusieurs clics).
+  clearTimeout(catSearchTimer);
+  catSearchTimer = setTimeout(searchPlaces, 600);
+}
+function toggleSub(key){
+  if(state.activeSubs.has(key)) state.activeSubs.delete(key); else state.activeSubs.add(key);
+  renderCatGrid(); scheduleSearch();
+}
+/* Roue : coche tout le groupe (et ouvre ses sous-catégories), ou le décoche. */
+function toggleCat(group){
+  const subs = subsOf(group).map(sc=>sc.key);
+  const anyOn = subs.some(k=>state.activeSubs.has(k));
+  subs.forEach(k=>{ if(anyOn) state.activeSubs.delete(k); else state.activeSubs.add(k); });
+  expandedGroup = anyOn ? (expandedGroup===group ? null : expandedGroup) : group;
+  renderCatGrid(); scheduleSearch();
+}
+
+/* ============ LIEUX PROPOSÉS (même présentation que Margo) ============ */
+const ICO = id => `<svg class="ic"><use href="#icon-${id}"></use></svg>`;
+function fmtRating(r){ return Number(r).toFixed(1).replace('.', ','); }
+function formatOsmCharge(c){
+  return String(c).split(';')[0].trim().replace(/(\d)\.(\d)/g,'$1,$2').replace(/\s*EUR\b/ig,' €').replace(/\/\s*(hour|hr|h)\b/ig,'/h').replace(/\/\s*day\b/ig,'/jour');
+}
+/* Infos pratiques OSM (gratuites) : parking/entrée payants ou gratuits, tarif. */
+function practicalFromOsmTags(tags){
+  const out = {};
+  const fee = (tags.fee || tags['parking:fee'] || '').toLowerCase();
+  const charge = tags.charge || tags['parking:charge'];
+  if(tags.amenity === 'parking'){
+    if(fee === 'no') out.parking = 'free'; else if(fee === 'yes' || charge) out.parking = 'paid';
+  } else {
+    if(fee === 'no') out.entry = 'free'; else if(fee === 'yes' || charge) out.entry = 'paid';
+  }
+  if(charge) out.charge = formatOsmCharge(charge);
+  return out;
+}
+/* Infos pratiques Google (Place Details) : parking, paiement, fourchette de prix. */
+function practicalFromGooglePlace(place){
+  const out = {};
+  const pick = (o,k) => o ? (o[k] != null ? o[k] : o['has'+k.charAt(0).toUpperCase()+k.slice(1)]) : null;
+  const po = place.parkingOptions;
+  if(po){
+    const free = pick(po,'freeParkingLot') || pick(po,'freeGarageParking') || pick(po,'freeStreetParking');
+    const paid = pick(po,'paidParkingLot') || pick(po,'paidGarageParking') || pick(po,'paidStreetParking');
+    if(free && !paid) out.parking = 'free'; else if(paid && !free) out.parking = 'paid'; else if(free && paid) out.parking = 'both';
+  }
+  const pay = place.paymentOptions;
+  if(pay){
+    if(pay.acceptsCashOnly) out.pay = 'Espèces uniquement';
+    else if(pay.acceptsCreditCards || pay.acceptsDebitCards || pay.acceptsNFC) out.pay = 'CB acceptée';
+  }
+  const pr = place.priceRange;
+  if(pr && (pr.startPrice || pr.endPrice)){
+    const m = x => x && x.units != null ? Number(x.units) : null;
+    const a = m(pr.startPrice), b = m(pr.endPrice);
+    if(a != null && b != null) out.priceRange = `${a}–${b} €`; else if(a != null) out.priceRange = `dès ${a} €`;
+  }
+  return out;
+}
+function isParkingPoi(p){ return p.cat === 'transport' && /parking/i.test(p.name + ' ' + (p.kind || '')); }
+/* Ligne discrète sous le nom : étoiles + note + nombre d'avis, puis 1 à 3
+   infos pratiques courtes. */
+function leafMetaHtml(p){
+  const bits = [];
+  if(p.rating){
+    const pct = Math.max(0, Math.min(100, p.rating/5*100)).toFixed(0);
+    bits.push(`<span class="stars" style="--pct:${pct}%" aria-hidden="true">★★★★★</span><span class="rt">${fmtRating(p.rating)}</span>${p.ratingCount ? `<span>(${p.ratingCount.toLocaleString('fr-FR')})</span>` : ''}`);
+  }else if(p.lat != null){
+    const q = encodeURIComponent(p.name + ' ' + (p.addr || state.ville));
+    bits.push(`<a class="chip" href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener noreferrer">Voir les avis Google</a>`);
+  }
+  const pr = p.practical || {};
+  if(pr.parking){
+    const own = isParkingPoi(p);
+    const lbl = own ? ({free:'Gratuit',paid:'Payant',both:'Gratuit / payant'})[pr.parking] : ({free:'Parking gratuit',paid:'Parking payant',both:'Parking gratuit et payant'})[pr.parking];
+    bits.push(`<span class="chip ${pr.parking==='free'?'good':(pr.parking==='paid'?'warn':'')}">${lbl}${own && pr.charge ? ' · '+escapeHtml(pr.charge) : ''}</span>`);
+  }
+  if(pr.entry || (pr.charge && !isParkingPoi(p))){
+    bits.push(`<span class="chip ${pr.entry==='free'?'good':''}">${pr.entry==='free' ? 'Entrée gratuite' : (pr.charge ? 'Entrée '+escapeHtml(pr.charge) : 'Entrée payante')}</span>`);
+  }
+  if(pr.priceRange) bits.push(`<span class="chip">${escapeHtml(pr.priceRange)}</span>`);
+  else if(p.price) bits.push(`<span class="chip">${escapeHtml(p.price)}</span>`);
+  if(pr.pay) bits.push(`<span class="chip">${escapeHtml(pr.pay)}</span>`);
+  return bits.length ? `<div class="leaf-meta">${bits.join('')}</div>` : '';
+}
+/* Bulle au survol : adresse, distance, horaires (un jour par ligne),
+   téléphone, site, avis récents. */
+function leafDetailsHtml(p){
+  const row = (i,t) => `<p><span class="i">${i}</span><span class="t">${t}</span></p>`;
+  const out = [row('📍', `${escapeHtml(p.addr || state.ville)} · ${p.dist} km`)];
+  if(p.hours && p.hours.length){
+    out.push(p.hours.length > 1
+      ? `<p><span class="i">🕒</span><span class="t lbl">Horaires</span></p><ul>${p.hours.map(h=>`<li>${escapeHtml(h)}</li>`).join('')}</ul>`
+      : row('🕒', escapeHtml(p.hours[0])));
+  }
+  if(p.phone) out.push(row('📞', escapeHtml(p.phone)));
+  if(p.website && /^https?:\/\//i.test(p.website)) out.push(row('🌐', `<a href="${escapeHtml(p.website)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.website.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''))}</a>`));
+  if(p.reviews && p.reviews.length){
+    out.push(`<p><span class="i">💬</span><span class="t lbl">Avis Google récents</span></p>`);
+    p.reviews.forEach(r=>{
+      const txt = r.text.length > 160 ? r.text.slice(0,157).trimEnd()+'…' : r.text;
+      out.push(`<p class="rev">${r.rating ? '★'.repeat(Math.round(r.rating))+' ' : ''}« ${escapeHtml(txt)} » <span class="who">— ${escapeHtml(r.author || 'Avis Google')}${r.when ? ', '+escapeHtml(r.when) : ''}</span></p>`);
+    });
+  }
+  if(p.googleMapsURI && /^https:\/\//.test(p.googleMapsURI)) out.push(row('⭐', `<a href="${escapeHtml(p.googleMapsURI)}" target="_blank" rel="noopener noreferrer">Fiche et avis sur Google Maps</a>`));
+  return out.join('');
+}
+
+/* ---- Recommandations selon la sélection (comme Margo) : dans chaque
+   catégorie, les lieux proches d'un lieu déjà sélectionné ET bien notés
+   remontent en tête ; les 3 premiers non sélectionnés reçoivent la pastille
+   « Conseillé · à 250 m de … ». Ex. un gîte choisi fait remonter les
+   parkings et les tables bien notés à deux pas. Tout reste sélectionnable. */
+const RECO_BADGE_MAX = 3, RECO_MAX_DIST_KM = 2;
+function recoInfo(p, anchors){
+  const own = anchors.filter(a=>a.cat !== p.cat);
+  if(!own.length) return null;
+  let best = null, d = Infinity;
+  own.forEach(a=>{ const dd = haversineKm(p, a); if(dd < d){ d = dd; best = a; } });
+  const prox = 1 / (1 + d/0.5);
+  const n = p.ratingCount || 0;
+  const bayes = p.rating ? (p.rating*n + 4.0*10)/(n+10) : 3.9;
+  const quality = Math.max(0, Math.min(1, (bayes-3)/2));
+  return { score: 0.65*prox + 0.35*quality, d, anchor: best };
+}
+function sortWithReco(pois){
+  const anchors = state.results.filter(p=>state.selectedIds.has(p.id));
+  const infos = new Map(pois.map(p=>[p.id, anchors.length ? recoInfo(p, anchors) : null]));
+  const sorted = pois.slice().sort((a,b)=>{
+    const ia = infos.get(a.id), ib = infos.get(b.id);
+    if(ia && ib) return ib.score - ia.score;
+    return a.dist - b.dist;
+  });
+  const badges = new Map(); let given = 0;
+  sorted.forEach(p=>{
+    const i = infos.get(p.id);
+    if(!i || state.selectedIds.has(p.id) || given >= RECO_BADGE_MAX || i.d > RECO_MAX_DIST_KM) return;
+    badges.set(p.id, i); given++;
+  });
+  return { sorted, badges, active: [...infos.values()].some(Boolean) };
+}
+function fmtDist(km){ return km < 1 ? Math.max(10, Math.round(km*100)*10)+' m' : km.toFixed(1).replace('.', ',')+' km'; }
+
+function renderResults(){
+  const el=document.getElementById('resultsList');
+  document.getElementById('resultsCount').textContent = state.results.length ? state.results.length+' lieu(x)' : '';
+  if(!state.results.length){
+    el.innerHTML='<div class="results-empty">Aucun lieu trouvé dans ce rayon pour ces catégories. Élargis le rayon ou change de village.</div>';
+    return;
+  }
+  const scroll = el.scrollTop;
+  const closed = new Set([...el.querySelectorAll('details[data-key]:not([open])')].map(d=>d.dataset.key));
+  const html = [];
+  const leafHtml = (p, c, badges)=>{
+    const sel = state.selectedIds.has(p.id);
+    const ico = SUB_BY_KEY[p.sub] ? SUB_BY_KEY[p.sub].icon : c.icon;
+    const b = badges.get(p.id);
+    const thumb = p.photoUrl
+      ? `<img src="${escapeHtml(p.photoUrl)}" alt="" loading="lazy" onerror="this.remove()">${ICO(ico)}`
+      : ICO(ico);
+    return `<div class="leaf ${sel?'selected':''}" data-id="${escapeHtml(p.id)}" style="--cat-color:${c.color}">
+      <input type="checkbox" data-id="${escapeHtml(p.id)}" ${sel?'checked':''} aria-label="Sélectionner ${escapeHtml(p.name)}">
+      <div class="leaf-thumb" title="${sel ? 'Retirer de la sélection' : 'Ajouter à la sélection'}">${thumb}</div>
+      <div class="leaf-info" tabindex="0">
+        ${b ? `<span class="reco-badge" title="Bien noté et à ${fmtDist(b.d)} de « ${escapeHtml(b.anchor.name)} »">Conseillé · à ${fmtDist(b.d)}</span>` : ''}
+        <h4>${escapeHtml(p.name)}</h4>
+        ${leafMetaHtml(p)}
+        <div class="leaf-details">${leafDetailsHtml(p)}</div>
+      </div>
+    </div>`;
+  };
+  CAT_KEYS.forEach(k=>{
+    const pois = state.results.filter(p=>p.cat===k);
+    if(!pois.length) return;
+    const c = CATS[k];
+    const subKeys = [...new Set(pois.map(p=>p.sub || '_'))];
+    const subHtml = subKeys.map(sk=>{
+      const list = pois.filter(p=>(p.sub || '_')===sk);
+      const { sorted, badges, active } = sortWithReco(list);
+      const label = SUB_BY_KEY[sk] ? SUB_BY_KEY[sk].label : c.label;
+      const subIco = SUB_BY_KEY[sk] ? SUB_BY_KEY[sk].icon : c.icon;
+      return `<details class="tree-sub" data-key="s:${sk}" ${closed.has('s:'+sk) ? '' : 'open'}>
+        <summary><span class="caret">▶</span><svg class="ic sub-ic"><use href="#icon-${subIco}"></use></svg>${escapeHtml(label)} <span class="count">(${list.length})</span>${active ? '<span class="reco-hint">· près de ta sélection</span>' : ''}</summary>
+        ${sorted.map(p=>leafHtml(p, c, badges)).join('')}
+      </details>`;
+    }).join('');
+    html.push(`<details class="tree-cat" data-key="g:${k}" style="--cat-color:${c.color}" ${closed.has('g:'+k) ? '' : 'open'}>
+      <summary><span class="caret">▶</span>${ICO(c.icon)} ${c.label} <span class="count">(${pois.length})</span></summary>
+      ${subHtml}
+    </details>`);
+  });
+  el.innerHTML = html.join('');
+  el.scrollTop = scroll;
+  el.querySelectorAll('.leaf').forEach(leaf=>{
+    const id = leaf.dataset.id;
+    leaf.querySelector('input').addEventListener('change', ()=>toggleSelect(id));
+    leaf.querySelector('.leaf-thumb').addEventListener('click', ()=>toggleSelect(id));
+    leaf.addEventListener('mouseenter', ()=>previewMarker(id, true));
+    leaf.addEventListener('mouseleave', ()=>previewMarker(id, false));
+    leaf.addEventListener('click', e=>{
+      if(e.target.closest('input,.leaf-thumb,a')) return;
+      focusMarker(id);
+    });
+  });
+}
+
+/* ============ SELECTION ============ */
+function toggleSelect(id){
+  const adding = !state.selectedIds.has(id);
+  if(adding) state.selectedIds.add(id); else state.selectedIds.delete(id);
+  state.manualOrder=null;
+  updateSelCount(); renderResults(); renderMapMarkers();
+  if(adding) enrichSelected(id);
+}
+function updateSelCount(){
+  const n = state.selectedIds.size;
+  document.getElementById('selCount').textContent = n;
+  document.getElementById('selCountLabel').textContent = n > 1 ? 'lieux sélectionnés' : 'lieu sélectionné';
+  document.getElementById('btnVoirItineraire').disabled = n===0;
+  document.getElementById('selFooter').hidden = n===0;
+}
+
+/* Complément Google pour un lieu sélectionné (comme Margo) : 2 avis récents,
+   note, parking, paiement, fourchette de prix, horaires manquants. Un lieu
+   OpenStreetMap est d'abord rapproché de sa fiche Google. */
+async function findGooglePlaceForPoi(p){
+  const { places } = await GPlace.searchByText({
+    textQuery: `${p.name} ${p.addr || state.ville}`,
+    fields: ['id','location','displayName'],
+    locationBias: { center: {lat:p.lat, lng:p.lng}, radius: 300 },
+    maxResultCount: 1, language:'fr', region:'FR'
+  });
+  const g = places && places[0];
+  if(!g || !g.location) return null;
+  const d = haversineKm(p, {lat:g.location.lat(), lng:g.location.lng()});
+  const words = n => new Set(String(n||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').split(/[^a-z0-9]+/).filter(w=>w.length>=4));
+  const a = words(p.name), b = words(g.displayName);
+  return (d <= 0.15 || (d <= 0.6 && [...a].some(w=>b.has(w)))) ? g : null;
+}
+async function enrichSelected(id){
+  const p = state.poiById[id];
+  if(!p || p._enriched || !(await googleUsable())) return;
+  p._enriched = true;
+  try{
+    if(!p.googlePlaceId){
+      const g = await withTimeoutB(findGooglePlaceForPoi(p), 8000);
+      if(!g) return;
+      p.googlePlaceId = g.id;
+    }
+    const place = new GPlace({ id: p.googlePlaceId, requestedLanguage:'fr', requestedRegion:'FR' });
+    const base = ['rating','userRatingCount','reviews','googleMapsURI','parkingOptions','paymentOptions','regularOpeningHours','nationalPhoneNumber','websiteURI'];
+    try{ await withTimeoutB(place.fetchFields({ fields: base.concat('priceRange') }), 8000); }
+    catch(err){ await withTimeoutB(place.fetchFields({ fields: base }), 8000); }
+    if(place.rating){ p.rating = place.rating; p.ratingCount = place.userRatingCount || p.ratingCount || null; }
+    if(place.googleMapsURI) p.googleMapsURI = place.googleMapsURI;
+    const h = place.regularOpeningHours && place.regularOpeningHours.weekdayDescriptions;
+    if(h && h.length) p.hours = h;
+    if(!p.phone && place.nationalPhoneNumber) p.phone = place.nationalPhoneNumber;
+    if(!p.website && place.websiteURI) p.website = place.websiteURI;
+    p.reviews = (place.reviews || []).filter(r=>r && r.text).slice(0,2).map(r=>({
+      text: String(r.text).replace(/\s+/g,' ').trim(), rating: r.rating || null,
+      author: r.authorAttribution && r.authorAttribution.displayName, when: r.relativePublishTimeDescription || ''
+    }));
+    p.practical = Object.assign({}, p.practical || {}, practicalFromGooglePlace(place));
+    renderResults(); renderMapMarkers();
+  }catch(err){ console.warn('Complément Google indisponible pour', p.name, err); }
+}
+
+/* ============ CARTE LEAFLET ============ */
+/* Fond de plan : les serveurs de tuiles d'OpenStreetMap.org refusent
+   désormais cette appli (403 "Access blocked", politique d'usage) et CARTO
+   exige maintenant une clé. On prend le plan "World Street Map" d'Esri, du
+   même fournisseur que la vue Satellite déjà utilisée (sans clé). */
+const BASEMAP_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}';
+const BASEMAP_ATTRIB = 'Tiles © Esri — sources : Esri, HERE, Garmin, © contributeurs OpenStreetMap';
+let map, planLayer, satLayer, markersLayer, carnetMap, carnetLayerGroup;
+let leafletOk = typeof L!=='undefined';
+function showMapUnavailable(container){
+  const el=document.getElementById(container);
+  if(el) el.innerHTML='<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;text-align:center;padding:1.5rem;color:var(--ink-500);font-size:.86rem;"><svg class="ic" style="width:32px;height:32px;color:var(--gold-500);"><use href="#icon-pin"></use></svg><span>Carte indisponible pour l\'instant<br>(pas de connexion à OpenStreetMap).</span></div>';
+}
+/* Carte de l'écran Itinéraire : Google Maps quand la clé Google fonctionne
+   (comme Margo), sinon carte libre Leaflet. mapKind dit laquelle est active. */
+let mapKind = null, gmap = null, gMarkers = [], gInfo = null, gPreviewInfo = null;
+async function initMap(){
+  if(await googleUsable()){
+    try{ initGoogleMap(); return; }catch(err){ console.warn('Google Maps indisponible, repli carte libre', err); }
+  }
+  initLeafletMap();
+}
+function initGoogleMap(){
+  const el = document.getElementById('leafletMap');
+  el.innerHTML = '';
+  gmap = new google.maps.Map(el, {
+    center: {lat: state.center.lat, lng: state.center.lng}, zoom: 11,
+    mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
+    zoomControl: true, zoomControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM },
+    gestureHandling: 'greedy', clickableIcons: false
+  });
+  gInfo = new google.maps.InfoWindow();
+  gPreviewInfo = new google.maps.InfoWindow({ disableAutoPan: true });
+  map = gmap; mapKind = 'google'; leafletOk = true;
+  wireMapButtons();
+  renderMapMarkers();
+}
+function initLeafletMap(){
+  if(typeof L==='undefined'){ leafletOk=false; showMapUnavailable('leafletMap'); return; }
+  mapKind = 'leaflet';
+  map=L.map('leafletMap',{zoomControl:false,fadeAnimation:false}).setView([state.center.lat,state.center.lng],11);
+  L.control.zoom({position:'bottomleft'}).addTo(map);
+  planLayer=L.tileLayer(BASEMAP_URL,{maxZoom:19,attribution:BASEMAP_ATTRIB});
+  satLayer=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'});
+  planLayer.addTo(map);
+  markersLayer=L.layerGroup().addTo(map);
+  wireMapButtons();
+  renderMapMarkers();
+}
+let mapButtonsWired = false;
+function wireMapButtons(){
+  if(mapButtonsWired) return;
+  mapButtonsWired = true;
+  document.querySelectorAll('.map-toggle button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.map-toggle button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const sat = btn.dataset.layer==='sat';
+      if(mapKind==='google'){ gmap.setMapTypeId(sat ? 'hybrid' : 'roadmap'); return; }
+      if(sat){ map.removeLayer(planLayer); satLayer.addTo(map); }
+      else{ map.removeLayer(satLayer); planLayer.addTo(map); }
+    });
+  });
+  document.getElementById('btnFullscreen').addEventListener('click',()=>{
+    const el=document.querySelector('.map-frame');
+    if(!document.fullscreenElement) el.requestFullscreen?.(); else document.exitFullscreen?.();
+    setTimeout(mapInvalidate,250);
+  });
+  document.getElementById('btnLocate').addEventListener('click',()=>mapSetView(state.center.lat,state.center.lng,12));
+}
+function mapSetView(lat, lng, zoom){
+  if(!map) return;
+  if(mapKind==='google'){ gmap.panTo({lat,lng}); gmap.setZoom(zoom); }
+  else map.setView([lat,lng], zoom, {animate:true});
+}
+function mapInvalidate(){
+  if(map && mapKind==='leaflet') map.invalidateSize();
+}
+/* Pin coloré en forme de goutte (SVG) pour Google Maps, avec numéro éventuel. */
+function gPinIcon(hex, label, big){
+  const w = big ? 34 : 28, h = big ? 44 : 36;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 28 36"><path d="M14 35s11-11.2 11-20A11 11 0 0 0 3 15c0 8.8 11 20 11 20z" fill="${hex}" stroke="#fff" stroke-width="2"/>${label ? `<text x="14" y="19" text-anchor="middle" font-family="Arial" font-weight="700" font-size="11" fill="#fff">${label}</text>` : '<circle cx="14" cy="15" r="4" fill="#fff"/>'}</svg>`;
+  return { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg), scaledSize: new google.maps.Size(w, h), anchor: new google.maps.Point(w/2, h) };
+}
+function poiPopupHtml(p){
+  const hex = catColorResolved(p.cat);
+  const sel = state.selectedIds.has(p.id);
+  const label = SUB_BY_KEY[p.sub] ? SUB_BY_KEY[p.sub].label : CATS[p.cat].label;
+  return `<div class="poi-popup">${p.photoUrl ? `<img src="${escapeHtml(p.photoUrl)}" alt="" onerror="this.remove()">` : ''}<div class="pp-name">${escapeHtml(p.name)}</div>${p.rating ? `<div class="pp-rt">★ ${fmtRating(p.rating)}${p.ratingCount ? ' <span style="font-weight:400;color:var(--ink-500)">('+p.ratingCount.toLocaleString('fr-FR')+' avis)</span>' : ''}</div>` : ''}<div class="pp-cat">${label} · ${p.dist} km</div><button style="background:${sel?'#a5323f':hex};color:#fff;" onclick="window.__toggleSelect('${p.id}')">${sel?'Retirer du carnet':'Ajouter au carnet'}</button></div>`;
+}
+function catColorResolved(key){
+  return getComputedStyle(document.documentElement).getPropertyValue(CATS[key].color.replace('var(','').replace(')','')).trim() || '#7c1f37';
+}
+function coloredDivIcon(hex,label){
+  return L.divIcon({className:'',html:`<div style="width:26px;height:26px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:${hex};border:2px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;"><span style="transform:rotate(45deg);color:#fff;font-weight:800;font-size:10px;">${label||''}</span></div>`,iconSize:[26,26],iconAnchor:[13,26],popupAnchor:[0,-24]});
+}
+function renderMapMarkers(){
+  if(!map) return;
+  if(mapKind==='google'){
+    gMarkers.forEach(m=>m.setMap(null)); gMarkers = [];
+    const center = new google.maps.Marker({ map: gmap, position: {lat: state.center.lat, lng: state.center.lng}, icon: gPinIcon('#33101c', '', true), title: state.ville, zIndex: 1 });
+    gMarkers.push(center);
+    state.results.forEach(p=>{
+      const sel = state.selectedIds.has(p.id);
+      const m = new google.maps.Marker({ map: gmap, position: {lat:p.lat, lng:p.lng}, icon: gPinIcon(sel ? '#a5323f' : catColorResolved(p.cat), sel ? '✓' : '', sel), title: p.name, zIndex: sel ? 999 : 10 });
+      m._poiId = p.id;
+      m.addListener('click', ()=>{ gPreviewInfo.close(); gInfo.setContent(poiPopupHtml(p)); gInfo.open({ anchor: m, map: gmap }); });
+      gMarkers.push(m);
+    });
+    return;
+  }
+  if(!leafletOk) return;
+  markersLayer.clearLayers();
+  L.marker([state.center.lat,state.center.lng],{icon:coloredDivIcon('#33101c','')}).addTo(markersLayer).bindTooltip(escapeHtml(state.ville),{permanent:false});
+  state.results.forEach(p=>{
+    const marker=L.marker([p.lat,p.lng],{icon:coloredDivIcon(catColorResolved(p.cat))}).addTo(markersLayer);
+    marker._poiId=p.id;
+    marker.bindPopup(poiPopupHtml(p));
+  });
+}
+function focusMarker(id){
+  if(!map) return;
+  const p=state.poiById[id]; if(!p) return;
+  mapSetView(p.lat, p.lng, 14);
+  if(mapKind==='google'){
+    const m = gMarkers.find(x=>x._poiId===id);
+    if(m){ gPreviewInfo.close(); gInfo.setContent(poiPopupHtml(p)); gInfo.open({ anchor: m, map: gmap }); }
+    return;
+  }
+  markersLayer.eachLayer(m=>{ if(m._poiId===id) m.openPopup(); });
+}
+window.__toggleSelect=function(id){ toggleSelect(id); };
+/* Survol d'un lieu dans la liste : ouvre la fiche de son pin sans déplacer
+   la carte (lien liste ↔ carte, comme dans Margo). */
+function previewMarker(id, open){
+  if(!map) return;
+  if(mapKind==='google'){
+    const m = gMarkers.find(x=>x._poiId===id);
+    if(!m) return;
+    if(open && gmap.getBounds() && gmap.getBounds().contains(m.getPosition())){
+      gPreviewInfo.setContent(poiPopupHtml(state.poiById[id]));
+      gPreviewInfo.open({ anchor: m, map: gmap, shouldFocus: false });
+    } else if(!open) gPreviewInfo.close();
+    return;
+  }
+  markersLayer.eachLayer(m=>{
+    if(m._poiId!==id) return;
+    if(open){ if(map.getBounds().contains(m.getLatLng())) m.openPopup(); }
+    else m.closePopup();
+  });
+}
+
+/* ============ CONSTRUCTION ITINERAIRE (plus proche voisin + 2-opt) ============ */
+function totalRouteDistance(route){
+  let d=0, cur={x:0,y:0};
+  for(const p of route){ d+=Math.hypot(p.x-cur.x,p.y-cur.y); cur=p; }
+  return d;
+}
+function twoOptImprove(route){
+  let improved=true, guard=0;
+  while(improved && guard<20){
+    improved=false; guard++;
+    for(let i=0;i<route.length-1;i++){
+      for(let j=i+1;j<route.length;j++){
+        const before=totalRouteDistance(route);
+        const cand=route.slice(0,i).concat(route.slice(i,j+1).slice().reverse(),route.slice(j+1));
+        const after=totalRouteDistance(cand);
+        if(after<before-1e-9){ route=cand; improved=true; }
+      }
+    }
+  }
+  return route;
+}
+function buildItinerary(){
+  const selected=state.results.filter(p=>state.selectedIds.has(p.id)).map(p=>({...p,...projectLatLng(p.lat,p.lng,state.center)}));
+  let ordered;
+  if(state.manualOrder){
+    const byId={}; selected.forEach(p=>byId[p.id]=p);
+    const kept=state.manualOrder.filter(id=>byId[id]);
+    const rest=selected.map(p=>p.id).filter(id=>!kept.includes(id));
+    state.manualOrder=[...kept,...rest];
+    ordered=state.manualOrder.map(id=>({...byId[id]}));
+  }else{
+    let remaining=selected.slice(), current={x:0,y:0}; ordered=[];
+    while(remaining.length){
+      let bestIdx=0,bestCost=Infinity;
+      remaining.forEach((p,i)=>{ const d=Math.hypot(p.x-current.x,p.y-current.y); if(d<bestCost){bestCost=d;bestIdx=i;} });
+      const next=remaining.splice(bestIdx,1)[0]; ordered.push(next); current=next;
+    }
+    ordered=twoOptImprove(ordered);
+    state.manualOrder=ordered.map(p=>p.id);
+  }
+  let current={x:0,y:0};
+  ordered.forEach(p=>{
+    p.legDist=round1(Math.hypot(p.x-current.x,p.y-current.y));
+    p.legMinutes=Math.max(1,Math.round(p.legDist/MODE_META[state.travelMode].speed*60));
+    current=p;
+  });
+  state.route=ordered;
+  refineWithOsrm();
+}
+async function refineWithOsrm(){
+  const pts=[state.center, ...state.route.map(p=>({lat:p.lat,lng:p.lng}))];
+  if(pts.length<2) return;
+  try{
+    const profile=MODE_META[state.travelMode].osrm;
+    const coords=pts.map(p=>`${p.lng},${p.lat}`).join(';');
+    const url=`https://router.project-osrm.org/route/v1/${profile}/${coords}?overview=full&geometries=geojson&steps=false`;
+    const res=await fetch(url); const data=await res.json();
+    if(data.code==='Ok'){
+      const legs=data.routes[0].legs;
+      legs.forEach((leg,i)=>{ if(state.route[i]){ state.route[i].legDist=round1(leg.distance/1000); state.route[i].legMinutes=Math.max(1,Math.round(leg.duration/60)); } });
+      state.routeGeometry=data.routes[0].geometry;
+    }
+  }catch(err){ console.warn('OSRM indisponible, distances estimées à vol d’oiseau', err); state.routeGeometry=null; }
+  renderCarnet();
+}
+
+/* ============ ECRAN CARNET DE VOYAGE ============ */
+/* Temps de visite conseillé par sous-catégorie (minutes), pour la durée
+   totale du carnet, comme VISIT_DURATION dans Margo. */
+const VISIT_MIN = { caves:45, 'bars-vin':60, domaines:60, caveaux:30, restaurants:90, cafes:30, boulangeries:10, epiceries:20,
+  hotels:0, 'chambres-hotes':0, gites:0, campings:0, parkings:5, gares:5, velos:15, bornes:30,
+  musees:75, chateaux:60, eglises:30, sites:30, parcs:45, balades:60, sports:60, ateliers:30, galeries:30, boutiques:20 };
+const visitMin = p => VISIT_MIN[p.sub] != null ? VISIT_MIN[p.sub] : 30;
+function fmtDuration(min){ return min >= 60 ? Math.floor(min/60)+' h '+String(min%60).padStart(2,'0') : min+' min'; }
+function mapsSearchLink(p){
+  if(p.googleMapsURI && /^https:\/\//.test(p.googleMapsURI)) return p.googleMapsURI;
+  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(p.name + ', ' + (p.addr || state.ville));
+}
+function wazeLink(p){ return `https://waze.com/ul?ll=${p.lat},${p.lng}&navigate=yes`; }
+/* Itinéraire Google Maps : 10 étapes au plus par lien (limite de Google),
+   donc un lien par tronçon de 10 étapes, comme les mini-parcours de Margo. */
+function routeDirectionLinks(){
+  const mode = { DRIVING:'driving', BICYCLING:'bicycling', WALKING:'walking' }[state.travelMode] || 'driving';
+  const ll = p => `${p.lat},${p.lng}`;
+  const links = [];
+  for(let i=0; i<state.route.length; i+=10){
+    const chunk = state.route.slice(i, i+10);
+    const origin = i===0 ? `${state.center.lat},${state.center.lng}` : ll(state.route[i-1]);
+    const dest = ll(chunk[chunk.length-1]);
+    const wp = chunk.slice(0,-1).map(ll).map(encodeURIComponent).join('%7C');
+    links.push({ from: i+1, to: i+chunk.length, url: `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=${mode}${wp ? '&waypoints='+wp : ''}` });
+  }
+  return links;
+}
+function qrImg(url, size){
+  return `<img src="https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}" alt="QR code" width="${size}" height="${size}" loading="lazy">`;
+}
+/* Découpe le texte de l'IA (Markdown) en introduction, un commentaire par
+   étape (titres « ### N. Nom »), et le reste — comme parseAiRoadbook. */
+function parseAiCarnet(md){
+  const out = { intro:'', steps:{}, extras:'' };
+  if(!md) return out;
+  const norm = t => String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+  const parts = md.split(/^(?=#{2,3}\s)/m);
+  out.intro = (parts.shift() || '').replace(/^#\s+.*$/m,'').trim();
+  parts.forEach(sec=>{
+    const nl = sec.indexOf('\n');
+    const heading = nl < 0 ? sec : sec.slice(0, nl);
+    const body = nl < 0 ? '' : sec.slice(nl+1).trim();
+    const h = norm(heading.replace(/^#+\s*\d+\s*[.)-]?\s*/, ''));
+    let hit = state.route.find(p=>{ const n = norm(p.name); return n.length > 2 && (h.includes(n) || n.includes(h)); });
+    if(!hit){ const m = heading.match(/^#+\s*(\d+)/); if(m) hit = state.route[Number(m[1])-1]; }
+    if(hit && !out.steps[hit.id]) out.steps[hit.id] = body;
+    else out.extras += sec.trim() + '\n\n';
+  });
+  out.extras = out.extras.trim();
+  return out;
+}
+let aiShowFull = false;
+function renderAiOut(){
+  const out = document.getElementById('aiCarnetOut');
+  if(!out) return;
+  if(aiAbort || !aiText){ out.innerHTML = mdToHtml(aiText); fillStepAiBoxes(null); return; }
+  const parsed = parseAiCarnet(aiText);
+  const n = state.route.filter(p=>parsed.steps[p.id]).length;
+  out.innerHTML = (aiShowFull ? mdToHtml(aiText) : mdToHtml(parsed.intro))
+    + `<p class="ai-hint">${n ? `Les commentaires de l'IA sont intégrés à ${n} étape(s) ci-dessous (encadrés « L'avis de l'IA »).` : `Aucune étape ne correspond aux lieux commentés : lis le texte complet.`}</p>`
+    + `<div class="ai-full-toggle no-print"><button type="button" class="btn btn-ghost rb-small" id="btnAiFull">${aiShowFull ? 'Masquer le texte complet' : 'Lire le texte complet'}</button><button type="button" class="btn btn-ghost rb-small" id="btnAiRemove">✕ Retirer</button></div>`;
+  document.getElementById('btnAiFull').addEventListener('click', ()=>{ aiShowFull = !aiShowFull; renderAiOut(); });
+  document.getElementById('btnAiRemove').addEventListener('click', ()=>{ aiText = ''; aiShowFull = false; setAiStatus(''); document.getElementById('btnAiCarnetCopy').hidden = true; renderAiOut(); renderCarnetNotes(); });
+  fillStepAiBoxes(parsed);
+  renderCarnetNotes();
+}
+function fillStepAiBoxes(parsed){
+  document.querySelectorAll('.step-ai[data-ai-for]').forEach(box=>{
+    const body = parsed && parsed.steps[box.dataset.aiFor];
+    box.hidden = !body;
+    box.innerHTML = body ? `<div class="step-ai-head"><svg class="ic"><use href="#icon-sparkles"></use></svg> L'avis de l'IA</div>${mdToHtml(body)}` : '';
+  });
+}
+function renderCarnetNotes(){
+  const el = document.getElementById('carnetNotes');
+  if(!el || !state.route.length) return;
+  const totalMin = state.route.reduce((s,p)=>s+p.legMinutes+visitMin(p),0);
+  const extras = aiText && !aiAbort ? parseAiCarnet(aiText).extras : '';
+  el.innerHTML = `<svg class="barrel-art" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="60" cy="60" rx="34" ry="44"/><path d="M26 60h68"/><path d="M30 32c18 6 42 6 60 0M30 88c18-6 42-6 60 0"/><path d="M44 18c-6 26-6 58 0 84M60 16v88M76 18c6 26 6 58 0 84"/><circle cx="60" cy="60" r="4"/><path d="M14 106h92"/></svg><h3>📍 Notes pratiques</h3><ul>
+    <li><strong>Durée totale estimée :</strong> ${fmtDuration(totalMin)} (trajets ${MODE_META[state.travelMode].label} + temps de visite conseillés).</li>
+    <li><strong>Point de départ :</strong> ${escapeHtml(state.ville)}</li>
+    <li>Google Maps limite un itinéraire à 10 étapes : ${state.route.length > 10 ? `le parcours est découpé en ${Math.ceil(state.route.length/10)} liens successifs.` : 'ton parcours tient en un seul lien.'}</li>
+    <li>Pense à réserver les dégustations et les tables, surtout le week-end. L'abus d'alcool est dangereux pour la santé, à consommer avec modération${state.travelMode==='DRIVING' ? ' : désigne un conducteur sobre' : ''}.</li>
+    <li><a href="pages/mentions-legales-bourgou.html" target="_blank" rel="noopener noreferrer">Mentions légales &amp; RGPD</a></li>
+    <li><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('office de tourisme '+state.ville)}" target="_blank" rel="noopener noreferrer">Office de tourisme de ${escapeHtml(state.ville)}</a></li>
+  </ul>${extras ? `<div class="step-ai"><div class="step-ai-head"><svg class="ic"><use href="#icon-sparkles"></use></svg> Conseils de l'IA</div>${mdToHtml(extras)}</div>` : ''}`;
+}
+function moveStep(id, targetId){
+  const order = state.manualOrder.slice();
+  const from = order.indexOf(id);
+  if(from < 0 || id === targetId) return;
+  order.splice(from, 1);
+  const to = targetId ? order.indexOf(targetId) : order.length;
+  order.splice(to < 0 ? order.length : to, 0, id);
+  state.manualOrder = order; state.orderCustom = true;
+  buildItinerary();
+}
+function wireDragAndDrop(root){
+  let dragId = null;
+  root.querySelectorAll('.draggable-step').forEach(el=>{
+    el.addEventListener('dragstart', e=>{ dragId = el.dataset.id; el.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; try{ e.dataTransfer.setData('text/plain', dragId); }catch(err){} });
+    el.addEventListener('dragend', ()=>{ el.classList.remove('dragging'); root.querySelectorAll('.drag-over').forEach(x=>x.classList.remove('drag-over')); });
+    el.addEventListener('dragover', e=>{ e.preventDefault(); el.classList.add('drag-over'); });
+    el.addEventListener('dragleave', ()=>el.classList.remove('drag-over'));
+    el.addEventListener('drop', e=>{ e.preventDefault(); el.classList.remove('drag-over'); if(dragId) moveStep(dragId, el.dataset.id); dragId = null; });
+  });
+}
+
+function renderCarnet(){
+  const has=state.route.length>0;
+  document.getElementById('carnetEmpty').hidden=has;
+  document.getElementById('carnetContent').hidden=!has;
+  if(!has) return;
+  const totalKm=round1(state.route.reduce((s,p)=>s+p.legDist,0));
+  const travelMin=state.route.reduce((s,p)=>s+p.legMinutes,0);
+  const totalMin=travelMin + state.route.reduce((s,p)=>s+visitMin(p),0);
+  document.getElementById('carnetTitle').textContent='Carnet de voyage — '+state.ville;
+  document.getElementById('carnetSub').textContent=`${state.ville}, Bourgogne — ${state.route.length} étape(s) ${MODE_META[state.travelMode].label} · Généré le ${new Date().toLocaleDateString('fr-FR')}`;
+  document.getElementById('pillDist').textContent=String(totalKm).replace('.', ',')+' km';
+  document.getElementById('pillTime').textContent=fmtDuration(totalMin);
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===state.travelMode));
+  document.getElementById('carnetOrderBox').hidden = !state.orderCustom;
+
+  // Liens Google Maps (un par tronçon de 10 étapes) + QR du premier
+  const links = routeDirectionLinks();
+  document.getElementById('carnetMapsLinks').innerHTML = links.map(l=>`<a class="btn btn-gold rb-small no-print" href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer">🗺️ Ouvrir ${links.length>1 ? `les étapes ${l.from}–${l.to}` : "l'itinéraire complet"} dans Maps</a>`).join('');
+  document.getElementById('carnetQr').innerHTML = qrImg(links[0].url, 104);
+
+  const routeSig = state.route.map(p=>p.id).join('|') + '|' + state.travelMode;
+  if(routeSig !== renderCarnet._sig){
+    const firstRender = renderCarnet._sig === undefined;
+    const sameStops = renderCarnet._sig && renderCarnet._sig.split('|').slice(0,-1).sort().join('|') === state.route.map(p=>p.id).sort().join('|');
+    renderCarnet._sig = routeSig;
+    if(aiKeepOnNextRoute){ aiKeepOnNextRoute = false; }
+    else if(!sameStops || firstRender){
+      // Nouvelles étapes : le texte de l'IA ne correspond plus. Un simple
+      // changement d'ordre ou de mode le garde (les avis restent par lieu).
+      if(aiAbort) aiAbort.abort();
+      aiText = ''; setAiStatus('');
+    }
+    document.getElementById('btnAiCarnetCopy').hidden = !aiText;
+  }
+
+  // Liste compacte du parcours (glisser-déposer), départ → étapes
+  document.getElementById('stepsMiniList').innerHTML =
+    `<li class="endpoint"><span class="n">🚩</span> Départ : ${escapeHtml(state.ville)}</li>`
+    + state.route.map((p,i)=>`<li class="draggable-step" data-id="${escapeHtml(p.id)}" draggable="true" style="--cat-color:${CATS[p.cat].color}"><span class="drag-handle" title="Glisser pour réordonner">⠿</span><span class="n">${i+1}</span> ${escapeHtml(p.name)}</li>`).join('');
+
+  const list=document.getElementById('journalList');
+  list.innerHTML=state.route.map((p,i)=>{
+    const c=CATS[p.cat]; const sc=SUB_BY_KEY[p.sub];
+    const link = mapsSearchLink(p);
+    const rows = [
+      p.addr ? `<p><strong>Adresse :</strong> ${escapeHtml(p.addr)}</p>` : '',
+      p.hours && p.hours.length ? `<p><strong>Horaires :</strong> ${escapeHtml(p.hours.join(' · '))}</p>` : '',
+      p.phone ? `<p><strong>Téléphone :</strong> ${escapeHtml(p.phone)}</p>` : '',
+      p.website && /^https?:\/\//i.test(p.website) ? `<p><strong>Site :</strong> <a href="${escapeHtml(p.website)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.website.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,''))}</a></p>` : '',
+      `<p><strong>Temps conseillé sur place :</strong> ${visitMin(p) ? fmtDuration(visitMin(p)) : 'nuit / pause'}</p>`
+    ].join('');
+    const next = state.route[i+1];
+    return `<div class="card rb-step draggable-step" style="--cat-color:${c.color}" data-id="${escapeHtml(p.id)}" draggable="true">
+      <span class="drag-handle no-print" title="Glisser pour réordonner">⠿</span>
+      <div class="num">${i+1}</div>
+      <div class="rb-step-body">
+        <h3><svg class="ic"><use href="#icon-${sc ? sc.icon : c.icon}"></use></svg> ${escapeHtml(p.name)}</h3>
+        <div class="rb-sub">${sc ? sc.label : c.label}</div>
+        ${leafMetaHtml(p)}
+        ${rows}
+        <div class="step-ai" data-ai-for="${escapeHtml(p.id)}" hidden></div>
+        <textarea class="journal-note" placeholder="Une note pour ton carnet (impression, dégustation, anecdote...)" data-id="${escapeHtml(p.id)}">${escapeHtml(state.notes[p.id]||'')}</textarea>
+        <div class="rb-step-actions">
+          <span class="leg">⏱ ${i===0 ? 'depuis '+escapeHtml(state.ville) : "depuis l'étape précédente"} : ${p.legMinutes} min · ${String(p.legDist).replace('.', ',')} km${next ? '' : ' · dernière étape'}</span>
+          <a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">Ouvrir dans Maps</a>
+          <a href="${wazeLink(p)}" target="_blank" rel="noopener noreferrer" class="btn btn-ghost no-print">Waze</a>
+          <span class="journal-actions no-print">
+            <button class="jbtn" data-act="up" title="Monter"><svg class="ic"><use href="#icon-up"></use></svg></button>
+            <button class="jbtn" data-act="down" title="Descendre"><svg class="ic"><use href="#icon-down"></use></svg></button>
+            <button class="jbtn" data-act="del" title="Retirer"><svg class="ic"><use href="#icon-trash"></use></svg></button>
+          </span>
+        </div>
+      </div>
+      <div class="rb-step-media">
+        <div class="qr">${qrImg(link, 110)}</div>
+        ${p.photoUrl ? `<img class="ph no-print" src="${escapeHtml(p.photoUrl)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.jbtn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=btn.closest('.rb-step').dataset.id;
+      const act=btn.dataset.act;
+      const order=state.manualOrder.slice();
+      const idx=order.indexOf(id);
+      if(act==='del'){ state.selectedIds.delete(id); order.splice(idx,1); }
+      else if(act==='up' && idx>0){ [order[idx-1],order[idx]]=[order[idx],order[idx-1]]; state.orderCustom=true; }
+      else if(act==='down' && idx<order.length-1){ [order[idx+1],order[idx]]=[order[idx],order[idx+1]]; state.orderCustom=true; }
+      state.manualOrder=order;
+      buildItinerary(); updateSelCount(); renderResults();
+    });
+  });
+  list.querySelectorAll('.journal-note').forEach(ta=>{
+    ta.addEventListener('input',()=>{ state.notes[ta.dataset.id]=ta.value; });
+  });
+  wireDragAndDrop(list);
+  wireDragAndDrop(document.getElementById('stepsMiniList'));
+
+  renderAiOut();
+  renderCarnetNotes();
+  updateShareLinks();
+  renderCarnetMap();
+}
+
+/* ---- Partage / export (comme le ROADBOOK de Margo) ---- */
+function carnetShareText(){
+  const lines = [`Carnet de voyage Bourgou — ${state.ville}`, ''];
+  state.route.forEach((p,i)=>{
+    lines.push(`${i+1}. ${p.name}${p.addr ? ' — '+p.addr : ''}`);
+    lines.push('   ' + mapsSearchLink(p));
+    if(state.notes[p.id]) lines.push('   Note : ' + state.notes[p.id]);
+  });
+  const links = routeDirectionLinks();
+  lines.push('', 'Itinéraire complet : ' + links.map(l=>l.url).join(' | '));
+  return lines.join('\n');
+}
+function updateShareLinks(){
+  const t = carnetShareText();
+  document.getElementById('shareSmsLink').href = 'sms:?&body=' + encodeURIComponent(t);
+  document.getElementById('shareWhatsappLink').href = 'https://wa.me/?text=' + encodeURIComponent(t);
+  document.getElementById('shareEmailLink').href = 'mailto:?subject=' + encodeURIComponent('Carnet de voyage — ' + state.ville) + '&body=' + encodeURIComponent(t);
+}
+function exportCarnetHtml(){
+  const src = document.getElementById('carnetContent');
+  const clone = src.cloneNode(true);
+  clone.hidden = false;
+  clone.querySelectorAll('.no-print, .rb-map-row, script').forEach(el=>el.remove());
+  clone.querySelectorAll('textarea.journal-note').forEach(ta=>{
+    const v = state.notes[ta.dataset.id];
+    if(v){ const p = document.createElement('p'); p.innerHTML = '<strong>Ma note :</strong> ' + escapeHtml(v); ta.replaceWith(p); } else ta.remove();
+  });
+  const sprite = document.querySelector('svg[style*="display:none"], svg[hidden], body > svg');
+  const css = [...document.querySelectorAll('style')].map(st=>st.outerHTML).join('\n');
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Carnet de voyage — ${escapeHtml(state.ville)}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;800&family=Work+Sans:wght@400;600;700;800&display=swap">${css}</head><body style="padding:1.2rem;">${sprite ? sprite.outerHTML : ''}<main>${clone.outerHTML}</main></body></html>`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html], {type:'text/html'}));
+  a.download = 'carnet-' + state.ville.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-') + '.html';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+document.getElementById('btnExportHtml').addEventListener('click', exportCarnetHtml);
+document.getElementById('btnShare').addEventListener('click', e=>{ e.stopPropagation(); const pop = document.getElementById('sharePopover'); pop.hidden = !pop.hidden; });
+document.addEventListener('click', e=>{ if(!e.target.closest('.share-wrap')) document.getElementById('sharePopover').hidden = true; });
+document.getElementById('btnResetOrder').addEventListener('click', ()=>{ state.manualOrder = null; state.orderCustom = false; buildItinerary(); });
+
+let gCarnet = null, gCarnetItems = [];
+function renderCarnetMapGoogle(){
+  if(!gCarnet){
+    gCarnet = new google.maps.Map(document.getElementById('carnetMap'), {
+      center: {lat: state.center.lat, lng: state.center.lng}, zoom: 11,
+      mapTypeControl: false, streetViewControl: false, fullscreenControl: true, gestureHandling: 'greedy', clickableIcons: false
+    });
+  }
+  gCarnetItems.forEach(x=>x.setMap(null)); gCarnetItems = [];
+  const bounds = new google.maps.LatLngBounds();
+  const start = {lat: state.center.lat, lng: state.center.lng};
+  gCarnetItems.push(new google.maps.Marker({ map: gCarnet, position: start, icon: gPinIcon('#33101c', '', true), title: state.ville }));
+  bounds.extend(start);
+  state.route.forEach((p,i)=>{
+    gCarnetItems.push(new google.maps.Marker({ map: gCarnet, position: {lat:p.lat, lng:p.lng}, icon: gPinIcon(catColorResolved(p.cat), String(i+1), true), title: (i+1)+'. '+p.name, zIndex: 100+i }));
+    bounds.extend({lat:p.lat, lng:p.lng});
+  });
+  const path = state.routeGeometry && state.routeGeometry.coordinates
+    ? state.routeGeometry.coordinates.map(([lng,lat])=>({lat,lng}))
+    : [start, ...state.route.map(p=>({lat:p.lat, lng:p.lng}))];
+  gCarnetItems.push(new google.maps.Polyline(state.routeGeometry
+    ? { map: gCarnet, path, strokeColor:'#84223f', strokeWeight:4, strokeOpacity:.85 }
+    : { map: gCarnet, path, strokeOpacity:0, icons:[{ icon:{ path:'M 0,-1 0,1', strokeOpacity:.7, strokeColor:'#84223f', scale:3 }, offset:'0', repeat:'12px' }] }));
+  if(state.route.length) gCarnet.fitBounds(bounds, 40);
+}
+function renderCarnetMap(){
+  if(mapKind==='google'){ try{ renderCarnetMapGoogle(); return; }catch(err){ console.warn('Carte Google du carnet indisponible', err); } }
+  if(!leafletOk || typeof L==='undefined'){ showMapUnavailable('carnetMap'); return; }
+  if(!carnetMap){
+    carnetMap=L.map('carnetMap',{zoomControl:false,fadeAnimation:false}).setView([state.center.lat,state.center.lng],11);
+    L.control.zoom({position:'bottomleft'}).addTo(carnetMap);
+    L.tileLayer(BASEMAP_URL,{maxZoom:19,attribution:BASEMAP_ATTRIB}).addTo(carnetMap);
+    carnetLayerGroup=L.layerGroup().addTo(carnetMap);
+  }
+  carnetLayerGroup.clearLayers();
+  const pts=[[state.center.lat,state.center.lng], ...state.route.map(p=>[p.lat,p.lng])];
+  L.marker(pts[0],{icon:coloredDivIcon('#33101c','')}).addTo(carnetLayerGroup).bindTooltip(escapeHtml(state.ville));
+  state.route.forEach((p,i)=>{
+    L.marker([p.lat,p.lng],{icon:coloredDivIcon(catColorResolved(p.cat),String(i+1))}).addTo(carnetLayerGroup).bindTooltip(escapeHtml(p.name));
+  });
+  if(state.routeGeometry){
+    L.geoJSON(state.routeGeometry,{style:{color:'#84223f',weight:4,opacity:.8}}).addTo(carnetLayerGroup);
+  }else{
+    L.polyline(pts,{color:'#84223f',weight:3,dashArray:'2 8',opacity:.7}).addTo(carnetLayerGroup);
+  }
+  setTimeout(()=>{ carnetMap.invalidateSize(); if(pts.length>1) carnetMap.fitBounds(pts,{padding:[30,30]}); },80);
+}
+
+
+/* ============ CARNET RÉDIGÉ PAR L'IA (Gemini, clé AQ.env comme MARGO) ============
+   Même principe que l'IA Roadbook de MARGO : la clé Gemini est lue dans
+   AQ.env (local uniquement), les étapes du carnet (dans l'ordre, avec
+   distances, notes Google et notes perso) sont envoyées à Gemini, et le texte
+   s'affiche au fil de l'eau. Modèles essayés dans l'ordre si l'un est saturé. */
+const AI_MODELS = [
+  { id: 'gemini-3.7-flash', thinkingLevel: 'low' },
+  { id: 'gemini-3.5-flash-lite' },
+  { id: 'gemini-3.8-flash', thinkingLevel: 'low' }
+];
+const aiEndpoint = id => `https://generativelanguage.googleapis.com/v1beta/models/${id}:streamGenerateContent?alt=sse`;
+let aiAbort = null, aiText = '';
+
+function buildAiCarnetPrompt(){
+  const mode = MODE_META[state.travelMode].label;
+  const lines = state.route.map((p,i)=>{
+    const label = SUB_BY_KEY[p.sub] ? SUB_BY_KEY[p.sub].label : CATS[p.cat].label;
+    const bits = [`${i+1}. ${p.name} (${label})`];
+    if(p.addr) bits.push(p.addr);
+    bits.push(`${i===0 ? 'depuis '+state.ville : "depuis l'étape précédente"} : ${p.legDist} km, ${p.legMinutes} min ${mode}`);
+    if(p.rating) bits.push(`note Google ${p.rating}/5${p.ratingCount ? ' ('+p.ratingCount+' avis)' : ''}`);
+    if(state.notes[p.id]) bits.push(`note du voyageur : ${state.notes[p.id]}`);
+    return bits.join(' — ');
+  }).join('\n');
+  return `Tu es un guide œnotouristique passionné de Bourgogne. Rédige en français le carnet de route d'une journée au départ de ${state.ville}, ${mode}, en suivant EXACTEMENT cet ordre d'étapes :
+
+${lines}
+
+Format attendu (Markdown simple, sans tableau) :
+- une courte introduction (2 à 3 phrases) sur l'esprit de la journée ;
+- pour chaque étape, un titre "### N. Nom du lieu", puis 2 à 4 phrases : pourquoi s'y arrêter, ce qu'on y goûte ou voit, un conseil pratique (réservation, horaire, accord mets-vins, stationnement...) et le temps à prévoir ;
+- une conclusion d'une phrase.
+N'invente ni prix, ni horaires, ni noms de vins précis que tu ne connais pas avec certitude ; reste concret et chaleureux. Rappelle discrètement de consommer l'alcool avec modération si la journée se fait en voiture.`;
+}
+
+function mdToHtml(md){
+  const inline = t => escapeHtml(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/(^|[^*])\*(?!\s)(.+?)\*/g, '$1<em>$2</em>');
+  const out = []; let list = null;
+  md.split(/\r?\n/).forEach(raw=>{
+    const line = raw.trim();
+    const li = line.match(/^[-*•]\s+(.*)/);
+    if(li){ if(!list){ list = []; } list.push(`<li>${inline(li[1])}</li>`); return; }
+    if(list){ out.push(`<ul>${list.join('')}</ul>`); list = null; }
+    if(!line) return;
+    const h = line.match(/^#{1,6}\s+(.*)/);
+    out.push(h ? `<h4>${inline(h[1])}</h4>` : `<p>${inline(line)}</p>`);
+  });
+  if(list) out.push(`<ul>${list.join('')}</ul>`);
+  return out.join('');
+}
+function setAiStatus(msg, isErr, busy){
+  const el = document.getElementById('aiCarnetStatus');
+  el.className = 'ai-carnet-status' + (isErr ? ' err' : '');
+  el.innerHTML = msg ? (busy ? '<span class="spin"></span>' : '') + escapeHtml(msg) : '';
+}
+function setAiBusy(busy){
+  document.getElementById('btnAiCarnet').disabled = busy;
+  document.getElementById('btnAiCarnetStop').hidden = !busy;
+  document.getElementById('btnAiCarnetCopy').hidden = busy || !aiText;
+}
+
+async function streamFromModel(model, key, prompt, onText){
+  const generationConfig = { maxOutputTokens: 8000 };
+  if(model.thinkingLevel) generationConfig.thinkingConfig = { thinkingLevel: model.thinkingLevel };
+  const res = await fetch(aiEndpoint(model.id), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+    body: JSON.stringify({ contents: [{ role:'user', parts:[{ text: prompt }] }], generationConfig }),
+    signal: aiAbort.signal
+  });
+  if(!res.ok){
+    let apiMsg = '';
+    try{ apiMsg = ((await res.json()).error || {}).message || ''; }catch(err){}
+    return { ok:false, status:res.status, apiMsg };
+  }
+  const reader = res.body.getReader(), decoder = new TextDecoder();
+  let buffer = '', finishReason = '', streamError = null;
+  const handle = line=>{
+    if(!line.startsWith('data:')) return;
+    let chunk; try{ chunk = JSON.parse(line.slice(5)); }catch(err){ return; }
+    if(chunk.error){ streamError = chunk.error; return; }
+    const cand = (chunk.candidates || [])[0]; if(!cand) return;
+    if(cand.finishReason) finishReason = cand.finishReason;
+    const text = ((cand.content && cand.content.parts) || []).filter(p=>!p.thought).map(p=>p.text || '').join('');
+    if(text){ if(onText) onText(text); else { aiText += text; renderAiOut(); } }
+  };
+  for(;;){
+    const { value, done } = await reader.read();
+    if(done) break;
+    buffer += decoder.decode(value, { stream:true });
+    const lines = buffer.split(/\r?\n/); buffer = lines.pop(); lines.forEach(handle);
+  }
+  handle(buffer);
+  if(streamError) return { ok:false, status: streamError.code || 503, apiMsg: streamError.message || '' };
+  return { ok:true, finishReason };
+}
+
+async function generateAiCarnet(){
+  await apiKeysReady;
+  if(!geminiApiKey){
+    setAiStatus("Clé Gemini introuvable : place le fichier AQ.env à côté de bourgo.html (comme pour MARGO) et ouvre la page via localhost.", true);
+    return;
+  }
+  if(!state.route.length) return;
+  aiAbort = new AbortController();
+  aiText = ''; renderAiOut();
+  setAiBusy(true);
+  setAiStatus("L'IA rédige ton carnet…", false, true);
+  try{
+    const prompt = buildAiCarnetPrompt();
+    let result = null;
+    for(const model of AI_MODELS){
+      aiText = ''; renderAiOut();
+      result = await streamFromModel(model, geminiApiKey, prompt);
+      if(result.ok || ![503,429,404,500].includes(result.status)) break;
+      setAiStatus("Gemini est très sollicité : essai avec un autre modèle…", false, true);
+    }
+    if(!result.ok){
+      const { status, apiMsg } = result;
+      if(status === 401 || status === 403 || (status === 400 && /api key/i.test(apiMsg))) setAiStatus('Clé Gemini refusée : vérifie AQ.env (aistudio.google.com/apikey).', true);
+      else if(status === 429) setAiStatus('Limite gratuite de Gemini atteinte : réessaie dans une minute.', true);
+      else if(status === 503 || status === 500) setAiStatus('Gemini est très sollicité : réessaie dans quelques instants.', true);
+      else setAiStatus(`Erreur Gemini (${status})${apiMsg ? ' : '+apiMsg : ''}`, true);
+      return;
+    }
+    setAiStatus(!aiText ? "Gemini n'a rien rédigé : réessaie." : (result.finishReason === 'MAX_TOKENS' ? 'Carnet rédigé (tronqué : beaucoup d’étapes).' : ''), !aiText);
+  }catch(err){
+    if(err.name === 'AbortError') setAiStatus(aiText ? 'Rédaction arrêtée.' : '');
+    else{ console.error(err); setAiStatus('Gemini injoignable (connexion ?) : réessaie.', true); }
+  }finally{
+    aiAbort = null;
+    setAiBusy(false);
+    renderAiOut();
+  }
+}
+
+/* ---- IA Carnet depuis la liste des lieux proposés (comme l'IA Roadbook
+   de Margo) : l'IA choisit et ordonne les étapes parmi les lieux proposés
+   (en gardant ceux déjà cochés), rédige le carnet avec un repère [Lx] par
+   étape ; « Valider » coche ces lieux dans cet ordre et ouvre le carnet. */
+const AI_LIST_MAX = 60;
+let aiKeepOnNextRoute = false, aiModalText = '', aiModalPlaceIds = [], aiModalAbort = null;
+function aiListPlaces(){
+  return state.results.slice().sort((a,b)=>
+    (state.selectedIds.has(b.id)?1:0) - (state.selectedIds.has(a.id)?1:0)
+    || ((b.rating||0) - (a.rating||0))
+    || (a.dist - b.dist)).slice(0, AI_LIST_MAX);
+}
+function buildAiListPrompt(){
+  const places = aiListPlaces();
+  aiModalPlaceIds = places.map(p=>p.id);
+  const mode = MODE_META[state.travelMode].label;
+  const lines = places.map((p,i)=>{
+    const sub = SUB_BY_KEY[p.sub] ? SUB_BY_KEY[p.sub].label : CATS[p.cat].label;
+    const bits = [`L${i+1}. ${p.name} (${sub})`, `${p.dist} km du centre`];
+    if(p.rating) bits.push(`note Google ${p.rating}/5${p.ratingCount ? ' ('+p.ratingCount+' avis)' : ''}`);
+    if(p.addr) bits.push(p.addr);
+    if(state.selectedIds.has(p.id)) bits.push('CHOISI PAR LE VOYAGEUR');
+    return bits.join(' — ');
+  }).join('\n');
+  return `Tu es un guide œnotouristique passionné de Bourgogne. Compose et rédige en français le carnet de route d'une journée au départ de ${state.ville}, ${mode}, en choisissant tes étapes UNIQUEMENT parmi cette liste de lieux réels :
+
+${lines}
+
+Règles :
+- garde obligatoirement tous les lieux marqués « CHOISI PAR LE VOYAGEUR » ;
+- complète pour obtenir 5 à 8 étapes au total : au moins une dégustation ou un domaine, une table pour le déjeuner, une visite, et l'hébergement en dernière étape s'il y en a un dans la liste ;
+- ordonne les étapes logiquement (trajets courts, déjeuner vers midi) ;
+- n'invente aucun lieu, ni prix, ni horaire, ni nom de vin précis.
+
+Format (Markdown simple, sans tableau) :
+- une courte introduction (2 à 3 phrases) ;
+- pour chaque étape un titre exactement sous la forme "### N. Nom du lieu [Lx]" (Lx = le repère du lieu dans la liste), puis 2 à 4 phrases : pourquoi s'y arrêter, ce qu'on y goûte ou voit, un conseil pratique, le temps à prévoir ;
+- une conclusion d'une phrase ; rappelle discrètement la modération si la journée se fait en voiture.`;
+}
+function aiModalIdsFromText(){
+  const ids = [];
+  (aiModalText.match(/\[L(\d+)\]/g) || []).forEach(m=>{
+    const id = aiModalPlaceIds[Number(m.slice(2,-1)) - 1];
+    if(id && !ids.includes(id)) ids.push(id);
+  });
+  return ids;
+}
+function renderAiModalOut(){
+  document.getElementById('aiModalOut').innerHTML = mdToHtml(aiModalText.replace(/\s*\[L\d+\]/g, ''));
+  document.getElementById('btnAiModalValidate').disabled = !aiModalIdsFromText().length || !!aiModalAbort;
+}
+function setAiModalStatus(msg, isErr, busy){
+  const el = document.getElementById('aiModalStatus');
+  el.className = 'ai-carnet-status' + (isErr ? ' err' : '');
+  el.innerHTML = msg ? (busy ? '<span class="spin"></span>' : '') + escapeHtml(msg) : '';
+}
+async function generateAiFromList(){
+  await apiKeysReady;
+  if(!geminiApiKey){ setAiModalStatus("Clé Gemini introuvable : place le fichier AQ.env à côté de bourgo.html (comme pour MARGO) et ouvre la page via localhost.", true); return; }
+  if(!state.results.length){ setAiModalStatus("Lance d'abord une recherche : l'IA compose ton carnet à partir des lieux proposés.", true); return; }
+  aiModalAbort = new AbortController();
+  const prevAbort = aiAbort; aiAbort = aiModalAbort; // streamFromModel lit aiAbort.signal
+  aiModalText = ''; renderAiModalOut();
+  document.getElementById('btnAiModalGen').disabled = true;
+  document.getElementById('btnAiModalStop').hidden = false;
+  setAiModalStatus("L'IA compose ton carnet…", false, true);
+  try{
+    const prompt = buildAiListPrompt();
+    let result = null;
+    for(const model of AI_MODELS){
+      aiModalText = ''; renderAiModalOut();
+      result = await streamFromModel(model, geminiApiKey, prompt, t=>{ aiModalText += t; renderAiModalOut(); });
+      if(result.ok || ![503,429,404,500].includes(result.status)) break;
+      setAiModalStatus('Gemini est très sollicité : essai avec un autre modèle…', false, true);
+    }
+    if(!result.ok){
+      const { status, apiMsg } = result;
+      if(status === 401 || status === 403 || (status === 400 && /api key/i.test(apiMsg))) setAiModalStatus('Clé Gemini refusée : vérifie AQ.env (aistudio.google.com/apikey).', true);
+      else if(status === 429) setAiModalStatus('Limite gratuite de Gemini atteinte : réessaie dans une minute.', true);
+      else if(status === 503 || status === 500) setAiModalStatus('Gemini est très sollicité : réessaie dans quelques instants.', true);
+      else setAiModalStatus(`Erreur Gemini (${status})${apiMsg ? ' : '+apiMsg : ''}`, true);
+      return;
+    }
+    const n = aiModalIdsFromText().length;
+    setAiModalStatus(n ? `Carnet prêt : ${n} étape(s). « Valider le carnet » coche ces lieux et ouvre le carnet.` : "L'IA n'a pas repéré d'étape : réessaie.", !n);
+  }catch(err){
+    if(err.name === 'AbortError') setAiModalStatus(aiModalText ? 'Rédaction arrêtée.' : '');
+    else{ console.error(err); setAiModalStatus('Gemini injoignable (connexion ?) : réessaie.', true); }
+  }finally{
+    aiModalAbort = null; aiAbort = prevAbort;
+    document.getElementById('btnAiModalGen').disabled = false;
+    document.getElementById('btnAiModalStop').hidden = true;
+    renderAiModalOut();
+  }
+}
+function validateAiFromList(){
+  const ids = aiModalIdsFromText();
+  if(!ids.length) return;
+  state.selectedIds.forEach(id=>{ if(!ids.includes(id)) ids.push(id); });
+  state.selectedIds = new Set(ids);
+  state.manualOrder = ids.slice();
+  aiText = aiModalText.replace(/\s*\[L\d+\]/g, '');
+  aiKeepOnNextRoute = true;
+  document.getElementById('aiModal').hidden = true;
+  updateSelCount(); renderResults(); renderMapMarkers();
+  showScreen('screen-carnet');
+  setAiStatus('Carnet composé par l’IA à partir des lieux proposés.');
+  ids.forEach(id=>enrichSelected(id));
+}
+document.getElementById('btnAiFromList').addEventListener('click', ()=>{
+  document.getElementById('aiModal').hidden = false;
+  if(!aiModalText) generateAiFromList();
+});
+document.getElementById('btnAiModalGen').addEventListener('click', generateAiFromList);
+document.getElementById('btnAiModalStop').addEventListener('click', ()=>{ if(aiModalAbort) aiModalAbort.abort(); });
+document.getElementById('btnAiModalValidate').addEventListener('click', validateAiFromList);
+document.getElementById('btnAiModalClose').addEventListener('click', ()=>{ if(aiModalAbort) aiModalAbort.abort(); document.getElementById('aiModal').hidden = true; });
+document.getElementById('aiModal').addEventListener('click', e=>{ if(e.target.id==='aiModal'){ if(aiModalAbort) aiModalAbort.abort(); e.currentTarget.hidden = true; } });
+document.getElementById('btnAiCarnet').addEventListener('click', generateAiCarnet);
+document.getElementById('btnAiCarnetStop').addEventListener('click', ()=>{ if(aiAbort) aiAbort.abort(); });
+document.getElementById('btnAiCarnetCopy').addEventListener('click', async ()=>{
+  try{ await navigator.clipboard.writeText(aiText); setAiStatus('Carnet copié.'); }
+  catch(err){ setAiStatus('Copie impossible dans ce navigateur.', true); }
+});
+
+/* ============ NAVIGATION ECRANS ============ */
+/* Hauteur des cadres de l'écran Itinéraire (comme Margo) : du haut des
+   colonnes jusqu'au-dessus du carrousel + bandeau légal (fixes en bas). */
+function layoutItin(){
+  const lay = document.querySelector('#screen-itin .layout-3col');
+  if(!lay) return;
+  const active = document.getElementById('screen-itin').classList.contains('active');
+  if(window.innerWidth <= 1020 || !active){ lay.classList.remove('fit'); lay.style.height=''; return; }
+  const bottom = (document.querySelector('.ot-carousel')?.offsetHeight || 0) + (document.querySelector('.legal-bar')?.offsetHeight || 0) + 14;
+  const top = lay.getBoundingClientRect().top + window.scrollY;
+  lay.classList.add('fit');
+  lay.style.height = Math.max(470, window.innerHeight - top - bottom) + 'px';
+  fitWheel();
+  setTimeout(mapInvalidate, 50);
+}
+/* La roue se réduit pour que tout le cadre central tienne sans ascenseur
+   (onglets et sous-catégories compris), comme la fleur de Margo. */
+function fitWheel(){
+  const lay = document.querySelector('#screen-itin .layout-3col');
+  const card = document.querySelector('.wheel-card'), frame = document.getElementById('wheelFrame');
+  if(!card || !frame) return;
+  frame.style.maxWidth = '';
+  if(!lay || !lay.classList.contains('fit')) return;
+  let w = 340;
+  while(card.scrollHeight > card.clientHeight + 1 && w > 200){ w -= 10; frame.style.maxWidth = w + 'px'; }
+}
+let layoutTimer = null;
+window.addEventListener('resize', ()=>{ clearTimeout(layoutTimer); layoutTimer = setTimeout(layoutItin, 120); });
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id));
+  document.querySelectorAll('.step-btn').forEach(b=>b.classList.toggle('active', b.dataset.screen===id));
+  if(id==='screen-carnet'){ buildItinerary(); renderCarnet(); }
+  layoutItin();
+}
+
+/* ============ INIT / EVENEMENTS ============ */
+function renderOtCarousel(){
+  const track=document.getElementById('otTrack');
+  const badge=c=>{
+    const domain=encodeURIComponent(new URL(c.url).hostname);
+    const favicon=`https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+    return `<a class="ot-badge" href="${c.url}" target="_blank" rel="noopener noreferrer" title="Ouvrir le site de l'Office de Tourisme ${escapeHtml(c.name)}">
+      <img src="${favicon}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ot-emoji',textContent:'🍇'}))">
+      Office de Tourisme ${escapeHtml(c.name)}</a>`;
+  };
+  track.innerHTML=PARTNER_OFFICES.map(badge).join('')+PARTNER_OFFICES.map(badge).join('');
+}
+
+function wireEvents(){
+  document.querySelectorAll('.step-btn').forEach(b=>b.addEventListener('click',()=>showScreen(b.dataset.screen)));
+  document.getElementById('btnHome').addEventListener('click',()=>{ showScreen('screen-itin'); window.scrollTo({top:0,behavior:'smooth'}); });
+  document.getElementById('btnBackToItin').addEventListener('click',()=>showScreen('screen-itin'));
+  document.getElementById('btnBackToItin2').addEventListener('click',()=>showScreen('screen-itin'));
+  document.getElementById('btnVoirItineraire').addEventListener('click',()=>showScreen('screen-carnet'));
+
+  document.querySelectorAll('.wheel-node').forEach(el=>el.addEventListener('click',()=>{ toggleCat(el.dataset.cat); }));
+
+  const villageInput=document.getElementById('villageInput');
+  villageInput.value=state.ville;
+  setupVillageAutocomplete();
+  villageInput.addEventListener('change',()=>{ state.ville=villageInput.value.trim()||state.ville; });
+  villageInput.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); runSearch(); } });
+
+  document.getElementById('radiusMinus').addEventListener('click',()=>{ state.radiusKm=Math.max(4,state.radiusKm-2); document.getElementById('radiusVal').textContent='Rayon : '+state.radiusKm+' km'; clearTimeout(catSearchTimer); catSearchTimer=setTimeout(searchPlaces,600); });
+  document.getElementById('radiusPlus').addEventListener('click',()=>{ state.radiusKm=Math.min(30,state.radiusKm+2); document.getElementById('radiusVal').textContent='Rayon : '+state.radiusKm+' km'; clearTimeout(catSearchTimer); catSearchTimer=setTimeout(searchPlaces,600); });
+
+  document.getElementById('btnSearch').addEventListener('click', runSearch);
+
+  document.querySelectorAll('.mode-btn').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.travelMode=btn.dataset.mode;
+    buildItinerary();
+  }));
+
+  document.getElementById('btnPrint').addEventListener('click',()=>window.print());
+  document.getElementById('btnCopySummary').addEventListener('click',async()=>{
+    try{ await navigator.clipboard.writeText(carnetShareText()); const btn=document.getElementById('btnCopySummary'); const old=btn.textContent; btn.textContent='Copié !'; setTimeout(()=>btn.textContent=old,1800); }catch(e){ alert('Copie impossible sur ce navigateur.'); }
+  });
+
+  setupLanguageMenu();
+}
+
+/* ============ SUGGESTIONS DE VILLES ET VILLAGES (comme Margo) ============
+   Pendant la saisie du village : suggestions Google Places (communes de
+   France, Bourgogne en priorité) ; sans clé Google, l'API officielle des
+   communes (geo.api.gouv.fr, gratuite). Choisir une suggestion recentre la
+   carte et relance la recherche. */
+let acToken = null, acTimer = null, acItems = [], acIndex = -1;
+async function fetchVillageSuggestions(q){
+  if(await googleUsable()){
+    try{
+      const P = google.maps.places;
+      if(!acToken) acToken = new P.AutocompleteSessionToken();
+      const { suggestions } = await withTimeoutB(P.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+        input: q, sessionToken: acToken, language: 'fr', includedRegionCodes: ['fr'],
+        includedPrimaryTypes: ['locality','postal_town','administrative_area_level_3','sublocality'],
+        locationBias: { center: {lat: 47.05, lng: 4.4}, radius: 50000 }
+      }), 6000);
+      return (suggestions || []).filter(s=>s.placePrediction).slice(0, 6).map(s=>{
+        const pr = s.placePrediction;
+        return {
+          main: (pr.mainText && pr.mainText.text) || String(pr.text && pr.text.text || pr.text || ''),
+          sub: (pr.secondaryText && pr.secondaryText.text) || '',
+          pick: async ()=>{
+            const place = pr.toPlace();
+            await place.fetchFields({ fields: ['location','displayName'] });
+            acToken = null;
+            return { name: place.displayName, lat: place.location.lat(), lng: place.location.lng() };
+          }
+        };
+      });
+    }catch(err){ console.warn('Suggestions Google indisponibles, repli geo.api.gouv.fr', err); }
+  }
+  const res = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(q)}&fields=nom,codesPostaux,centre,departement&boost=population&limit=6`);
+  const list = await res.json();
+  return (list || []).filter(c=>c.centre).map(c=>({
+    main: c.nom,
+    sub: [(c.codesPostaux || [])[0], c.departement && c.departement.nom].filter(Boolean).join(' · '),
+    pick: async ()=>({ name: c.nom, lat: c.centre.coordinates[1], lng: c.centre.coordinates[0] })
+  }));
+}
+function renderVillageSuggestions(){
+  const box = document.getElementById('villageSuggest');
+  if(!acItems.length){ box.hidden = true; box.innerHTML = ''; return; }
+  box.innerHTML = acItems.map((it,i)=>`<button type="button" class="vs-item ${i===acIndex?'active':''}" data-i="${i}"><svg class="ic"><use href="#icon-pin"></use></svg><span><strong>${escapeHtml(it.main)}</strong>${it.sub ? `<small>${escapeHtml(it.sub)}</small>` : ''}</span></button>`).join('');
+  box.hidden = false;
+  box.querySelectorAll('.vs-item').forEach(b=>b.addEventListener('mousedown', e=>{ e.preventDefault(); chooseVillage(Number(b.dataset.i)); }));
+}
+async function chooseVillage(i){
+  const it = acItems[i];
+  if(!it) return;
+  acItems = []; acIndex = -1; renderVillageSuggestions();
+  const input = document.getElementById('villageInput');
+  try{
+    const geo = await it.pick();
+    input.value = geo.name; state.ville = geo.name;
+    runSearch({lat: geo.lat, lng: geo.lng});
+  }catch(err){ console.warn('Village introuvable', err); input.value = it.main; runSearch(); }
+}
+function setupVillageAutocomplete(){
+  const input = document.getElementById('villageInput');
+  input.addEventListener('input', ()=>{
+    clearTimeout(acTimer);
+    const q = input.value.trim();
+    if(q.length < 2){ acItems = []; renderVillageSuggestions(); return; }
+    acTimer = setTimeout(async ()=>{
+      try{ acItems = await fetchVillageSuggestions(q); }catch(err){ acItems = []; }
+      if(input.value.trim() !== q) return;
+      acIndex = -1; renderVillageSuggestions();
+    }, 250);
+  });
+  input.addEventListener('keydown', e=>{
+    if(!acItems.length) return;
+    if(e.key==='ArrowDown'){ e.preventDefault(); acIndex = (acIndex+1) % acItems.length; renderVillageSuggestions(); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); acIndex = (acIndex-1+acItems.length) % acItems.length; renderVillageSuggestions(); }
+    else if(e.key==='Enter'){ e.preventDefault(); e.stopImmediatePropagation(); chooseVillage(acIndex >= 0 ? acIndex : 0); }
+    else if(e.key==='Escape'){ acItems = []; renderVillageSuggestions(); }
+  });
+  input.addEventListener('blur', ()=>setTimeout(()=>{ acItems = []; renderVillageSuggestions(); }, 150));
+}
+
+
+/* ============ TRADUCTION INTERNATIONALE (comme Margo) ============
+   Widget Google Traduction invisible, piloté par notre menu à drapeaux :
+   15 langues. Revenir au français efface le cookie « googtrans » et
+   recharge la page (seule façon fiable d'annuler une traduction). */
+const LANGUAGES = [
+  {code:'fr', label:'Français', flag:'fr'},
+  {code:'en', label:'English', flag:'gb'},
+  {code:'de', label:'Deutsch', flag:'de'},
+  {code:'es', label:'Español', flag:'es'},
+  {code:'it', label:'Italiano', flag:'it'},
+  {code:'pt', label:'Português', flag:'pt'},
+  {code:'nl', label:'Nederlands', flag:'nl'},
+  {code:'pl', label:'Polski', flag:'pl'},
+  {code:'cs', label:'Čeština', flag:'cz'},
+  {code:'ru', label:'Русский', flag:'ru'},
+  {code:'tr', label:'Türkçe', flag:'tr'},
+  {code:'ar', label:'العربية', flag:'sa'},
+  {code:'zh-CN', label:'中文', flag:'cn'},
+  {code:'ja', label:'日本語', flag:'jp'},
+  {code:'ko', label:'한국어', flag:'kr'}
+];
+const flagUrl = cc => `https://flagcdn.com/24x18/${cc}.png`;
+function googleTranslateElementInit(){
+  new google.translate.TranslateElement({ pageLanguage:'fr', includedLanguages:'en,de,es,it,pt,nl,pl,cs,ru,tr,ar,zh-CN,ja,ko', autoDisplay:false }, 'google_translate_element');
+}
+function doGTranslate(lang){
+  let attempts = 0;
+  const poll = setInterval(()=>{
+    const combo = document.querySelector('.goog-te-combo');
+    if(combo || ++attempts > 40){
+      clearInterval(poll);
+      if(!combo){ console.warn('Google Traduction indisponible (chargement trop long ou bloqué).'); return; }
+      combo.value = lang;
+      combo.dispatchEvent(new Event('change', { bubbles:true }));
+      setTimeout(()=>combo.dispatchEvent(new Event('change', { bubbles:true })), 400);
+    }
+  }, 100);
+}
+function showLanguage(l){
+  document.getElementById('langFlag').src = flagUrl(l.flag);
+  document.getElementById('langCode').textContent = l.code.split('-')[0].toUpperCase();
+}
+function selectLanguage(code){
+  const l = LANGUAGES.find(x=>x.code===code) || LANGUAGES[0];
+  document.getElementById('langMenu').hidden = true;
+  showLanguage(l);
+  if(code === 'fr'){
+    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.' + location.hostname + ';';
+    location.reload();
+    return;
+  }
+  doGTranslate(code);
+}
+function setupLanguageMenu(){
+  const btn = document.getElementById('langBtn'), menu = document.getElementById('langMenu');
+  menu.innerHTML = LANGUAGES.map(l=>`<button type="button" class="lang-opt" data-lang="${l.code}"><img src="${flagUrl(l.flag)}" alt="">${l.label}</button>`).join('');
+  menu.querySelectorAll('.lang-opt').forEach(o=>o.addEventListener('click', ()=>selectLanguage(o.dataset.lang)));
+  btn.addEventListener('click', e=>{ e.stopPropagation(); menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', String(!menu.hidden)); });
+  document.addEventListener('click', e=>{ if(!e.target.closest('.lang-dropdown')) menu.hidden = true; });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') menu.hidden = true; });
+  const m = document.cookie.match(/googtrans=\/[^/]+\/([^;]+)/);
+  const cur = m && LANGUAGES.find(x=>x.code===decodeURIComponent(m[1]));
+  if(cur) showLanguage(cur);
+  // Google remet parfois sa bannière et décale la page : on la neutralise.
+  setInterval(()=>{ if(document.body.style.top && document.body.style.top !== '0px') document.body.style.setProperty('top','0px','important'); }, 500);
+}
+
+async function runSearch(preset){
+  const villageInput=document.getElementById('villageInput');
+  const name=villageInput.value.trim()||state.ville;
+  const btn=document.getElementById('btnSearch');
+  const oldHtml=btn.innerHTML;
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span> Recherche…';
+  try{
+    const geo=(preset && preset.lat!=null) ? preset : await geocodeVillage(name);
+    state.ville=name; state.center={lat:geo.lat,lng:geo.lng};
+    mapSetView(geo.lat, geo.lng, 12);
+  }catch(err){
+    console.warn('Géocodage impossible, on garde le dernier centre connu', err);
+  }
+  await searchPlaces();
+  btn.disabled=false; btn.innerHTML=oldHtml;
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  wireEvents();
+  renderCatGrid();
+  renderOtCarousel();
+  initMap().catch(err=>{ console.warn('Carte indisponible', err); leafletOk=false; showMapUnavailable('leafletMap'); });
+  updateSelCount();
+  layoutItin();
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(layoutItin);
+  runSearch();
+});
+</script>
+</body>
+</html>
