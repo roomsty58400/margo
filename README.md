@@ -94,6 +94,9 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.13 — Manifestes complets (PWABuilder / Play Store) (16 octobre 2026)
+- `manifest.json` (Margo) et `manifest-bourgou.json` (Bourgou) complétés : `id`, description, `dir`, `categories`, `display_override`, `orientation: any`, icônes « any » et « maskable » séparées, captures d'écran ordinateur (1280×720) et mobile (540×1170) dans `assets/screenshots/`, raccourcis (itinéraire, autre appli, mentions légales), `launch_handler`, `prefer_related_applications`.
+
 ### v3.12 — Bourgou installable sur smartphone (16 octobre 2026)
 - Bourgou devient une PWA comme Margo : manifeste `manifest-bourgou.json`, icônes `assets/icons/bourgou-*.png`, service worker commun `sw.js` (cache v18) ; installation depuis Chrome (Android) ou Safari (iPhone), icône « Bourgou » sur l'écran d'accueil.
 
