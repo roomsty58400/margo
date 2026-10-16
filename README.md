@@ -35,12 +35,13 @@ Site en ligne : **https://roomsty58400.github.io/margo/**
 
 Les fichiers `*.env` sont exclus du dépôt Git (`.gitignore`) : ils ne sont jamais publiés.
 
-## Installer Margo comme une appli sur smartphone (PWA)
+## Installer Margo ou Bourgou comme une appli sur smartphone (PWA)
 
 Margo est une **Progressive Web App** : pas besoin de fichier `.apk`, elle s'installe directement depuis le navigateur et s'ouvre ensuite en plein écran, avec sa propre icône sur l'écran d'accueil.
 
 Condition : le site doit être servi via une URL `http://` ou `https://` (via `lancer-app.bat` en local, ou en ligne avec GitHub Pages). Une simple ouverture du fichier `margo.html` en double-clic (`file://`) ne permet pas l'installation.
 
+- Adresses : Margo `https://roomsty58400.github.io/margo/`, Bourgou `https://roomsty58400.github.io/margo/bourgo.html` (chaque appli a sa propre icône).
 - **Android (Chrome)** : ouvrir le site → menu ⋮ → *Installer l'application*.
 - **iPhone/iPad (Safari)** : ouvrir le site → bouton Partager → *Sur l'écran d'accueil*.
 - **Ordinateur (Chrome/Edge)** : icône d'installation ⊕ dans la barre d'adresse.
@@ -92,6 +93,9 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 ## Historique des versions
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
+
+### v3.12 — Bourgou installable sur smartphone (16 octobre 2026)
+- Bourgou devient une PWA comme Margo : manifeste `manifest-bourgou.json`, icônes `assets/icons/bourgou-*.png`, service worker commun `sw.js` (cache v18) ; installation depuis Chrome (Android) ou Safari (iPhone), icône « Bourgou » sur l'écran d'accueil.
 
 ### v3.11 — Adresse ou nom de lieu tapé / collé : retrouvé aussi sans clé Google (16 octobre 2026)
 - **Bug corrigé** : une destination tapée ou collée telle quelle (ex. « La Cooperative De Mai - Grande Coop, Clermont-Ferrand »), sans choisir de suggestion, n'était pas trouvée sur le site en ligne (sans clé Google, OpenStreetMap ne reconnaît pas les noms de lieux) : rien ne s'affichait sur la carte.

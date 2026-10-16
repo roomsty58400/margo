@@ -1,0 +1,17 @@
+{
+  "id": "./bourgo.html",
+  "name": "Bourgou — Carnet de route en Bourgogne",
+  "short_name": "Bourgou",
+  "description": "Le carnet de route œnotouristique de la Bourgogne : caves, domaines, tables et carnet de voyage rédigé par l'IA.",
+  "start_url": "./bourgo.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#4a1425",
+  "theme_color": "#591629",
+  "lang": "fr",
+  "icons": [
+    { "src": "assets/icons/bourgou-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/icons/bourgou-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

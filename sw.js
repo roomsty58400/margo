@@ -7,7 +7,7 @@
    des données à jour (et pour ne jamais mettre en cache une clé API ou une
    réponse liée à un compte). */
 
-const CACHE_NAME = 'margo-shell-v17';
+const CACHE_NAME = 'margo-shell-v18';
 const CORE_ASSETS = [
   './margo.html',
   './manifest.json',
@@ -18,7 +18,14 @@ const CORE_ASSETS = [
   './assets/icons/icon-192-maskable.png',
   './assets/icons/icon-512-maskable.png',
   './assets/icons/apple-touch-icon.png',
-  './pages/mentions-legales.html'
+  './pages/mentions-legales.html',
+  // Bourgou (même dépôt, même service worker)
+  './bourgo.html',
+  './manifest-bourgou.json',
+  './assets/icons/bourgou-192.png',
+  './assets/icons/bourgou-512.png',
+  './assets/icons/bourgou-apple-touch-icon.png',
+  './pages/mentions-legales-bourgou.html'
 ];
 
 self.addEventListener('install', event => {

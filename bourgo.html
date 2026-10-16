@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bourgou — Carnet de route en Bourgogne</title>
 <meta name="theme-color" content="#591629">
+<!-- Application installable sur smartphone (PWA), comme Margo -->
+<link rel="manifest" href="manifest-bourgou.json">
+<link rel="apple-touch-icon" href="assets/icons/bourgou-apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bourgou">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -2731,6 +2738,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   wireEvents();
   renderCatGrid();
   renderOtCarousel();
+  // Service worker commun avec Margo (sw.js) : ouverture rapide et
+  // interface disponible hors connexion une fois l'appli installée.
+  if('serviceWorker' in navigator && location.protocol !== 'file:'){
+    navigator.serviceWorker.register('sw.js').catch(err=>console.warn('Service worker indisponible', err));
+  }
   initMap().catch(err=>{ console.warn('Carte indisponible', err); leafletOk=false; showMapUnavailable('leafletMap'); });
   updateSelCount();
   layoutItin();
