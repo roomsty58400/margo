@@ -1230,6 +1230,26 @@ body > .skiptranslate, iframe.VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-ORHb-OEV
     .itinerary-overview-map{height:320px !important;width:100% !important;}
   }
   .icon-inline{width:1em;height:1em;vertical-align:-0.125em;display:inline-block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* v3.15 : téléphone en position verticale — bandeau compact sur UNE ligne
+     (bouton Accueil réduit à son pictogramme, logo et titre plus petits,
+     drapeau compact) pour laisser la place à la fleur et à la carte. */
+  @media (max-width:700px){
+    header.app-header{padding:.45rem .75rem;border-radius:0 0 16px 16px;}
+    .header-row{flex-wrap:nowrap;justify-content:flex-start;gap:.55rem;min-height:0;}
+    .header-spacer{display:block;flex:1 1 auto;}
+    .home-btn{font-size:0;gap:0;padding:.42rem;border-radius:12px;}
+    .home-btn::before,.home-btn::after{display:none;}
+    .home-btn svg{width:20px;height:20px;}
+    .brand-mark{gap:.5rem;min-width:0;}
+    .brand-logo-big{width:40px;height:40px;border-radius:10px;}
+    header.app-header h1{font-size:1.25rem;}
+    header.app-header p.tagline{font-size:.72rem;margin-top:.1rem;white-space:nowrap;}
+    .lang-dropdown-btn{height:34px;padding:0 .45rem;gap:.25rem;}
+    .lang-dropdown-btn img{width:22px;height:16px;}
+    .stepper{margin:.55rem auto .2rem;padding-top:.2rem;gap:.5rem;}
+  }
+  @media (max-width:360px){ header.app-header p.tagline{display:none;} }
 </style>
 </head>
 <body>

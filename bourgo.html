@@ -637,6 +637,26 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
   body{padding-bottom:0;background:#fff;}
   .card,.journal-card{box-shadow:none;border:1px solid #ccc;}
 }
+
+/* Téléphone en position verticale : bandeau compact sur une ligne. */
+@media (max-width:760px){
+  header.app-header{padding:.45rem .7rem;}
+  .header-row{flex-wrap:nowrap;justify-content:flex-start;gap:.5rem;min-height:0;}
+  .header-spacer{display:block;flex:1 1 auto;}
+  .pill-btn{font-size:0;gap:0;padding:.45rem .55rem;}
+  .pill-btn svg{width:18px;height:18px;}
+  #btnKeys span{font-size:1rem;}
+  .brand{gap:.45rem;min-width:0;}
+  .brand-logo{width:38px;height:38px;}
+  .brand-title{font-size:1.2rem;}
+  .brand-tagline{font-size:.7rem;white-space:nowrap;}
+  .lang-btn{height:34px;padding:0 .45rem;gap:.25rem;}
+  .lang-btn span{display:none;}
+  header.app-header .vine-garland{opacity:.2;}
+  header.app-header .vine-garland.left{display:none;}
+  .stepper{margin:.6rem auto .2rem;gap:.5rem;}
+}
+@media (max-width:360px){ .brand-tagline{display:none;} }
 </style>
 </head>
 <body>
