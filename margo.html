@@ -2263,7 +2263,19 @@ async function ensureGoogleMapsLoaded(apiKey){
   return true;
 }
 
-function geocodeCity(query){
+/* v3.11 : le géocodeur Google trouve villes et adresses ; pour un nom de lieu
+   tapé ou collé qu'il ne connaît pas, on tente la recherche texte Places. */
+async function geocodeCity(query){
+  try{ return await geocodeCityGeocoder(query); }
+  catch(err){
+    if(!GMPlace) throw err;
+    const { places } = await GMPlace.searchByText({ textQuery: query, fields: ['location'], maxResultCount: 1, language: 'fr', region: 'fr' });
+    const p = places && places[0];
+    if(p && p.location) return { lat: p.location.lat(), lng: p.location.lng() };
+    throw err;
+  }
+}
+function geocodeCityGeocoder(query){
   const geocoder = new GMGeocoder();
   return new Promise((resolve, reject)=>{
     geocoder.geocode({address: query}, (results, status)=>{
@@ -2318,6 +2330,52 @@ const KNOWN_CITY_CENTERS = {
    court délai avant d'abandonner ; en cas d'échec définitif, on lève une
    erreur explicite pour laisser l'appelant décider (garder la dernière
    position connue plutôt que de sauter ailleurs). */
+
+/* v3.11 : géocodage gratuit d'une destination tapée ou collée (sans clé
+   Google). Nominatim (OpenStreetMap) trouve les villes et les adresses, mais
+   rarement un NOM de lieu tel qu'on le copie (« La Cooperative De Mai -
+   Grande Coop, Clermont-Ferrand »). On essaie donc dans l'ordre :
+   1. le texte complet (Nominatim) ;
+   2. la Base Adresse Nationale (api-adresse.data.gouv.fr, adresses françaises) ;
+   3. des variantes du nom : sans le complément après « - », puis le nom seul
+      + la ville ;
+   4. en dernier recours, la partie après la virgule (la ville), marquée
+      « approx » pour pouvoir prévenir l'utilisateur. */
+function destinationQueryVariants(text){
+  const t = String(text || '').replace(/\s+/g, ' ').trim();
+  const parts = t.split(',').map(x=>x.trim()).filter(Boolean);
+  const name = parts[0] || t;
+  const rest = parts.slice(1).join(', ');
+  const shortName = name.split(/\s+[-–—|]\s+/)[0].trim();
+  const out = [t];
+  if(shortName && shortName !== name) out.push([shortName, rest].filter(Boolean).join(', '));
+  return { variants: [...new Set(out)], city: rest };
+}
+async function nominatimOnce(q){
+  const res = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=fr&q=' + encodeURIComponent(q), {headers:{'Accept':'application/json','Accept-Language':'fr'}});
+  if(!res.ok) throw new Error('Nominatim HTTP ' + res.status);
+  const data = await res.json();
+  return data && data[0] ? {lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon)} : null;
+}
+async function banOnce(q){
+  const res = await fetch('https://api-adresse.data.gouv.fr/search/?limit=1&q=' + encodeURIComponent(q));
+  if(!res.ok) throw new Error('BAN HTTP ' + res.status);
+  const data = await res.json();
+  const f = data && data.features && data.features[0];
+  return f && f.properties && f.properties.score > 0.45 ? {lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0]} : null;
+}
+async function geocodeDestinationFree(text){
+  const { variants, city } = destinationQueryVariants(text);
+  for(const v of variants){
+    try{ const r = await nominatimOnce(v); if(r) return {...r, approx:false}; }catch(err){ console.warn('Nominatim', v, err); }
+    try{ const r = await banOnce(v); if(r) return {...r, approx:false}; }catch(err){ console.warn('BAN', v, err); }
+  }
+  if(city){
+    try{ const r = await nominatimOnce(city); if(r) return {...r, approx:true, cityOnly:city}; }catch(err){}
+  }
+  return null;
+}
+
 async function geocodeCityFree(ville, cp, pays){
   const key = normalize(ville);
   if(KNOWN_CITY_CENTERS[key]) return {...KNOWN_CITY_CENTERS[key], approx:false};
@@ -2333,8 +2391,10 @@ async function geocodeCityFree(ville, cp, pays){
       if(data && data[0]){
         return {lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), approx:false};
       }
-      // Réponse vide (0 résultat) : pas la peine de retenter, ce n'est pas
-      // un problème de quota mais une ville/adresse introuvable.
+      // Réponse vide : la saisie est sans doute un nom de lieu ou une
+      // adresse copiée telle quelle -> variantes + Base Adresse Nationale.
+      const alt = await geocodeDestinationFree(cp ? `${ville} ${cp}` : ville);
+      if(alt) return alt;
       throw new Error('Nominatim : aucun résultat pour "' + q + '"');
     }catch(err){
       if(attempt===0){

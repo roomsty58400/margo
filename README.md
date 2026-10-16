@@ -93,6 +93,10 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.11 — Adresse ou nom de lieu tapé / collé : retrouvé aussi sans clé Google (16 octobre 2026)
+- **Bug corrigé** : une destination tapée ou collée telle quelle (ex. « La Cooperative De Mai - Grande Coop, Clermont-Ferrand »), sans choisir de suggestion, n'était pas trouvée sur le site en ligne (sans clé Google, OpenStreetMap ne reconnaît pas les noms de lieux) : rien ne s'affichait sur la carte.
+- Géocodage gratuit en cascade (Margo et Bourgou) : texte complet, Base Adresse Nationale (api-adresse.data.gouv.fr), variante du nom sans complément après « - », puis la ville en dernier recours. Avec une clé Google : géocodeur puis recherche texte Places pour les noms de lieux, avec délais maximum (plus de recherche bloquée).
+
 ### v3.10 — Destination précise, bouton Parkings et bouton éphémère (16 octobre 2026)
 - **Destination = ville, adresse ou lieu précis** (ex. « La Coopérative de Mai, Clermont-Ferrand ») dans Margo et Bourgou : suggestions Google sans restriction aux communes, géocodage Google de l'adresse exacte (repli OpenStreetMap), champ « Ville ou adresse ».
 - **Bouton « P » (Margo)**, à gauche du rond central : parkings autour du point de destination (1,5 km), parkings couverts (3 km) ou parkings relais (10 km), sur carte Google avec pins « P », adresse et itinéraire.

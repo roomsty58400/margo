@@ -1167,6 +1167,52 @@ function ratingHtml(p){
   return `<span class="result-rating" title="Note Google${p.ratingCount ? ' sur '+p.ratingCount+' avis' : ''}">★ ${String(p.rating.toFixed(1)).replace('.',',')}${p.ratingCount ? ' <span class="n">('+p.ratingCount.toLocaleString('fr-FR')+')</span>' : ''}</span>`;
 }
 
+
+/* v3.11 : géocodage gratuit d'une destination tapée ou collée (sans clé
+   Google). Nominatim (OpenStreetMap) trouve les villes et les adresses, mais
+   rarement un NOM de lieu tel qu'on le copie (« La Cooperative De Mai -
+   Grande Coop, Clermont-Ferrand »). On essaie donc dans l'ordre :
+   1. le texte complet (Nominatim) ;
+   2. la Base Adresse Nationale (api-adresse.data.gouv.fr, adresses françaises) ;
+   3. des variantes du nom : sans le complément après « - », puis le nom seul
+      + la ville ;
+   4. en dernier recours, la partie après la virgule (la ville), marquée
+      « approx » pour pouvoir prévenir l'utilisateur. */
+function destinationQueryVariants(text){
+  const t = String(text || '').replace(/\s+/g, ' ').trim();
+  const parts = t.split(',').map(x=>x.trim()).filter(Boolean);
+  const name = parts[0] || t;
+  const rest = parts.slice(1).join(', ');
+  const shortName = name.split(/\s+[-–—|]\s+/)[0].trim();
+  const out = [t];
+  if(shortName && shortName !== name) out.push([shortName, rest].filter(Boolean).join(', '));
+  return { variants: [...new Set(out)], city: rest };
+}
+async function nominatimOnce(q){
+  const res = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=fr&q=' + encodeURIComponent(q), {headers:{'Accept':'application/json','Accept-Language':'fr'}});
+  if(!res.ok) throw new Error('Nominatim HTTP ' + res.status);
+  const data = await res.json();
+  return data && data[0] ? {lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon)} : null;
+}
+async function banOnce(q){
+  const res = await fetch('https://api-adresse.data.gouv.fr/search/?limit=1&q=' + encodeURIComponent(q));
+  if(!res.ok) throw new Error('BAN HTTP ' + res.status);
+  const data = await res.json();
+  const f = data && data.features && data.features[0];
+  return f && f.properties && f.properties.score > 0.45 ? {lat: f.geometry.coordinates[1], lng: f.geometry.coordinates[0]} : null;
+}
+async function geocodeDestinationFree(text){
+  const { variants, city } = destinationQueryVariants(text);
+  for(const v of variants){
+    try{ const r = await nominatimOnce(v); if(r) return {...r, approx:false}; }catch(err){ console.warn('Nominatim', v, err); }
+    try{ const r = await banOnce(v); if(r) return {...r, approx:false}; }catch(err){ console.warn('BAN', v, err); }
+  }
+  if(city){
+    try{ const r = await nominatimOnce(city); if(r) return {...r, approx:true, cityOnly:city}; }catch(err){}
+  }
+  return null;
+}
+
 /* ============ GEOCODAGE (Google si clé, sinon Nominatim) ============ */
 async function geocodeVillage(q){
   const key=q.trim().toLowerCase();
@@ -1174,19 +1220,29 @@ async function geocodeVillage(q){
   if(await googleUsable()){
     try{
       const geocoder = new GGeocoder();
-      let { results } = await geocoder.geocode({ address: q, region: 'fr' });
-      if(!results || !results[0]) ({ results } = await geocoder.geocode({ address: q + ', Bourgogne, France', region: 'fr' }));
+      let results = null;
+      try{ ({ results } = await withTimeoutB(geocoder.geocode({ address: q, region: 'fr' }), 6000)); }catch(err){ results = null; }
+      // Nom de lieu tapé ou collé : la recherche texte Places le trouve mieux.
+      if(!results || !results[0]){
+        try{
+          const { places } = await withTimeoutB(GPlace.searchByText({ textQuery: q, fields: ['location','displayName'], maxResultCount: 1, language: 'fr', region: 'FR' }), 6000);
+          if(places && places[0] && places[0].location) return { lat: places[0].location.lat(), lng: places[0].location.lng(), label: places[0].displayName || q };
+        }catch(err){}
+      }
+      if(!results || !results[0]){ try{ ({ results } = await withTimeoutB(geocoder.geocode({ address: q + ', Bourgogne, France', region: 'fr' }), 6000)); }catch(err){ results = null; } }
       if(results && results[0]){
         const loc = results[0].geometry.location;
         return {lat: loc.lat(), lng: loc.lng(), label: results[0].formatted_address};
       }
     }catch(err){ console.warn('Géocodage Google impossible, repli Nominatim', err); }
   }
-  const nomi = async query => (await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=fr&q=${encodeURIComponent(query)}`,{headers:{'Accept-Language':'fr'}})).json();
-  let data=await nomi(q);
-  if(!data.length) data=await nomi(q+', Bourgogne, France');
-  if(!data.length) throw new Error('Village introuvable');
-  return {lat:+data[0].lat, lng:+data[0].lon, label:data[0].display_name};
+  // Sans Google : texte complet, Base Adresse Nationale, variantes du nom
+  // (voir geocodeDestinationFree), puis « village, Bourgogne » en repli.
+  const free = await geocodeDestinationFree(q);
+  if(free && !free.approx) return {lat:free.lat, lng:free.lng, label:q};
+  try{ const b = await nominatimOnce(q+', Bourgogne, France'); if(b) return {...b, label:q}; }catch(err){}
+  if(free) return {lat:free.lat, lng:free.lng, label:free.cityOnly, approx:true};
+  throw new Error('Village introuvable');
 }
 
 /* ============ RECHERCHE DE LIEUX (Overpass API, gratuit, sans clé) ============ */
