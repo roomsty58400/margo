@@ -1268,6 +1268,21 @@ body > .skiptranslate, iframe.VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-ORHb-OEV
   /* v3.16 : bouton Accueil retiré du bandeau (à la demande) ; le logo et la
      navigation par onglets suffisent. Masqué en CSS pour garder le code. */
   #btnHome, .header-actions{display:none !important;}
+
+  /* v3.18 : onglets « Lieu & sélection » / « ROADBOOK » dans le bandeau. */
+  header.app-header .stepper{flex:1 1 auto;margin:0;padding:0;max-width:none;justify-content:center;flex-wrap:nowrap;gap:.6rem;}
+  header.app-header .stepper::before{display:none;}
+  header.app-header .stepper .dot{white-space:nowrap;box-shadow:0 3px 10px rgba(0,0,0,.18);}
+  header.app-header .stepper .dot:not(.active):not(.done){background:rgba(255,255,255,.92);}
+  @media (max-width:700px){
+    .header-row{flex-wrap:wrap;row-gap:.45rem;}
+    .brand-mark{order:1;flex:1 1 100%;}
+    header.app-header .stepper{order:2;flex:1 1 auto;justify-content:flex-start;gap:.4rem;}
+    header.app-header .stepper .dot{font-size:.72rem;padding:.38rem .7rem;}
+    header.app-header .stepper .dot::after,header.app-header .stepper .dot:first-of-type::before{display:none;}
+    .header-actions-right{order:3;margin-left:auto;}
+  }
+  @media (max-width:380px){ header.app-header .stepper .dot{font-size:.66rem;padding:.34rem .5rem;} }
 </style>
 </head>
 <body>
@@ -1295,7 +1310,12 @@ body > .skiptranslate, iframe.VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-ORHb-OEV
         <p class="tagline">La carte qui <span class="tagline-accent">fleurit</span> vos voyages.</p>
       </div>
     </div>
-    <div class="header-spacer"></div>
+    <!-- v3.18 : onglets des 2 écrans dans le bandeau (au milieu sur
+         ordinateur ; sous le logo, à côté du drapeau sur téléphone) -->
+    <div class="stepper no-print" id="stepper">
+      <div class="dot" data-step="1"><span class="dot-num">①</span> Lieu &amp; sélection</div>
+      <div class="dot" data-step="2"><span class="dot-num">②</span> ROADBOOK</div>
+    </div>
     <img src="assets/images/snail-route.svg" alt="" width="132" height="66" class="snail-route-img no-print">
     <div class="header-actions-right no-print">
       <div class="lang-dropdown" id="langDropdown">
@@ -1327,10 +1347,6 @@ body > .skiptranslate, iframe.VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-ORHb-OEV
 </script>
 <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-<div class="stepper no-print" id="stepper">
-  <div class="dot" data-step="1"><span class="dot-num">①</span> Lieu &amp; sélection</div>
-  <div class="dot" data-step="2"><span class="dot-num">②</span> ROADBOOK</div>
-</div>
 
 <!-- Masqué à la demande : l'appli tourne volontairement en mode local/démo
      pour le moment, pas besoin d'afficher ce bouton d'indication/activation
