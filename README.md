@@ -94,6 +94,9 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.17 — Agenda loisirs (16 octobre 2026)
+- Le bouton à droite du rond central (ex-bouton éphémère, pictogramme calendrier) ouvre l'**Agenda loisirs** : événements en cours et à venir autour de la destination (ville ou adresse), sur 7, 14 ou 30 jours, dans un rayon de 5, 15 ou 40 km — date, lieu, distance, description, liens « Voir l'événement » et « Itinéraire ». Source : OpenAgenda (agendas des communes, offices de tourisme, musées, associations), jeu de données public sans clé ; liens complémentaires vers OpenAgenda, l'agenda des sorties, l'office de tourisme et le site de la commune.
+
 ### v3.16 — Bouton Accueil retiré (16 octobre 2026)
 - Le bouton « Accueil » du bandeau est retiré dans Margo et Bourgou.
 
