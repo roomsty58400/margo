@@ -7,7 +7,7 @@
    des données à jour (et pour ne jamais mettre en cache une clé API ou une
    réponse liée à un compte). */
 
-const CACHE_NAME = 'margo-shell-v18';
+const CACHE_NAME = 'margo-shell-v19';
 const CORE_ASSETS = [
   './margo.html',
   './manifest.json',
@@ -90,6 +90,61 @@ self.addEventListener('fetch', event => {
       // Cache d'abord (ouverture instantanée / hors-ligne), mise à jour en
       // arrière-plan dès que le réseau répond.
       return cached || network;
+    })
+  );
+});
+
+/* ============ v3.14 : synchronisation et notifications (PWABuilder) ============
+   - Periodic Background Sync (« refresh-shell ») : quand l'appli est installée
+     et que le navigateur l'autorise (Chrome/Edge Android et ordinateur), la
+     coquille (pages, icônes, mentions légales) est remise à jour en arrière-
+     plan, environ une fois par jour, pour s'ouvrir à jour même hors ligne.
+   - Background Sync (« refresh-shell ») : si la mise à jour échoue faute de
+     réseau, le navigateur la relance tout seul dès le retour de la connexion.
+   - Push : affiche les notifications envoyées à l'appli (titre, texte, lien).
+     Margo et Bourgou n'ont pas de serveur d'envoi : rien n'est envoyé tant
+     qu'un service de notifications n'est pas branché ; le gestionnaire est
+     prêt pour ce jour-là. */
+async function refreshShell(){
+  const cache = await caches.open(CACHE_NAME);
+  await Promise.all(CORE_ASSETS.map(async url => {
+    const res = await fetch(url, { cache: 'no-store' });
+    if(res && res.ok) await cache.put(url, res);
+  }));
+}
+
+self.addEventListener('periodicsync', event => {
+  if(event.tag === 'refresh-shell') event.waitUntil(refreshShell().catch(err => console.warn('SW periodic sync', err)));
+});
+
+self.addEventListener('sync', event => {
+  // En cas d'échec (hors ligne), on relance l'erreur : le navigateur
+  // retentera la synchronisation plus tard.
+  if(event.tag === 'refresh-shell') event.waitUntil(refreshShell());
+});
+
+self.addEventListener('push', event => {
+  let data = {};
+  try{ data = event.data ? event.data.json() : {}; }
+  catch(err){ data = { body: event.data ? event.data.text() : '' }; }
+  const isBourgou = (data.app || '').toLowerCase() === 'bourgou';
+  const title = data.title || (isBourgou ? 'Bourgou' : 'Margo');
+  event.waitUntil(self.registration.showNotification(title, {
+    body: data.body || 'Nouveautés pour votre prochain voyage.',
+    icon: isBourgou ? './assets/icons/bourgou-192.png' : './assets/icons/icon-192.png',
+    badge: isBourgou ? './assets/icons/bourgou-192.png' : './assets/icons/icon-192-maskable.png',
+    data: { url: data.url || (isBourgou ? './bourgo.html' : './margo.html') },
+    lang: 'fr'
+  }));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target = new URL((event.notification.data && event.notification.data.url) || './margo.html', self.registration.scope).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      const open = list.find(c => c.url === target);
+      return open ? open.focus() : self.clients.openWindow(target);
     })
   );
 });

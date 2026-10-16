@@ -8214,9 +8214,23 @@ document.addEventListener('keydown', e=>{
 // workers : l'enregistrement ne s'active donc que lorsque le site tourne
 // via un serveur (lancer-app.bat, GitHub Pages...), sans casser l'usage en
 // ouverture directe du fichier.
+
+/* v3.14 : mise à jour de l'appli en arrière-plan (voir sw.js) — demandée
+   sans rien afficher ; ignorée par les navigateurs qui ne la gèrent pas
+   (Safari/iPhone, Firefox). */
+async function registerBackgroundRefresh(reg){
+  try{
+    if('periodicSync' in reg){
+      const st = await navigator.permissions.query({ name: 'periodic-background-sync' }).catch(()=>null);
+      if(!st || st.state === 'granted') await reg.periodicSync.register('refresh-shell', { minInterval: 24*60*60*1000 });
+    }
+    if('sync' in reg) await reg.sync.register('refresh-shell');
+  }catch(err){ /* non pris en charge ou refusé : sans conséquence */ }
+}
+
 if('serviceWorker' in navigator && location.protocol !== 'file:'){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js').catch(err=>{
+    navigator.serviceWorker.register('sw.js').then(reg=>navigator.serviceWorker.ready.then(registerBackgroundRefresh)).catch(err=>{
       console.warn('Margo : enregistrement du service worker impossible', err);
     });
   });

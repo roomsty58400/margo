@@ -2717,6 +2717,19 @@ function setupLanguageMenu(){
   setInterval(()=>{ if(document.body.style.top && document.body.style.top !== '0px') document.body.style.setProperty('top','0px','important'); }, 500);
 }
 
+/* v3.14 : mise à jour de l'appli en arrière-plan (voir sw.js) — demandée
+   sans rien afficher ; ignorée par les navigateurs qui ne la gèrent pas
+   (Safari/iPhone, Firefox). */
+async function registerBackgroundRefresh(reg){
+  try{
+    if('periodicSync' in reg){
+      const st = await navigator.permissions.query({ name: 'periodic-background-sync' }).catch(()=>null);
+      if(!st || st.state === 'granted') await reg.periodicSync.register('refresh-shell', { minInterval: 24*60*60*1000 });
+    }
+    if('sync' in reg) await reg.sync.register('refresh-shell');
+  }catch(err){ /* non pris en charge ou refusé : sans conséquence */ }
+}
+
 async function runSearch(preset){
   const villageInput=document.getElementById('villageInput');
   const name=villageInput.value.trim()||state.ville;
@@ -2741,7 +2754,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // Service worker commun avec Margo (sw.js) : ouverture rapide et
   // interface disponible hors connexion une fois l'appli installée.
   if('serviceWorker' in navigator && location.protocol !== 'file:'){
-    navigator.serviceWorker.register('sw.js').catch(err=>console.warn('Service worker indisponible', err));
+    navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready.then(registerBackgroundRefresh)).catch(err=>console.warn('Service worker indisponible', err));
   }
   initMap().catch(err=>{ console.warn('Carte indisponible', err); leafletOk=false; showMapUnavailable('leafletMap'); });
   updateSelCount();
