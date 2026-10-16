@@ -94,6 +94,9 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.21 — Fenêtres déplaçables (16 octobre 2026)
+- Margo : toutes les fenêtres (parkings, agenda, urgences, dépannage, bornes, itinéraire OT, IA Roadbook…) se déplacent en les attrapant par la poignée du haut ou par leur titre, à la souris ou au doigt ; elles restent dans l'écran et reviennent au centre à chaque ouverture.
+
 ### v3.20 — Texte « DESTINATION » masqué (16 octobre 2026)
 - Margo : le texte courbe « DESTINATION » autour du cercle central est masqué ; le champ affiche toujours « Ville ou adresse ».
 

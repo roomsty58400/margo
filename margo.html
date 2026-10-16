@@ -1309,6 +1309,15 @@ body > .skiptranslate, iframe.VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-ORHb-OEV
 
   /* v3.20 : texte courbe « DESTINATION » masqué sur le cercle central (à la demande). */
   .flower-center-ring{display:none;}
+
+  /* v3.21 : fenêtres déplaçables — on les attrape par la barre du haut
+     (poignée grise) ou par leur titre, à la souris comme au doigt. */
+  .modal-box.draggable{padding-top:2rem;}
+  .modal-box .drag-grip{position:absolute;top:0;left:0;right:3rem;height:1.6rem;cursor:grab;touch-action:none;display:flex;justify-content:center;align-items:center;z-index:3;}
+  .modal-box .drag-grip::before{content:'';width:46px;height:5px;border-radius:3px;background:#cbd5e1;}
+  .modal-box.draggable > h3{cursor:grab;touch-action:none;user-select:none;}
+  .modal-box.dragging,.modal-box.dragging .drag-grip,.modal-box.dragging > h3{cursor:grabbing;}
+  .modal-box.dragging{transition:none;box-shadow:0 30px 70px -10px rgba(16,19,43,.5);}
 </style>
 </head>
 <body>
@@ -8119,6 +8128,53 @@ document.getElementById('parkingModalClose').addEventListener('click', ()=>close
 document.getElementById('parkingModalOverlay').addEventListener('click', e=>{
   if(e.target.id === 'parkingModalOverlay') closePoiSearchModal('parking');
 });
+/* ============ v3.21 : FENÊTRES DÉPLAÇABLES ============
+   Toutes les fenêtres (parkings, agenda, urgences, dépannage, bornes,
+   itinéraire OT, IA Roadbook…) se déplacent en les attrapant par la poignée
+   du haut ou par leur titre (souris, doigt ou stylet). Elles restent dans
+   l'écran, et reviennent au centre à chaque nouvelle ouverture. */
+function makeModalDraggable(overlay){
+  const box = overlay.querySelector('.modal-box');
+  if(!box || box.classList.contains('draggable')) return;
+  box.classList.add('draggable');
+  const grip = document.createElement('div');
+  grip.className = 'drag-grip';
+  grip.title = 'Glisser pour déplacer la fenêtre';
+  box.prepend(grip);
+  const title = box.querySelector(':scope > h3');
+  let dx = 0, dy = 0, startX = 0, startY = 0, baseX = 0, baseY = 0, dragging = false;
+  const apply = ()=>{ box.style.translate = `${dx}px ${dy}px`; };
+  const onDown = e=>{
+    if(e.button !== undefined && e.button !== 0) return;
+    if(e.target.closest('button, a, input, select, textarea')) return;
+    dragging = true;
+    startX = e.clientX; startY = e.clientY; baseX = dx; baseY = dy;
+    box.classList.add('dragging');
+    (e.currentTarget).setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  };
+  const onMove = e=>{
+    if(!dragging) return;
+    let nx = baseX + e.clientX - startX, ny = baseY + e.clientY - startY;
+    // garde au moins la poignée visible à l'écran
+    const r = box.getBoundingClientRect();
+    const cx = r.left - dx, cy = r.top - dy; // position sans décalage
+    nx = Math.min(Math.max(nx, -cx - r.width + 80), window.innerWidth - cx - 80);
+    ny = Math.min(Math.max(ny, -cy), window.innerHeight - cy - 40);
+    dx = nx; dy = ny; apply();
+  };
+  const onUp = ()=>{ dragging = false; box.classList.remove('dragging'); };
+  [grip, title].filter(Boolean).forEach(h=>{
+    h.addEventListener('pointerdown', onDown);
+    h.addEventListener('pointermove', onMove);
+    h.addEventListener('pointerup', onUp);
+    h.addEventListener('pointercancel', onUp);
+  });
+  // Recentre la fenêtre à chaque ouverture.
+  new MutationObserver(()=>{ if(!overlay.hidden){ dx = 0; dy = 0; apply(); } }).observe(overlay, { attributes:true, attributeFilter:['hidden'] });
+}
+document.querySelectorAll('.modal-overlay').forEach(makeModalDraggable);
+
 /* ============ v3.17 : AGENDA LOISIRS (bouton à droite du rond) ============
    Événements en cours et à venir autour de la destination (ville ou
    adresse), sur 7, 14 ou 30 jours, dans un rayon de 5, 15 ou 40 km.
