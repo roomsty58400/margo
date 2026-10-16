@@ -1283,6 +1283,29 @@ body > .skiptranslate, iframe.VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-ORHb-OEV
     .header-actions-right{order:3;margin-left:auto;}
   }
   @media (max-width:380px){ header.app-header .stepper .dot{font-size:.66rem;padding:.34rem .5rem;} }
+
+  /* v3.19 : rosace harmonisée — les 6 boutons sont répartis régulièrement
+     sur un cercle autour du cœur (tous les 60°, pointes à gauche et à
+     droite, ce qui dégage le haut pour « DESTINATION ») : bornes en haut à
+     gauche, itinéraire OT en haut à droite, agenda à droite, dépannage en
+     bas à droite, urgences en bas à gauche, parkings à gauche. La propriété
+     « translate » centre chaque bouton sur son point sans gêner les effets
+     de survol (qui utilisent « transform »). */
+  .flower-frame .insect-corner-btn{inset:auto;margin:0;translate:-50% -50%;}
+  .flower-frame .charge-map-btn{left:30.25%;top:15.8%;}
+  .flower-frame .snail-guide-btn{left:69.75%;top:15.8%;}
+  .flower-frame .ephemeral-btn{left:89.5%;top:50%;}
+  .flower-frame .repair-btn{left:69.75%;top:84.2%;}
+  .flower-frame .emergency-btn{left:30.25%;top:84.2%;}
+  .flower-frame .parking-btn{left:10.5%;top:50%;}
+  /* Cœur de la fleur : un peu plus grand ; champ ville exactement au centre
+     du cercle, tortue (commande vocale) juste en dessous, dans le cercle. */
+  .flower-center{width:42%;height:42%;justify-content:center;}
+  .flower-center .ville-suggest-wrap{position:absolute;left:50%;top:50%;width:84%;translate:-50% -50%;z-index:2;}
+  .flower-center #inputVille{width:100%;}
+  .flower-center .voice-cmd-btn{position:absolute;left:50%;top:76%;translate:-50% -50%;margin:0;width:2.3rem;height:2.3rem;}
+  .flower-center .voice-feedback{position:absolute;left:50%;top:24%;translate:-50% -50%;width:86%;margin:0;}
+  .flower-center .ville-suggest-list{z-index:30;}
 </style>
 </head>
 <body>

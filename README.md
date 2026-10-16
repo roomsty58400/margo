@@ -94,6 +94,10 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.19 — Rosace des boutons harmonisée (16 octobre 2026)
+- Margo : les 6 boutons sont répartis régulièrement autour du cœur de la fleur (tous les 60°) : bornes et itinéraire OT en haut, parkings à gauche, agenda à droite, urgences et dépannage en bas ; le haut reste dégagé pour « DESTINATION ».
+- Cœur de la fleur un peu plus grand : champ ville/adresse exactement au centre du cercle, tortue (commande vocale) juste en dessous, dans le cercle.
+
 ### v3.18 — Onglets des écrans dans le bandeau (16 octobre 2026)
 - Margo : les onglets « ① Lieu & sélection » et « ② ROADBOOK » passent dans le bandeau du haut — au milieu sur ordinateur ; sur téléphone vertical, sous le logo et le slogan, à côté du drapeau de traduction. L'écran gagne la hauteur de l'ancienne rangée d'onglets.
 
