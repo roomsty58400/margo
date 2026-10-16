@@ -708,7 +708,7 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
             <div class="wheel-center">
               <svg class="ic"><use href="#icon-pin"></use></svg>
               <label for="villageInput">Destination</label>
-              <input id="villageInput" type="text" placeholder="ex. Beaune" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="villageSuggest">
+              <input id="villageInput" type="text" placeholder="Village ou adresse" title="Village, adresse ou lieu précis" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="villageSuggest">
             </div>
             <div class="village-suggest" id="villageSuggest" role="listbox" hidden></div>
           </div>
@@ -1173,16 +1173,18 @@ async function geocodeVillage(q){
   if(KNOWN_VILLAGES[key]) return {...KNOWN_VILLAGES[key], label:q};
   if(await googleUsable()){
     try{
-      const { results } = await new GGeocoder().geocode({ address: q + ', Bourgogne, France', region: 'fr' });
+      const geocoder = new GGeocoder();
+      let { results } = await geocoder.geocode({ address: q, region: 'fr' });
+      if(!results || !results[0]) ({ results } = await geocoder.geocode({ address: q + ', Bourgogne, France', region: 'fr' }));
       if(results && results[0]){
         const loc = results[0].geometry.location;
         return {lat: loc.lat(), lng: loc.lng(), label: results[0].formatted_address};
       }
     }catch(err){ console.warn('Géocodage Google impossible, repli Nominatim', err); }
   }
-  const url=`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=fr&q=${encodeURIComponent(q+', Bourgogne, France')}`;
-  const res=await fetch(url,{headers:{'Accept-Language':'fr'}});
-  const data=await res.json();
+  const nomi = async query => (await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=fr&q=${encodeURIComponent(query)}`,{headers:{'Accept-Language':'fr'}})).json();
+  let data=await nomi(q);
+  if(!data.length) data=await nomi(q+', Bourgogne, France');
   if(!data.length) throw new Error('Village introuvable');
   return {lat:+data[0].lat, lng:+data[0].lon, label:data[0].display_name};
 }
@@ -2516,7 +2518,6 @@ async function fetchVillageSuggestions(q){
       if(!acToken) acToken = new P.AutocompleteSessionToken();
       const { suggestions } = await withTimeoutB(P.AutocompleteSuggestion.fetchAutocompleteSuggestions({
         input: q, sessionToken: acToken, language: 'fr', includedRegionCodes: ['fr'],
-        includedPrimaryTypes: ['locality','postal_town','administrative_area_level_3','sublocality'],
         locationBias: { center: {lat: 47.05, lng: 4.4}, radius: 50000 }
       }), 6000);
       return (suggestions || []).filter(s=>s.placePrediction).slice(0, 6).map(s=>{
@@ -2525,6 +2526,8 @@ async function fetchVillageSuggestions(q){
           main: (pr.mainText && pr.mainText.text) || String(pr.text && pr.text.text || pr.text || ''),
           sub: (pr.secondaryText && pr.secondaryText.text) || '',
           pick: async ()=>{
+            // Ville, adresse ou lieu précis (ex. « La Coopérative de Mai,
+            // Clermont-Ferrand ») : la destination devient ce point exact.
             const place = pr.toPlace();
             await place.fetchFields({ fields: ['location','displayName'] });
             acToken = null;

@@ -93,6 +93,11 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.10 — Destination précise, bouton Parkings et bouton éphémère (16 octobre 2026)
+- **Destination = ville, adresse ou lieu précis** (ex. « La Coopérative de Mai, Clermont-Ferrand ») dans Margo et Bourgou : suggestions Google sans restriction aux communes, géocodage Google de l'adresse exacte (repli OpenStreetMap), champ « Ville ou adresse ».
+- **Bouton « P » (Margo)**, à gauche du rond central : parkings autour du point de destination (1,5 km), parkings couverts (3 km) ou parkings relais (10 km), sur carte Google avec pins « P », adresse et itinéraire.
+- **Bouton éphémère (Margo)**, à droite du rond : emplacement réservé à une fonction à venir (fonction `onEphemeralButton`).
+
 ### v3.09 — Bourgou publié, fiches techniques et commerciales (11 octobre 2026)
 - **Bourgou** (`bourgo.html`) rejoint le dépôt : roue et onglets de sous-catégories comme Margo, Google Maps et suggestions de villages, IA Carnet, carnet façon ROADBOOK, 15 langues, habillage vigne / tonneau / pressoir, mentions légales et RGPD.
 - **Fiches techniques et commerciales** (2 pages chacune) : `MARGO_fiche_commerciale.pdf` (mise à jour, page technique ajoutée) et `BOURGOU_fiche_commerciale.pdf` (nouvelle) ; présentation, fonctionnalités, capture d'écran, architecture, prérequis, services et API, RGPD.
