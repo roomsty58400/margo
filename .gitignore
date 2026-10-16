@@ -14,3 +14,10 @@ bourgou*.html
 
 # Videos de demonstration (volumineuses ; contient une musique Pixabay non redistribuable seule)
 video/
+
+# Paquets Android générés par PWABuilder : contiennent la clé de signature
+# (signing.keystore) et ses mots de passe (signing-key-info.txt) — jamais publiés
+*Google Play package*/
+*.keystore
+*.jks
+signing-key-info.txt
