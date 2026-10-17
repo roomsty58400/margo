@@ -2711,6 +2711,8 @@ const CATEGORY_TO_GOOGLE_TYPE = {
 const CATEGORY_TYPE_ALIASES = {
   terroir: ['food_store', 'grocery_store'],
   parking: ['parking', 'parking_garage', 'parking_lot', 'park_and_ride'],
+  // Restaurants : pizzerias et crêperies comprises (types Google voisins)
+  restaurant: ['restaurant', 'french_restaurant', 'pizza_restaurant', 'italian_restaurant', 'bistro'],
   // Bus : gares routières ET arrêts de bus (lignes qui desservent la ville)
   bus: ['bus_station', 'bus_stop', 'transit_station']
 };
@@ -2754,7 +2756,8 @@ const CATEGORY_TO_OSM_TAGS = {
   tram: ['railway=tram_stop'],
   bus: ['amenity=bus_station', 'highway=bus_stop'],
   velo: ['amenity=bicycle_rental'],
-  restaurant: ['amenity=restaurant'],
+  // + pizzerias et crêperies de vente à emporter (fast_food cuisine=pizza/crepe)
+  restaurant: ['amenity=restaurant', 'amenity=fast_food][cuisine~"pizza|crepe"'],
   boulangerie: ['shop=bakery'],
   snack: ['amenity=fast_food'],
   bar: ['amenity=bar', 'amenity=pub'],
@@ -2901,6 +2904,28 @@ async function searchCategoryReal(def, centerLatLng, radiusKm){
   let places;
   try{
     ({ places } = await GMPlace.searchNearby(request));
+    // v3.24 : restaurants — Google ne renvoie que les 20 plus proches, tous
+    // types confondus ; on ajoute une recherche dédiée aux pizzerias (et
+    // restaurants italiens) pour qu'elles apparaissent aussi.
+    if(def.key === 'restaurant'){
+      try{
+        const extra = await GMPlace.searchNearby({ ...request, includedPrimaryTypes: ['pizza_restaurant','italian_restaurant'] });
+        const seen = new Set((places || []).map(p=>p.id));
+        (extra.places || []).forEach(p=>{ if(!seen.has(p.id)) places.push(p); });
+      }catch(err){ /* pas bloquant */ }
+      // Crêperies : pas de type Google dédié -> recherche texte « crêperie »
+      // autour de la destination, gardée seulement dans le rayon demandé.
+      try{
+        const cr = await GMPlace.searchByText({ textQuery: 'crêperie', fields: request.fields, maxResultCount: 20,
+          locationBias: { center: centerLatLng, radius: request.locationRestriction.radius }, language: 'fr', region: 'fr' });
+        const seen = new Set(places.map(p=>p.id));
+        (cr.places || []).forEach(p=>{
+          if(seen.has(p.id) || !p.location) return;
+          if(haversineKm(centerLatLng.lat, centerLatLng.lng, p.location.lat(), p.location.lng())*1000 > request.locationRestriction.radius) return;
+          p.__forceAccept = true; places.push(p);
+        });
+      }catch(err){ /* pas bloquant */ }
+    }
   }catch(err){
     // v3.03 : types Google récents (winery, wine_bar...) pas toujours
     // acceptés selon la version de l'API — repli OpenStreetMap pour ces
@@ -2917,7 +2942,7 @@ async function searchCategoryReal(def, centerLatLng, radiusKm){
   // correspond bien à l'un des types acceptés pour cette catégorie (si
   // l'info est absente, on garde par prudence plutôt que d'écarter à tort
   // un vrai résultat).
-  const filtered = (places || []).filter(p => !p.primaryType || acceptedTypes.includes(p.primaryType));
+  const filtered = (places || []).filter(p => p.__forceAccept || !p.primaryType || acceptedTypes.includes(p.primaryType));
   return filtered.map(p => toInternalPOI(p, def.key, centerLatLng));
 }
 
@@ -3092,7 +3117,7 @@ const VOICE_CATEGORY_KEYWORDS = {
   tram: ['tram', 'trams', 'tramway', 'tramways'],
   bus: ['bus', 'autobus', 'ligne de bus', 'lignes de bus', 'arret de bus', 'gare routiere'],
   velo: ['velo', 'velos', 'bicyclette', 'location de velo', 'velib'],
-  restaurant: ['restaurant', 'restaurants', 'manger', 'diner', 'dejeuner'],
+  restaurant: ['restaurant', 'restaurants', 'manger', 'diner', 'dejeuner', 'pizza', 'pizzas', 'pizzeria', 'pizzerias', 'creperie', 'creperies', 'crepes'],
   boulangerie: ['boulangerie', 'boulangeries', 'boulanger', 'patisserie'],
   snack: ['snack', 'snacks', 'fast food', 'street food'],
   bar: ['bar', 'bars', 'boire un verre', 'apero'],

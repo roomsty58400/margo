@@ -94,6 +94,10 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.24 — Pizzerias et crêperies dans les restaurants, boutons façon tonneau (17 octobre 2026)
+- Margo et Bourgou : la catégorie Restaurants inclut les **pizzerias** (types Google `pizza_restaurant` / `italian_restaurant`, recherche dédiée pour ne pas être masquées par la limite de 20 résultats) et les **crêperies** (recherche texte « crêperie », OSM `fast_food` cuisine pizza/crêpe dans Margo) ; « pizza », « pizzeria », « crêperie » reconnus à la voix. Dans Bourgou, la sous-catégorie s'appelle « Restaurants, pizzerias & crêperies ».
+- Bourgou : boutons ronds (catégories de la roue et boutons pratiques) habillés en **fond de tonneau** — planches de chêne, cercle de fer, anneau à la couleur de la catégorie.
+
 ### v3.23 — Bourgou : boutons pratiques de Margo (17 octobre 2026)
 - Sous la roue de Bourgou, une barre de 6 boutons reprend les fonctions de la rosace de Margo : **bornes de recharge**, **itinéraire suggéré par l'office de tourisme** (office le plus proche, circuits, route des vins), **parkings** (1,5 / 3 / 10 km), **agenda loisirs** (OpenAgenda, 7 / 14 / 30 jours, 5 / 15 / 40 km), **urgences, santé & vétérinaires** (hôpitaux, pharmacies, médecins, laboratoires, vétérinaires) et **garages & dépannage** (garages, pneus, pare-brise, dépannage) — sur carte Google (ou carte libre) avec adresse, téléphone et itinéraire.
 - Fenêtres de Bourgou déplaçables (poignée du haut ou titre), comme dans Margo.

@@ -699,6 +699,29 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
 
 /* Bouton Accueil retiré du bandeau (à la demande). */
 #btnHome{display:none !important;}
+
+/* Boutons ronds façon « fond de tonneau » : planches de chêne clair,
+   cercle de fer et liseré de bois, comme le centre de la roue. La couleur
+   de la catégorie reste sur le pictogramme et l'anneau extérieur ; un bouton
+   actif garde un voile de sa couleur sur le bois. */
+.wheel-node,.tool-btn{
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,250,238,0) 0 56%, rgba(92,58,31,.22) 68%, rgba(92,58,31,0) 69%),
+    repeating-linear-gradient(0deg,#f3e2c2 0 15%,#e3c896 15% 16.5%,#efd9b1 16.5% 31%,#e3c896 31% 32.5%);
+  box-shadow:0 8px 16px -8px rgba(51,16,25,.45),0 0 0 2px #8b5a32,0 0 0 4px #3a2a20,0 0 0 6px var(--cat-color, var(--tc, #a77446));
+  border:none;
+}
+.tool-btn{box-shadow:0 6px 12px -6px rgba(51,16,25,.45),0 0 0 2px #8b5a32,0 0 0 3.5px #3a2a20,0 0 0 5.5px var(--tc);}
+.wheel-node .wn-label{color:#4a2e1a;}
+.wheel-node.active{
+  background:
+    radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0 56%, rgba(0,0,0,.25) 68%, rgba(0,0,0,0) 69%),
+    linear-gradient(color-mix(in srgb, var(--cat-color) 78%, transparent), color-mix(in srgb, var(--cat-color) 78%, transparent)),
+    repeating-linear-gradient(0deg,#c99a5e 0 15%,#a97b44 15% 16.5%,#bf8f53 16.5% 31%,#a97b44 31% 32.5%);
+  box-shadow:0 10px 22px -6px color-mix(in srgb, var(--cat-color) 70%, transparent),0 0 0 2px #8b5a32,0 0 0 4px #3a2a20,0 0 0 6px #e0b563;
+}
+.wheel-node.active svg,.wheel-node.active .wn-label{color:#fffcf5;}
+@media (prefers-color-scheme: dark){ .wheel-node .wn-label{color:#4a2e1a;} .wheel-node.active .wn-label{color:#fffcf5;} }
 </style>
 </head>
 <body>
@@ -1047,7 +1070,7 @@ const SUBCATS = [
   {key:'bars-vin', icon:'glass',       group:'degustation', label:'Bars à vin',              osm:[['amenity','bar']],                        google:['wine_bar','bar']},
   {key:'domaines', icon:'grapes',       group:'vignobles',   label:'Domaines viticoles',      osm:[['craft','winery']],                       google:['winery']},
   {key:'caveaux', icon:'barrel',        group:'vignobles',   label:'Caveaux & spiritueux',    osm:[['shop','alcohol']],                       google:['liquor_store']},
-  {key:'restaurants', icon:'utensils',    group:'gastronomie', label:'Restaurants',             osm:[['amenity','restaurant']],                 google:['restaurant','french_restaurant']},
+  {key:'restaurants', icon:'utensils',    group:'gastronomie', label:'Restaurants, pizzerias & crêperies', osm:[['amenity','restaurant']],    google:['restaurant','french_restaurant','pizza_restaurant','italian_restaurant','bistro']},
   {key:'cafes', icon:'coffee',          group:'gastronomie', label:'Cafés & salons de thé',   osm:[['amenity','cafe']],                       google:['cafe','tea_house']},
   {key:'boulangeries', icon:'croissant',   group:'gastronomie', label:'Boulangeries',            osm:[['shop','bakery']],                        google:['bakery']},
   {key:'epiceries', icon:'basket',      group:'gastronomie', label:'Fromageries & épiceries fines', osm:[['shop','cheese'],['shop','deli']],  google:['deli']},
@@ -1221,6 +1244,23 @@ async function searchSubGoogle(sc, center, radiusM){
     const parts = await Promise.all(sc.google.map(t=>nearbyGoogle([t], center, radiusM).catch(()=>null)));
     if(parts.every(x=>x===null)) throw err;
     places = parts.filter(Boolean).flat();
+  }
+  // Restaurants : crêperies comprises (pas de type Google dédié -> recherche texte)
+  if(sc.key === 'restaurants'){
+    // Google ne renvoie que les 20 plus proches tous types confondus :
+    // recherche dédiée aux pizzerias pour qu'elles apparaissent aussi.
+    try{
+      const pz = await nearbyGoogle(['pizza_restaurant','italian_restaurant'], center, radiusM);
+      const seen = new Set(places.map(p=>p.id));
+      pz.forEach(p=>{ if(!seen.has(p.id)) places.push(p); });
+    }catch(err){ /* pas bloquant */ }
+    try{
+      const { places: cr } = await GPlace.searchByText({ textQuery:'crêperie', maxResultCount:20, language:'fr', region:'FR',
+        fields:['id','displayName','location','formattedAddress','rating','userRatingCount','googleMapsURI','primaryType','photos','regularOpeningHours','nationalPhoneNumber','websiteURI','priceLevel'],
+        locationBias:{ center, radius: Math.min(radiusM, 50000) } });
+      const seen = new Set(places.map(p=>p.id));
+      (cr || []).forEach(p=>{ if(p.location && !seen.has(p.id) && haversineKm(center, {lat:p.location.lat(), lng:p.location.lng()})*1000 <= radiusM) places.push(p); });
+    }catch(err){ /* pas bloquant */ }
   }
   return places.map(pl=>{
     const lat = pl.location.lat(), lng = pl.location.lng();
