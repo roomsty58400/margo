@@ -740,6 +740,9 @@ header.app-header .step-btn{white-space:nowrap;padding:.5rem 1rem;font-size:.85r
   header.app-header .step-num{width:20px;height:20px;font-size:.7rem;}
 }
 @media (max-width:380px){ header.app-header .step-btn{font-size:.66rem;padding:.34rem .45rem;} }
+
+.wheel-center input.need-dest{border-bottom-color:#dc2626;animation:needDest .5s ease 2;}
+@keyframes needDest{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 </style>
 </head>
 <body>
@@ -1148,10 +1151,10 @@ const MODE_META = {
 };
 
 const state = {
-  ville:'Beaune',
+  ville:'', // démarrage vierge : la destination est à saisir
   center:{lat:47.0243,lng:4.8397},
   radiusKm:12,
-  activeSubs:new Set(['caves','bars-vin','restaurants','musees','chateaux','sites']),
+  activeSubs:new Set(), // aucune catégorie cochée au démarrage
   activeCats:new Set(),
   results:[],
   selectedIds:new Set(),
@@ -1440,6 +1443,12 @@ function mergeResults(all){
 async function searchPlaces(){
   const keys=[...state.activeSubs];
   const resultsListEl=document.getElementById('resultsList');
+  if(!state.ville){
+    state.results=[];
+    resultsListEl.innerHTML='<div class="results-empty">Saisis d’abord une <strong>destination</strong> au centre de la roue (village, ville ou adresse).</div>';
+    renderCatGrid(); renderMapMarkers();
+    return;
+  }
   if(!keys.length){
     state.results=[];
     resultsListEl.innerHTML='<div class="results-empty">Choisis au moins une catégorie sur la roue ou dans les onglets sous la roue.</div>';
@@ -2747,6 +2756,11 @@ function setToolHeader(key, cfg){
   document.getElementById('toolIntro').textContent = cfg.intro;
 }
 function openTool(key){
+  if(!state.ville){
+    const inp = document.getElementById('villageInput');
+    inp.focus(); inp.classList.add('need-dest'); setTimeout(()=>inp.classList.remove('need-dest'), 1600);
+    return;
+  }
   const modal = document.getElementById('toolModal');
   ['toolChips','toolChips2','toolList','toolMore'].forEach(id=>document.getElementById(id).innerHTML = '');
   document.getElementById('toolInfo').textContent = '';
@@ -3141,6 +3155,7 @@ async function registerBackgroundRefresh(reg){
 async function runSearch(preset){
   const villageInput=document.getElementById('villageInput');
   const name=villageInput.value.trim()||state.ville;
+  if(!name){ villageInput.focus(); searchPlaces(); return; }
   const btn=document.getElementById('btnSearch');
   const oldHtml=btn.innerHTML;
   btn.disabled=true; btn.innerHTML='<span class="spin"></span> Recherche…';
@@ -3168,7 +3183,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   updateSelCount();
   layoutItin();
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(layoutItin);
-  runSearch();
+  // Démarrage vierge : pas de recherche tant qu'aucune destination n'est saisie.
+  document.getElementById('resultsList').innerHTML='<div class="results-empty">Saisis une <strong>destination</strong> au centre de la roue (village, ville ou adresse), puis choisis des catégories : les lieux s’afficheront ici.</div>';
 });
 </script>
 </body>

@@ -94,6 +94,9 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.27 — Bourgou : démarrage vierge (17 octobre 2026)
+- Au démarrage, la destination est vide et aucune catégorie n'est cochée (plus de « Beaune » ni de recherche automatique) ; la liste invite à saisir une destination. Les catégories et les boutons pratiques demandent d'abord une destination (le champ clignote).
+
 ### v3.26 — Bourgou : onglets dans le bandeau (17 octobre 2026)
 - Les onglets « ① Itinéraire & Vins » et « ② Carnet de Voyage » passent dans le bandeau : au milieu sur ordinateur ; sur téléphone, sous le nom du site, avec le drapeau de traduction entre les deux.
 
