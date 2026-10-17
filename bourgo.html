@@ -2870,11 +2870,11 @@ function agendaDateLabel(ev, today){
 function openAgendaTool(){
   setToolHeader('agenda', { title:'Agenda loisirs', icon:'calendar', intro:'Événements en cours et à venir autour de la destination : dégustations, salons des vins, concerts, expositions, fêtes, visites…' });
   const c1 = document.getElementById('toolChips'), c2 = document.getElementById('toolChips2');
-  c1.innerHTML = [7,14,30].map(d=>`<button type="button" class="tool-chip ${d===agendaDays?'on':''}" data-days="${d}">${d} jours</button>`).join('');
+  c1.innerHTML = ['we',7,14,30].map(d=>`<button type="button" class="tool-chip ${d===agendaDays?'on':''}" data-days="${d}">${d==='we' ? 'Ce week-end' : d + ' jours'}</button>`).join('');
   c2.innerHTML = [5,15,40].map(k=>`<button type="button" class="tool-chip ${k===agendaKm?'on':''}" data-km="${k}">${k} km</button>`).join('');
   [c1,c2].forEach(c=>c.querySelectorAll('.tool-chip').forEach(b=>b.addEventListener('click', ()=>{
     c.querySelectorAll('.tool-chip').forEach(x=>x.classList.toggle('on', x===b));
-    if(b.dataset.days) agendaDays = Number(b.dataset.days);
+    if(b.dataset.days) agendaDays = b.dataset.days === 'we' ? 'we' : Number(b.dataset.days);
     if(b.dataset.km) agendaKm = Number(b.dataset.km);
     loadAgenda();
   })));
@@ -2890,8 +2890,17 @@ async function loadAgenda(){
   more.innerHTML = `<span>Voir aussi :</span><a href="https://openagenda.com/fr/search?search=${q}" target="_blank" rel="noopener noreferrer">OpenAgenda</a><a href="https://www.google.com/search?q=${encodeURIComponent('agenda sorties ' + city)}" target="_blank" rel="noopener noreferrer">Agenda des sorties</a><a href="https://www.google.com/search?q=${encodeURIComponent('office de tourisme ' + city + ' agenda')}" target="_blank" rel="noopener noreferrer">Office de tourisme</a><a href="https://www.google.com/search?q=${encodeURIComponent('mairie ' + city + ' agenda événements')}" target="_blank" rel="noopener noreferrer">Site de la commune</a>`;
   info.textContent = `Recherche des événements autour de ${ville}…`;
   const today = new Date(); today.setHours(0,0,0,0);
-  const end = new Date(today.getTime() + agendaDays*86400000);
-  const where = `within_distance(location_coordinates, geom'POINT(${center.lng} ${center.lat})', ${agendaKm}km) and lastdate_end >= now() and firstdate_begin <= date'${isoDay(end)}'`;
+  // « Week-end » : du samedi 0 h au lundi 0 h à venir (ou en cours si l'on
+  // est déjà samedi ou dimanche) ; sinon les N prochains jours.
+  const isWe = agendaDays === 'we';
+  let start = today, end;
+  if(isWe){
+    const dow = today.getDay(); // 0 = dimanche, 6 = samedi
+    start = new Date(today); start.setDate(today.getDate() + (dow === 0 ? -1 : (6 - dow)));
+    end = new Date(start); end.setDate(start.getDate() + 2);
+  } else end = new Date(today.getTime() + agendaDays*86400000);
+  const periodLabel = isWe ? `ce week-end (${start.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})} – ${new Date(end.getTime()-86400000).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})})` : `dans les ${agendaDays} prochains jours`;
+  const where = `within_distance(location_coordinates, geom'POINT(${center.lng} ${center.lat})', ${agendaKm}km) and lastdate_end >= now() and lastdate_end >= date'${isoDay(start)}' and firstdate_begin < date'${isoDay(end)}'`;
   const url = `${AGENDA_API}?${new URLSearchParams({ where, order_by:'firstdate_begin', limit:'100', select:'title_fr,description_fr,firstdate_begin,lastdate_end,daterange_fr,location_name,location_city,location_coordinates,canonicalurl,image,uid' })}`;
   let data;
   try{ const r = await withTimeoutB(fetch(url), 12000); if(!r.ok) throw new Error('HTTP ' + r.status); data = await r.json(); }
@@ -2903,8 +2912,8 @@ async function loadAgenda(){
       return { ev, a, ongoing: a < today, long: (b - a) > 4*86400000, dist: c ? haversineKm(center, {lat:c.lat, lng:c.lon}) : null }; })
     .sort((x,y)=>(x.long - y.long) || (x.a - y.a));
   info.textContent = events.length
-    ? `${events.length} événement(s) dans les ${agendaDays} prochains jours, à moins de ${agendaKm} km (source OpenAgenda). Les expositions longues sont en fin de liste.`
-    : `Aucun événement publié sur OpenAgenda dans les ${agendaDays} prochains jours à moins de ${agendaKm} km : élargis la période ou le rayon, ou consulte les liens ci-dessous.`;
+    ? `${events.length} événement(s) ${periodLabel}, à moins de ${agendaKm} km (source OpenAgenda). Les expositions longues sont en fin de liste.`
+    : `Aucun événement publié sur OpenAgenda ${periodLabel} à moins de ${agendaKm} km : élargis la période ou le rayon, ou consulte les liens ci-dessous.`;
   list.innerHTML = events.map(({ev, ongoing, long, dist})=>{
     const c = ev.location_coordinates;
     const dir = c ? `https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lon}` : '';

@@ -1539,6 +1539,7 @@ body > .skiptranslate, iframe.VIpgJd-ZVi9od-ORHb-OEVmcd, .VIpgJd-ZVi9od-ORHb-OEV
     <p style="font-size:.78rem;color:var(--gray-500);margin-bottom:.5rem;" id="agendaIntro">Événements en cours et à venir autour de la destination (expositions, concerts, spectacles, fêtes, visites…).</p>
     <div class="agenda-filters">
       <div class="poi-search-chips" id="agendaPeriod">
+        <button type="button" class="chip" data-days="we">Ce week-end</button>
         <button type="button" class="chip on" data-days="7">7 jours</button>
         <button type="button" class="chip" data-days="14">14 jours</button>
         <button type="button" class="chip" data-days="30">30 jours</button>
@@ -8251,8 +8252,17 @@ async function loadAgenda(){
     + `<a href="https://www.google.com/search?q=${encodeURIComponent('mairie ' + cityName + ' agenda événements')}" target="_blank" rel="noopener noreferrer">Site de la commune</a>`;
   if(!center){ info.textContent = `Destination introuvable : utilise les liens ci-dessous.`; return; }
   const today = new Date(); today.setHours(0,0,0,0);
-  const end = new Date(today.getTime() + agendaDays*86400000);
-  const where = `within_distance(location_coordinates, geom'POINT(${center.lng} ${center.lat})', ${agendaKm}km) and lastdate_end >= now() and firstdate_begin <= date'${isoDay(end)}'`;
+  // « Week-end » : du samedi 0 h au lundi 0 h à venir (ou en cours si l'on
+  // est déjà samedi ou dimanche) ; sinon les N prochains jours.
+  const isWe = agendaDays === 'we';
+  let start = today, end;
+  if(isWe){
+    const dow = today.getDay(); // 0 = dimanche, 6 = samedi
+    start = new Date(today); start.setDate(today.getDate() + (dow === 0 ? -1 : (6 - dow)));
+    end = new Date(start); end.setDate(start.getDate() + 2);
+  } else end = new Date(today.getTime() + agendaDays*86400000);
+  const periodLabel = isWe ? `ce week-end (${start.toLocaleDateString('fr-FR',{day:'numeric',month:'short'})} – ${new Date(end.getTime()-86400000).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})})` : `dans les ${agendaDays} prochains jours`;
+  const where = `within_distance(location_coordinates, geom'POINT(${center.lng} ${center.lat})', ${agendaKm}km) and lastdate_end >= now() and lastdate_end >= date'${isoDay(start)}' and firstdate_begin < date'${isoDay(end)}'`;
   const url = `${AGENDA_API}?${new URLSearchParams({ where, order_by: 'firstdate_begin', limit: '100',
     select: 'title_fr,description_fr,firstdate_begin,lastdate_end,daterange_fr,location_name,location_city,location_address,location_coordinates,canonicalurl,image,uid' })}`;
   let data;
@@ -8279,8 +8289,8 @@ async function loadAgenda(){
   }).sort((x,y)=> (x.long - y.long) || (x.a - y.a));
   const total = data.total_count || events.length;
   info.textContent = events.length
-    ? `${events.length}${total > events.length ? ' sur ' + total : ''} événement(s) dans les ${agendaDays} prochains jours, à moins de ${agendaKm} km (source OpenAgenda). Les expositions longues sont en fin de liste.`
-    : `Aucun événement publié sur OpenAgenda dans les ${agendaDays} prochains jours à moins de ${agendaKm} km. Élargis la période ou le rayon, ou consulte les liens ci-dessous.`;
+    ? `${events.length}${total > events.length ? ' sur ' + total : ''} événement(s) ${periodLabel}, à moins de ${agendaKm} km (source OpenAgenda). Les expositions longues sont en fin de liste.`
+    : `Aucun événement publié sur OpenAgenda ${periodLabel} à moins de ${agendaKm} km. Élargis la période ou le rayon, ou consulte les liens ci-dessous.`;
   list.innerHTML = events.map(({ev, ongoing, long, dist})=>{
     const c = ev.location_coordinates;
     const dir = c ? `https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lon}` : '';
@@ -8311,7 +8321,7 @@ document.getElementById('agendaModalOverlay').addEventListener('click', e=>{ if(
     const chip = e.target.closest('.chip');
     if(!chip) return;
     document.querySelectorAll('#' + id + ' .chip').forEach(c=>c.classList.toggle('on', c===chip));
-    if(chip.dataset.days) agendaDays = Number(chip.dataset.days);
+    if(chip.dataset.days) agendaDays = chip.dataset.days === 'we' ? 'we' : Number(chip.dataset.days);
     if(chip.dataset.km) agendaKm = Number(chip.dataset.km);
     loadAgenda();
   });
