@@ -733,10 +733,14 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
     <button class="pill-btn" id="btnHome"><svg class="ic"><use href="#icon-arrow-up"></use></svg> Accueil</button>
     <div class="brand">
       <svg class="brand-logo" viewBox="0 0 48 48" aria-hidden="true">
+        <defs><linearGradient id="logoGrad" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6b1a33"/><stop offset=".6" stop-color="#8a2443"/><stop offset="1" stop-color="#c69339"/></linearGradient></defs>
         <circle cx="24" cy="24" r="23" fill="url(#logoGrad)"/>
-        <path d="M24 12c-6 3-11 9-11 15a11 11 0 0 0 22 0c0-6-5-12-11-15z" fill="var(--cream-050)"/>
-        <path d="M24 15v18M24 21c-3 0-6 1.5-7.5 4.5M24 27c3 0 6 1.5 7.5 4.5" stroke="var(--wine-700)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-        <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="48" y2="48"><stop offset="0" stop-color="#84223f"/><stop offset="1" stop-color="#cf9d3e"/></linearGradient></defs>
+  <g transform="translate(24 22.5) rotate(-8) scale(.36) translate(-50 -46)">
+    <path d="M50 74Q40 86 26 82Q14 78 18 66Q12 64 24 58Q8 56 6 46Q6 36 18 38Q26 40 30 44Q18 30 24 20Q32 12 40 20Q42 24 44 30Q40 14 50 4Q60 14 56 30Q58 24 60 20Q68 12 76 20Q82 30 70 44Q74 40 82 38Q94 36 94 46Q92 56 76 58Q88 64 82 66Q86 78 74 82Q60 86 50 74Z" fill="#fbf6ea"/>
+    <path d="M50 72V14M50 60L20 47M50 60L80 47M50 46L32 26M50 46L68 26M50 70L30 73M50 70L70 73" stroke="#7a1f3b" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".85"/>
+    <path d="M50 74Q51 86 57 95" stroke="#efd699" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+    <path d="M55 89Q66 87 68 95Q69 101 63 101Q59 100 61 96" stroke="#efd699" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+  </g>
       </svg>
       <div class="brand-text">
         <span class="brand-title">Bourgou</span>

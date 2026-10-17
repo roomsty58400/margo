@@ -94,6 +94,9 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.25 — Nouveau logo Bourgou : feuille de vigne stylisée (17 octobre 2026)
+- Logo de Bourgou redessiné : feuille de vigne stylisée crème (5 lobes, nervures bordeaux, vrille dorée) sur disque dégradé bordeaux et or ; appliqué au bandeau et aux icônes d'appli (`assets/icons/bourgou-*.png`, cache du service worker v20), captures du manifeste mises à jour.
+
 ### v3.24 — Pizzerias et crêperies dans les restaurants, boutons façon tonneau (17 octobre 2026)
 - Margo et Bourgou : la catégorie Restaurants inclut les **pizzerias** (types Google `pizza_restaurant` / `italian_restaurant`, recherche dédiée pour ne pas être masquées par la limite de 20 résultats) et les **crêperies** (recherche texte « crêperie », OSM `fast_food` cuisine pizza/crêpe dans Margo) ; « pizza », « pizzeria », « crêperie » reconnus à la voix. Dans Bourgou, la sous-catégorie s'appelle « Restaurants, pizzerias & crêperies ».
 - Bourgou : boutons ronds (catégories de la roue et boutons pratiques) habillés en **fond de tonneau** — planches de chêne, cercle de fer, anneau à la couleur de la catégorie.
