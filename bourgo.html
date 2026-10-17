@@ -257,6 +257,8 @@ main{max-width:1320px;margin:0 auto;padding:.5rem 1.25rem 0;}
 /* 6 cercles répartis en hexagone autour de la destination */
 .wheel-node{width:24%;}
 .wheel-center{width:36%;height:36%;}
+/* pin, « Destination » et champ légèrement remontés dans le tonneau central */
+.wheel-center > *{position:relative;top:-7%;}
 .n-degustation{top:5.1%;left:19%;}
 .n-hebergement{top:5.1%;left:57%;}
 .n-patrimoine{top:38%;left:0;}
@@ -913,7 +915,7 @@ header.app-header .step-btn.active .step-num{background:#efd699;color:#4a1425;}
             </div>
             <div class="wheel-node n-routes" data-tool="routes" style="--cat-color:var(--c-vignobles)" title="Routes des vins, fromages et spécialités autour de la destination">
               <svg class="ic"><use href="#icon-route"></use></svg>
-              <span class="wn-label">Route des vins</span>
+              <span class="wn-label">Route<br>des vins</span>
             </div>
             <div class="wheel-node n-gastronomie" data-cat="gastronomie" style="--cat-color:var(--c-gastronomie)">
               <svg class="ic"><use href="#icon-cloche"></use></svg>
