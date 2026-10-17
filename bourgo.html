@@ -361,9 +361,26 @@ main{max-width:1320px;margin:0 auto;padding:.5rem 1.25rem 0;}
 .results-head h3{font-size:.92rem;}
 .results-head span{font-size:.76rem;color:var(--ink-500);font-weight:600;}
 .results-head{align-items:center;}
-.results-head-right{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;}
-.sort-toggle{font:inherit;font-size:.72rem;font-weight:800;padding:.3rem .65rem;border-radius:var(--radius-pill);border:1.5px solid var(--gold-500);background:var(--white);color:var(--gold-700);cursor:pointer;white-space:nowrap;}
-.sort-toggle[aria-pressed="true"]{background:var(--wine-700);border-color:var(--wine-700);color:#fffcf5;}
+.results-head{flex-direction:column;align-items:stretch;gap:.55rem;}
+.results-title{display:flex;align-items:baseline;justify-content:space-between;gap:.5rem;border-bottom:1px solid var(--line);padding-bottom:.4rem;}
+.results-title h3{margin:0;white-space:nowrap;}
+.results-head-right{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
+.results-head-right .btn-ai,.results-head-right .sort-toggle{justify-content:center;width:100%;min-height:34px;display:inline-flex;align-items:center;gap:.35rem;}
+.sort-toggle{font:inherit;font-size:.74rem;font-weight:800;padding:.35rem .7rem;border-radius:var(--radius-pill);cursor:pointer;white-space:nowrap;
+  background:
+    linear-gradient(90deg, transparent 0 4px, #3a2a20 4px 7px, transparent 7px calc(100% - 7px), #3a2a20 calc(100% - 7px) calc(100% - 4px), transparent calc(100% - 4px)),
+    repeating-linear-gradient(180deg,#f0dcb6 0 7px,#d9b98a 7px 8px,#e8d0a4 8px 15px,#d9b98a 15px 16px),#e8d0a4;
+  color:#3a2414;border:2px solid #8b5a32;
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.35), inset 0 -3px 5px rgba(92,58,31,.35), 0 4px 10px -4px rgba(0,0,0,.35);
+  text-shadow:0 1px 0 rgba(255,245,225,.6);}
+.sort-toggle .star{color:#b8862e;font-size:.9rem;line-height:1;}
+.sort-toggle[aria-pressed="true"]{
+  background:
+    linear-gradient(90deg, transparent 0 4px, #1f140e 4px 7px, transparent 7px calc(100% - 7px), #1f140e calc(100% - 7px) calc(100% - 4px), transparent calc(100% - 4px)),
+    linear-gradient(rgba(102,26,50,.62), rgba(102,26,50,.62)),
+    repeating-linear-gradient(180deg,#c99a5e 0 7px,#a97b44 7px 8px,#bf8f53 8px 15px,#a97b44 15px 16px);
+  color:#fffcf5;border-color:#4a1425;text-shadow:0 1px 1px rgba(0,0,0,.45);}
+.sort-toggle[aria-pressed="true"] .star{color:#efd699;}
 .top-badge{display:inline-block;background:#fbf1d6;color:#7a5410;border:1px solid #e0c27a;border-radius:var(--radius-pill);padding:.02rem .5rem;font-size:.68rem;font-weight:800;margin:0 .3rem .2rem 0;}
 .btn-ai{padding:.35rem .7rem;font-size:.74rem;border-radius:var(--radius-pill);}
 .btn-ai svg{width:15px;height:15px;}
@@ -855,7 +872,7 @@ header.app-header .step-btn.active .step-num{background:#efd699;color:#4a1425;}
     <div class="layout-3col">
       <div class="col-left">
         <div class="card results-card">
-          <div class="results-head"><h3>Lieux proposés</h3><span class="results-head-right"><span id="resultsCount"></span><button type="button" class="sort-toggle" id="btnSortNote" aria-pressed="false" title="Trier chaque sous-catégorie par note Google (les meilleures adresses en premier)">★ Mieux notés</button><button type="button" class="btn btn-gold btn-ai" id="btnAiFromList" title="Faire composer et rédiger ton carnet de voyage par l'IA à partir des lieux proposés"><svg class="ic"><use href="#icon-sparkles"></use></svg> IA Carnet</button></span></div>
+          <div class="results-head"><div class="results-title"><h3>Lieux proposés</h3><span id="resultsCount"></span></div><span class="results-head-right"><button type="button" class="sort-toggle" id="btnSortNote" aria-pressed="false" title="Trier chaque sous-catégorie par note Google (les meilleures adresses en premier)"><span class="star">★</span> Mieux notés</button><button type="button" class="btn btn-gold btn-ai" id="btnAiFromList" title="Faire composer et rédiger ton carnet de voyage par l'IA à partir des lieux proposés"><svg class="ic"><use href="#icon-sparkles"></use></svg> IA Carnet</button></span></div>
           <div class="results-list" id="resultsList"><div class="results-empty">Lance une recherche pour découvrir les pépites autour de ton village.</div></div>
           <div class="sel-footer" id="selFooter" hidden>
             <span class="sel-count-text"><svg class="ic"><use href="#icon-glass"></use></svg> <span class="sel-count-num" id="selCount">0</span> <span id="selCountLabel">lieu sélectionné</span></span>
