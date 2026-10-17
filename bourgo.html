@@ -775,6 +775,18 @@ header.app-header .step-btn.active{
   color:#fffcf5;border-color:#4a1425;text-shadow:0 1px 1px rgba(0,0,0,.45);
 }
 header.app-header .step-btn.active .step-num{background:#efd699;color:#4a1425;}
+/* Bouton « IA Carnet » aux couleurs du tonneau, comme les onglets */
+.btn.btn-ai{
+  background:
+    linear-gradient(90deg, transparent 0 4px, #3a2a20 4px 7px, transparent 7px calc(100% - 7px), #3a2a20 calc(100% - 7px) calc(100% - 4px), transparent calc(100% - 4px)),
+    repeating-linear-gradient(180deg,#f0dcb6 0 7px,#d9b98a 7px 8px,#e8d0a4 8px 15px,#d9b98a 15px 16px),
+    #e8d0a4;
+  color:#3a2414;border:2px solid #8b5a32;padding-left:.9rem;padding-right:.9rem;
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.35), inset 0 -3px 5px rgba(92,58,31,.35), 0 4px 10px -4px rgba(0,0,0,.35);
+  text-shadow:0 1px 0 rgba(255,245,225,.6);
+}
+.btn.btn-ai .ic{color:#6b1a33;}
+.btn.btn-ai:hover{filter:brightness(1.05);border-color:#661a32;}
 </style>
 </head>
 <body>
