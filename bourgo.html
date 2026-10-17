@@ -361,7 +361,10 @@ main{max-width:1320px;margin:0 auto;padding:.5rem 1.25rem 0;}
 .results-head h3{font-size:.92rem;}
 .results-head span{font-size:.76rem;color:var(--ink-500);font-weight:600;}
 .results-head{align-items:center;}
-.results-head-right{display:flex;align-items:center;gap:.5rem;}
+.results-head-right{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:flex-end;}
+.sort-toggle{font:inherit;font-size:.72rem;font-weight:800;padding:.3rem .65rem;border-radius:var(--radius-pill);border:1.5px solid var(--gold-500);background:var(--white);color:var(--gold-700);cursor:pointer;white-space:nowrap;}
+.sort-toggle[aria-pressed="true"]{background:var(--wine-700);border-color:var(--wine-700);color:#fffcf5;}
+.top-badge{display:inline-block;background:#fbf1d6;color:#7a5410;border:1px solid #e0c27a;border-radius:var(--radius-pill);padding:.02rem .5rem;font-size:.68rem;font-weight:800;margin:0 .3rem .2rem 0;}
 .btn-ai{padding:.35rem .7rem;font-size:.74rem;border-radius:var(--radius-pill);}
 .btn-ai svg{width:15px;height:15px;}
 .ai-modal{position:fixed;inset:0;z-index:2000;background:rgba(51,16,28,.45);display:flex;align-items:center;justify-content:center;padding:1rem;}
@@ -836,7 +839,7 @@ header.app-header .step-btn.active .step-num{background:#efd699;color:#4a1425;}
     <div class="layout-3col">
       <div class="col-left">
         <div class="card results-card">
-          <div class="results-head"><h3>Lieux proposés</h3><span class="results-head-right"><span id="resultsCount"></span><button type="button" class="btn btn-gold btn-ai" id="btnAiFromList" title="Faire composer et rédiger ton carnet de voyage par l'IA à partir des lieux proposés"><svg class="ic"><use href="#icon-sparkles"></use></svg> IA Carnet</button></span></div>
+          <div class="results-head"><h3>Lieux proposés</h3><span class="results-head-right"><span id="resultsCount"></span><button type="button" class="sort-toggle" id="btnSortNote" aria-pressed="false" title="Trier chaque sous-catégorie par note Google (les meilleures adresses en premier)">★ Mieux notés</button><button type="button" class="btn btn-gold btn-ai" id="btnAiFromList" title="Faire composer et rédiger ton carnet de voyage par l'IA à partir des lieux proposés"><svg class="ic"><use href="#icon-sparkles"></use></svg> IA Carnet</button></span></div>
           <div class="results-list" id="resultsList"><div class="results-empty">Lance une recherche pour découvrir les pépites autour de ton village.</div></div>
           <div class="sel-footer" id="selFooter" hidden>
             <span class="sel-count-text"><svg class="ic"><use href="#icon-glass"></use></svg> <span class="sel-count-num" id="selCount">0</span> <span id="selCountLabel">lieu sélectionné</span></span>
@@ -1724,7 +1727,20 @@ function recoInfo(p, anchors){
   const quality = Math.max(0, Math.min(1, (bayes-3)/2));
   return { score: 0.65*prox + 0.35*quality, d, anchor: best };
 }
+// Score de qualité Google : note pondérée par le nombre d'avis (moyenne
+// bayésienne), pour qu'un 5/5 sur 2 avis ne passe pas devant un 4,7 sur 900.
+function googleScore(p){
+  if(!p.rating) return -1;
+  const n = p.ratingCount || 0;
+  return (p.rating*n + 4.0*10)/(n+10);
+}
 function sortWithReco(pois){
+  if(state.sortByNote){
+    const sorted = pois.slice().sort((a,b)=> (googleScore(b) - googleScore(a)) || (a.dist - b.dist));
+    const tops = new Map();
+    sorted.filter(p=>p.rating).slice(0,3).forEach((p,i)=>tops.set(p.id, i+1));
+    return { sorted, badges:new Map(), tops, active:false };
+  }
   const anchors = state.results.filter(p=>state.selectedIds.has(p.id));
   const infos = new Map(pois.map(p=>[p.id, anchors.length ? recoInfo(p, anchors) : null]));
   const sorted = pois.slice().sort((a,b)=>{
@@ -1738,7 +1754,7 @@ function sortWithReco(pois){
     if(!i || state.selectedIds.has(p.id) || given >= RECO_BADGE_MAX || i.d > RECO_MAX_DIST_KM) return;
     badges.set(p.id, i); given++;
   });
-  return { sorted, badges, active: [...infos.values()].some(Boolean) };
+  return { sorted, badges, tops:new Map(), active: [...infos.values()].some(Boolean) };
 }
 function fmtDist(km){ return km < 1 ? Math.max(10, Math.round(km*100)*10)+' m' : km.toFixed(1).replace('.', ',')+' km'; }
 
@@ -1752,7 +1768,7 @@ function renderResults(){
   const scroll = el.scrollTop;
   const closed = new Set([...el.querySelectorAll('details[data-key]:not([open])')].map(d=>d.dataset.key));
   const html = [];
-  const leafHtml = (p, c, badges)=>{
+  const leafHtml = (p, c, badges, tops)=>{
     const sel = state.selectedIds.has(p.id);
     const ico = SUB_BY_KEY[p.sub] ? SUB_BY_KEY[p.sub].icon : c.icon;
     const b = badges.get(p.id);
@@ -1763,6 +1779,7 @@ function renderResults(){
       <input type="checkbox" data-id="${escapeHtml(p.id)}" ${sel?'checked':''} aria-label="Sélectionner ${escapeHtml(p.name)}">
       <div class="leaf-thumb" title="${sel ? 'Retirer de la sélection' : 'Ajouter à la sélection'}">${thumb}</div>
       <div class="leaf-info" tabindex="0">
+        ${tops && tops.get(p.id) ? `<span class="top-badge" title="Parmi les mieux notées sur Google dans cette sous-catégorie">${['🥇','🥈','🥉'][tops.get(p.id)-1]} Top ${tops.get(p.id)}</span>` : ''}
         ${b ? `<span class="reco-badge" title="Bien noté et à ${fmtDist(b.d)} de « ${escapeHtml(b.anchor.name)} »">Conseillé · à ${fmtDist(b.d)}</span>` : ''}
         <h4>${escapeHtml(p.name)}</h4>
         ${leafMetaHtml(p)}
@@ -1777,12 +1794,12 @@ function renderResults(){
     const subKeys = [...new Set(pois.map(p=>p.sub || '_'))];
     const subHtml = subKeys.map(sk=>{
       const list = pois.filter(p=>(p.sub || '_')===sk);
-      const { sorted, badges, active } = sortWithReco(list);
+      const { sorted, badges, tops, active } = sortWithReco(list);
       const label = SUB_BY_KEY[sk] ? SUB_BY_KEY[sk].label : c.label;
       const subIco = SUB_BY_KEY[sk] ? SUB_BY_KEY[sk].icon : c.icon;
       return `<details class="tree-sub" data-key="s:${sk}" ${closed.has('s:'+sk) ? '' : 'open'}>
         <summary><span class="caret">▶</span><svg class="ic sub-ic"><use href="#icon-${subIco}"></use></svg>${escapeHtml(label)} <span class="count">(${list.length})</span>${active ? '<span class="reco-hint">· près de ta sélection</span>' : ''}</summary>
-        ${sorted.map(p=>leafHtml(p, c, badges)).join('')}
+        ${sorted.map(p=>leafHtml(p, c, badges, tops)).join('')}
       </details>`;
     }).join('');
     html.push(`<details class="tree-cat" data-key="g:${k}" style="--cat-color:${c.color}" ${closed.has('g:'+k) ? '' : 'open'}>
@@ -2634,6 +2651,11 @@ function validateAiFromList(){
   setAiStatus('Carnet composé par l’IA à partir des lieux proposés.');
   ids.forEach(id=>enrichSelected(id));
 }
+document.getElementById('btnSortNote').addEventListener('click', e=>{
+  state.sortByNote = !state.sortByNote;
+  e.currentTarget.setAttribute('aria-pressed', String(state.sortByNote));
+  renderResults();
+});
 document.getElementById('btnAiFromList').addEventListener('click', ()=>{
   document.getElementById('aiModal').hidden = false;
   if(!aiModalText) generateAiFromList();
