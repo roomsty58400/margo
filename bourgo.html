@@ -209,7 +209,7 @@ main{max-width:1320px;margin:0 auto;padding:.5rem 1.25rem 0;}
 
 /* ---------- wheel ---------- */
 .wheel-card{padding:1.2rem;}
-.wheel-frame{position:relative;width:100%;max-width:340px;aspect-ratio:1/1;margin:0 auto;}
+.wheel-frame{position:relative;width:100%;max-width:340px;aspect-ratio:1/1;margin:-2% auto 0;}
 .wheel-lines{position:absolute;inset:0;width:100%;height:100%;color:var(--line);}
 .wheel-center{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
@@ -276,9 +276,10 @@ main{max-width:1320px;margin:0 auto;padding:.5rem 1.25rem 0;}
   .layout-3col.fit{overflow:hidden;}
   .layout-3col.fit > div{min-height:0;}
   .layout-3col.fit .col-left .results-card{max-height:none;min-height:0;flex:1;}
-  .layout-3col.fit .col-wheel .wheel-card{flex:1;min-height:0;overflow:visible;display:flex;flex-direction:column;justify-content:center;}
+  .layout-3col.fit .col-wheel .wheel-card{flex:1;min-height:0;overflow:visible;display:flex;flex-direction:column;justify-content:flex-start;}
+  .layout-3col.fit .col-wheel .wheel-card > .btn-primary{margin-top:auto;}
   .layout-3col.fit .map-frame{min-height:0;}
-  .layout-3col.fit .wheel-card{padding:.9rem 1rem;}
+  .layout-3col.fit .wheel-card{padding:.35rem 1rem .9rem;}
   .layout-3col.fit .wheel-hint{display:none;}
   .layout-3col.fit #btnSearch{margin-top:.7rem;padding:.55rem 1rem;}
 }
