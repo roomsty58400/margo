@@ -713,22 +713,33 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
    de la catégorie reste sur le pictogramme et l'anneau extérieur ; un bouton
    actif garde un voile de sa couleur sur le bois. */
 .wheel-node,.tool-btn{
+  /* fond de tonneau vu de face : douelles verticales de chêne avec leurs
+     joints, veinage léger, jable (rebord de bois) sombre en bordure intérieure */
   background:
-    radial-gradient(circle at 50% 50%, rgba(255,250,238,0) 0 56%, rgba(92,58,31,.22) 68%, rgba(92,58,31,0) 69%),
-    repeating-linear-gradient(0deg,#f3e2c2 0 15%,#e3c896 15% 16.5%,#efd9b1 16.5% 31%,#e3c896 31% 32.5%);
-  box-shadow:0 8px 16px -8px rgba(51,16,25,.45),0 0 0 2px #8b5a32,0 0 0 4px #3a2a20,0 0 0 6px var(--cat-color, var(--tc, #a77446));
+    radial-gradient(circle at 50% 50%, rgba(255,250,238,.0) 0 62%, rgba(92,58,31,.18) 80%, rgba(58,36,20,.35) 100%),
+    repeating-linear-gradient(90deg, rgba(120,80,40,.06) 0 3px, rgba(120,80,40,0) 3px 7px),
+    repeating-linear-gradient(90deg,#f2dfbb 0 18%,#c09868 18% 19%,#ead3a6 19% 37%,#c09868 37% 38%,#f0dbb3 38% 56%,#c09868 56% 57%,#e8cfa0 57% 75%,#c09868 75% 76%,#efd8ae 76% 100%);
+  box-shadow:
+    inset 0 0 0 3px #b98a55, inset 0 0 0 4px #6b4426, inset 0 2px 6px rgba(255,255,255,.35),
+    0 0 0 1.5px #2b1d14, 0 0 0 3px var(--cat-color, var(--tc, #a77446)),
+    0 8px 14px -8px rgba(51,16,25,.5);
   border:none;
 }
-.tool-btn{box-shadow:0 6px 12px -6px rgba(51,16,25,.45),0 0 0 2px #8b5a32,0 0 0 3.5px #3a2a20,0 0 0 5.5px var(--tc);}
-.wheel-node .wn-label{color:#4a2e1a;}
+.tool-btn{box-shadow:inset 0 0 0 2px #b98a55, inset 0 0 0 3px #6b4426, 0 0 0 1.5px #2b1d14, 0 0 0 3px var(--tc), 0 6px 10px -6px rgba(51,16,25,.5);}
+/* pictogramme et texte remontés pour que le libellé ne touche pas le bord */
+.wheel-node{justify-content:center;padding:0;gap:.05rem;}
+.wheel-node svg{width:46%;height:auto;aspect-ratio:1/1;flex:none;margin-top:-14%;}
+.wheel-node .wn-label{padding:0 6%;}
+.wheel-node .wn-label{color:#4a2e1a;text-shadow:0 1px 0 rgba(255,248,232,.8);}
+.tool-btn svg{margin-top:-2px;}
 .wheel-node.active{
   background:
-    radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0 56%, rgba(0,0,0,.25) 68%, rgba(0,0,0,0) 69%),
-    linear-gradient(color-mix(in srgb, var(--cat-color) 78%, transparent), color-mix(in srgb, var(--cat-color) 78%, transparent)),
-    repeating-linear-gradient(0deg,#c99a5e 0 15%,#a97b44 15% 16.5%,#bf8f53 16.5% 31%,#a97b44 31% 32.5%);
-  box-shadow:0 10px 22px -6px color-mix(in srgb, var(--cat-color) 70%, transparent),0 0 0 2px #8b5a32,0 0 0 4px #3a2a20,0 0 0 6px #e0b563;
+    radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0 62%, rgba(0,0,0,.25) 100%),
+    linear-gradient(color-mix(in srgb, var(--cat-color) 75%, transparent), color-mix(in srgb, var(--cat-color) 75%, transparent)),
+    repeating-linear-gradient(90deg,#c99a5e 0 18%,#6b4426 18% 19%,#bf8f53 19% 37%,#6b4426 37% 38%,#c99a5e 38% 56%,#6b4426 56% 57%,#bf8f53 57% 75%,#6b4426 75% 76%,#c99a5e 76% 100%);
+  box-shadow:inset 0 0 0 3px #8b5a32, inset 0 0 0 4px #3a2414, 0 0 0 1.5px #2b1d14, 0 0 0 3px #e0b563, 0 10px 20px -6px color-mix(in srgb, var(--cat-color) 70%, transparent);
 }
-.wheel-node.active svg,.wheel-node.active .wn-label{color:#fffcf5;}
+.wheel-node.active svg,.wheel-node.active .wn-label{color:#fffcf5;text-shadow:0 1px 1px rgba(0,0,0,.4);}
 @media (prefers-color-scheme: dark){ .wheel-node .wn-label{color:#4a2e1a;} .wheel-node.active .wn-label{color:#fffcf5;} }
 
 /* Onglets dans le bandeau (comme Margo). */
