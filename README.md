@@ -94,6 +94,9 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.28 — Bourgou : cercles « Patrimoine » et « Route des vins » (17 octobre 2026)
+- La roue compte 6 grands cercles en hexagone autour de la destination. **Patrimoine** coche d'un coup musées, châteaux, églises & abbayes et sites. **Route des vins** ouvre les routes conseillées près de la destination (Route des Grands Crus, Voie des Vignes à vélo, saveurs de Côte-d'Or, pays d'Époisses, Côte Chalonnaise, Mâconnais, Chablis, Vézelay, Pouilly-Fumé/Sancerre, Charolais), filtrables par thème (vins, fromages, spécialités), triées par distance, avec itinéraire Google Maps par les étapes.
+
 ### v3.27 — Bourgou : démarrage vierge (17 octobre 2026)
 - Au démarrage, la destination est vide et aucune catégorie n'est cochée (plus de « Beaune » ni de recherche automatique) ; la liste invite à saisir une destination. Les catégories et les boutons pratiques demandent d'abord une destination (le champ clignote).
 

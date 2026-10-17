@@ -254,10 +254,15 @@ main{max-width:1320px;margin:0 auto;padding:.5rem 1.25rem 0;}
 .wheel-node:hover{transform:translateY(-2px) scale(1.04);}
 .wheel-node.active{background:linear-gradient(160deg,var(--cat-color),var(--cat-color));border-color:transparent;box-shadow:0 10px 22px -6px color-mix(in srgb, var(--cat-color) 70%, transparent);}
 .wheel-node.active svg,.wheel-node.active .wn-label{color:var(--white);}
-.n-degustation{top:0;left:11%;}
-.n-hebergement{top:0;right:11%;}
-.n-transport{bottom:0;left:11%;}
-.n-gastronomie{bottom:0;right:11%;}
+/* 6 cercles répartis en hexagone autour de la destination */
+.wheel-node{width:25%;}
+.wheel-center{width:40%;height:40%;}
+.n-degustation{top:5%;left:18.75%;}
+.n-hebergement{top:5%;left:56.25%;}
+.n-patrimoine{top:37.5%;left:0;}
+.n-routes{top:37.5%;left:75%;}
+.n-transport{top:70%;left:18.75%;}
+.n-gastronomie{top:70%;left:56.25%;}
 
 .radius-row{display:flex;align-items:center;justify-content:center;gap:.7rem;margin-top:.3rem;font-size:.82rem;color:var(--ink-700);font-weight:600;}
 .stepper-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);background:var(--white);color:var(--wine-700);display:flex;align-items:center;justify-content:center;cursor:pointer;}
@@ -803,10 +808,12 @@ header.app-header .step-btn{white-space:nowrap;padding:.5rem 1rem;font-size:.85r
         <div class="card wheel-card">
           <div class="wheel-frame" id="wheelFrame">
             <svg class="wheel-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <line x1="50" y1="50" x2="27" y2="15" stroke="currentColor" stroke-width="1"/>
-              <line x1="50" y1="50" x2="73" y2="15" stroke="currentColor" stroke-width="1"/>
-              <line x1="50" y1="50" x2="27" y2="85" stroke="currentColor" stroke-width="1"/>
-              <line x1="50" y1="50" x2="73" y2="85" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="31.25" y2="17.5" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="68.75" y2="17.5" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="12.5" y2="50" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="87.5" y2="50" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="31.25" y2="82.5" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="68.75" y2="82.5" stroke="currentColor" stroke-width="1"/>
             </svg>
             <div class="wheel-node n-degustation" data-cat="degustation" style="--cat-color:var(--c-degustation)">
               <svg class="ic"><use href="#icon-glass"></use></svg>
@@ -819,6 +826,14 @@ header.app-header .step-btn{white-space:nowrap;padding:.5rem 1rem;font-size:.85r
             <div class="wheel-node n-transport" data-cat="transport" style="--cat-color:var(--c-transport)">
               <svg class="ic"><use href="#icon-car"></use></svg>
               <span class="wn-label">Transport</span>
+            </div>
+            <div class="wheel-node n-patrimoine" data-cat="visite" style="--cat-color:var(--c-visite)" title="Patrimoine : musées, châteaux, églises et sites à visiter">
+              <svg class="ic"><use href="#icon-church"></use></svg>
+              <span class="wn-label">Patrimoine</span>
+            </div>
+            <div class="wheel-node n-routes" data-tool="routes" style="--cat-color:var(--c-vignobles)" title="Routes des vins, fromages et spécialités autour de la destination">
+              <svg class="ic"><use href="#icon-route"></use></svg>
+              <span class="wn-label">Route des vins</span>
             </div>
             <div class="wheel-node n-gastronomie" data-cat="gastronomie" style="--cat-color:var(--c-gastronomie)">
               <svg class="ic"><use href="#icon-cloche"></use></svg>
@@ -1053,7 +1068,7 @@ header.app-header .step-btn{white-space:nowrap;padding:.5rem 1rem;font-size:.85r
   <symbol id="icon-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></symbol>
   <symbol id="icon-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".6" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".6" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".6" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".6" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.12a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.56-2.5 5.56-5.55C21.97 6.01 17.46 2 12 2z"/></symbol>
   <symbol id="icon-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></symbol>
-  <symbol id="icon-calendar" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></symbol>
+  <symbol id="icon-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></symbol><symbol id="icon-calendar" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></symbol>
   <symbol id="icon-ambulance" viewBox="0 0 24 24"><path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.68-.95l-1.8-.6a1 1 0 0 1-.6-.53L17.5 9H14"/><path d="M8 8v4"/><path d="M9 18h6"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
   <symbol id="icon-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
   <symbol id="icon-snail" viewBox="0 0 24 24"><path d="M2 13a6 6 0 1 0 12 0 4 4 0 1 0-8 0 2 2 0 0 0 4 0"/><circle cx="10" cy="13" r="8"/><path d="M2 21h12c4.4 0 8-3.6 8-8V7a2 2 0 1 0-4 0v6"/><path d="M18 3 19.1 5.2"/><path d="M22 3 20.9 5.2"/></symbol>
@@ -2877,6 +2892,82 @@ document.getElementById('btnToolClose').addEventListener('click', closeTool);
 document.getElementById('toolModal').addEventListener('click', e=>{ if(e.target.id === 'toolModal') closeTool(); });
 document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && !document.getElementById('toolModal').hidden) closeTool(); });
 
+
+/* ============ ROUTES DES VINS & SAVEURS (grand cercle de la roue) ============
+   Routes touristiques conseillées pour découvrir la zone de destination :
+   routes des vins, fromages et spécialités locales de Bourgogne et de ses
+   abords. Chaque route : thèmes, description, étapes (villages), lien
+   d'itinéraire Google Maps passant par les étapes, et recherche pour en
+   savoir plus. Triées par distance à la destination ; hors de la région, des
+   liens de recherche adaptés à la destination prennent le relais. */
+const WINE_ROUTES = [
+  { name:'Route des Grands Crus', themes:['vins'], desc:"La route mythique de la Côte de Nuits et de la Côte de Beaune, à travers les climats classés au patrimoine mondial de l'UNESCO et les villages des plus grands vins rouges et blancs.",
+    stops:[['Dijon',47.322,5.041],['Marsannay-la-Côte',47.272,4.989],['Gevrey-Chambertin',47.226,4.968],['Vougeot',47.174,4.963],['Nuits-Saint-Georges',47.137,4.950],['Aloxe-Corton',47.065,4.861],['Beaune',47.024,4.840],['Pommard',47.009,4.797],['Meursault',46.977,4.770],['Puligny-Montrachet',46.947,4.752],['Santenay',46.911,4.695]] },
+  { name:'Voie des Vignes (à vélo)', themes:['vins'], desc:"Une voie verte et partagée au cœur des vignes de la Côte de Beaune, idéale à vélo pour passer d'un village viticole à l'autre.",
+    stops:[['Beaune',47.024,4.840],['Pommard',47.009,4.797],['Volnay',46.999,4.782],['Meursault',46.977,4.770],['Puligny-Montrachet',46.947,4.752],['Santenay',46.911,4.695]], mode:'bicycling' },
+  { name:'Saveurs de Côte-d\u2019Or : moutarde, cassis et fromage', themes:['spécialités','fromages'], desc:"Moutarde et pain d'épices à Dijon, cassis à Nuits-Saint-Georges, fromage des moines à l'abbaye de Cîteaux et moutarderie artisanale à Beaune.",
+    stops:[['Dijon',47.322,5.041],['Nuits-Saint-Georges',47.137,4.950],['Abbaye de Cîteaux, Saint-Nicolas-lès-Cîteaux',47.128,5.098],['Beaune',47.024,4.840]] },
+  { name:'Pays d\u2019Époisses et Auxois', themes:['fromages','spécialités'], desc:"Le berceau du fromage d'Époisses, les anis de Flavigny, la cité médiévale de Semur-en-Auxois et le site d'Alésia.",
+    stops:[['Semur-en-Auxois',47.491,4.334],['Époisses',47.506,4.173],['Flavigny-sur-Ozerain',47.511,4.531],['Alise-Sainte-Reine',47.537,4.493]] },
+  { name:'Route des Vins de la Côte Chalonnaise', themes:['vins'], desc:"Des vignobles plus intimes entre Chagny et Buxy : Rully, Mercurey, Givry et Montagny, vins rouges, blancs et crémants.",
+    stops:[['Chagny',46.910,4.752],['Rully',46.875,4.744],['Mercurey',46.840,4.716],['Givry',46.781,4.743],['Buxy',46.713,4.702]] },
+  { name:'Route des Vins Mâconnais-Beaujolais', themes:['vins'], desc:"Les blancs du Mâconnais au pied de la roche de Solutré, Pouilly-Fuissé, puis les premiers crus du Beaujolais.",
+    stops:[['Mâcon',46.307,4.829],['Solutré-Pouilly',46.296,4.722],['Fuissé',46.283,4.745],['Saint-Amour-Bellevue',46.244,4.744]] },
+  { name:'Vignobles de Chablis et du Grand Auxerrois', themes:['vins'], desc:"Le chardonnay minéral de Chablis, puis Chitry, Saint-Bris (sauvignon), Irancy et Auxerre.",
+    stops:[['Chablis',47.814,3.798],['Chitry',47.758,3.698],['Saint-Bris-le-Vineux',47.744,3.649],['Irancy',47.712,3.649],['Auxerre',47.798,3.567]] },
+  { name:'Vézelay et son vignoble', themes:['vins','patrimoine'], desc:"La colline éternelle et sa basilique, entourée du vignoble de l'AOC Vézelay.",
+    stops:[['Vézelay',47.466,3.748],['Saint-Père',47.464,3.762]] },
+  { name:'Pouilly-Fumé et Sancerre (Loire)', themes:['vins','fromages'], desc:"Les sauvignons des bords de Loire, entre Pouilly-sur-Loire et Sancerre, et le crottin de Chavignol tout proche.",
+    stops:[['Pouilly-sur-Loire',47.284,2.952],['Sancerre',47.330,2.840],['Chavignol',47.346,2.820]] },
+  { name:'Pays Charolais-Brionnais', themes:['spécialités','patrimoine'], desc:"Le bœuf charolais et ses prés bocagers, de Charolles à Paray-le-Monial et sa basilique.",
+    stops:[['Charolles',46.435,4.276],['Paray-le-Monial',46.451,4.120]] }
+];
+const THEME_LABEL = { 'vins':'🍷 Vins', 'fromages':'🧀 Fromages', 'spécialités':'🥖 Spécialités', 'patrimoine':'🏛️ Patrimoine' };
+function routeDirections(r){
+  const pts = r.stops.map(s=>s[0] + ', France');
+  const o = encodeURIComponent(pts[0]), d = encodeURIComponent(pts[pts.length-1]);
+  const wp = pts.slice(1,-1).map(encodeURIComponent).join('%7C');
+  return `https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}&travelmode=${r.mode || 'driving'}${wp ? '&waypoints=' + wp : ''}`;
+}
+function openRoutes(){
+  const modal = document.getElementById('toolModal');
+  ['toolChips','toolChips2','toolList','toolMore'].forEach(id=>document.getElementById(id).innerHTML = '');
+  document.getElementById('toolMap').hidden = true;
+  resetToolMap();
+  setToolHeader('routes', { title:'Routes des vins & saveurs', icon:'route', intro:'Routes touristiques conseillées pour découvrir la région de la destination : vins, fromages et spécialités locales.' });
+  modal.hidden = false;
+  const ville = state.ville;
+  const c = state.center;
+  const routes = WINE_ROUTES.map(r=>({ r, d: ville ? Math.min(...r.stops.map(s=>haversineKm(c, {lat:s[1], lng:s[2]}))) : null }))
+    .sort((a,b)=> ville ? a.d - b.d : 0);
+  const near = ville ? routes.filter(x=>x.d <= 90) : routes;
+  const shown = near.length ? near : routes.slice(0, 3);
+  document.getElementById('toolInfo').textContent = !ville
+    ? 'Toutes les routes de Bourgogne et des environs. Saisis une destination pour voir les plus proches en premier.'
+    : near.length ? `${near.length} route(s) à moins de 90 km de ${ville}, la plus proche en premier.` : `Pas de route répertoriée à moins de 90 km de ${ville} : voici les plus proches, et des recherches adaptées à la destination plus bas.`;
+  const chips = document.getElementById('toolChips');
+  const themes = ['tout','vins','fromages','spécialités'];
+  chips.innerHTML = themes.map((t,i)=>`<button type="button" class="tool-chip ${i===0?'on':''}" data-th="${t}">${t==='tout' ? 'Toutes' : THEME_LABEL[t]}</button>`).join('');
+  const render = th=>{
+    document.getElementById('toolList').innerHTML = shown.filter(x=>th==='tout' || x.r.themes.includes(th)).map(({r,d})=>`
+      <div class="agenda-item route-item"><div class="ag-body">
+        <div class="ag-date">${r.themes.map(t=>THEME_LABEL[t]).join(' · ')}${d != null ? `<span class="ag-badge">à ${Math.round(d)} km</span>` : ''}</div>
+        <h4>${escapeHtml(r.name)}</h4>
+        <div class="ag-desc">${escapeHtml(r.desc)}</div>
+        <div class="ag-place">📍 ${r.stops.map(s=>escapeHtml(s[0].split(',')[0])).join(' → ')}</div>
+        <div class="ag-links"><a href="${routeDirections(r)}" target="_blank" rel="noopener noreferrer">${r.mode==='bicycling' ? 'Itinéraire à vélo' : 'Itinéraire'} dans Google Maps</a><a href="https://www.google.com/search?q=${encodeURIComponent(r.name + ' Bourgogne')}" target="_blank" rel="noopener noreferrer">En savoir plus</a></div>
+      </div></div>`).join('') || '<p class="tool-info">Aucune route de ce thème près de la destination.</p>';
+  };
+  chips.querySelectorAll('.tool-chip').forEach(b=>b.addEventListener('click', ()=>{ chips.querySelectorAll('.tool-chip').forEach(x=>x.classList.toggle('on', x===b)); render(b.dataset.th); }));
+  render('tout');
+  const q = ville || 'Bourgogne';
+  document.getElementById('toolMore').innerHTML = `<span>Autour de ${escapeHtml(q)} :</span>`
+    + `<a href="https://www.google.com/search?q=${encodeURIComponent('route des vins ' + q)}" target="_blank" rel="noopener noreferrer">Route des vins</a>`
+    + `<a href="https://www.google.com/search?q=${encodeURIComponent('fromagerie producteur ' + q)}" target="_blank" rel="noopener noreferrer">Fromageries</a>`
+    + `<a href="https://www.google.com/search?q=${encodeURIComponent('spécialités locales ' + q)}" target="_blank" rel="noopener noreferrer">Spécialités locales</a>`
+    + `<a href="https://www.bourgogne-tourisme.com/" target="_blank" rel="noopener noreferrer">Bourgogne Tourisme</a>`;
+}
+
 /* ---- Fenêtres déplaçables (comme Margo) ---- */
 function makeModalDraggable(overlay){
   const box = overlay.querySelector('.ai-modal-box');
@@ -2962,7 +3053,7 @@ function wireEvents(){
   document.getElementById('btnBackToItin2').addEventListener('click',()=>showScreen('screen-itin'));
   document.getElementById('btnVoirItineraire').addEventListener('click',()=>showScreen('screen-carnet'));
 
-  document.querySelectorAll('.wheel-node').forEach(el=>el.addEventListener('click',()=>{ toggleCat(el.dataset.cat); }));
+  document.querySelectorAll('.wheel-node').forEach(el=>el.addEventListener('click',()=>{ if(el.dataset.tool==='routes') openRoutes(); else toggleCat(el.dataset.cat); }));
 
   const villageInput=document.getElementById('villageInput');
   villageInput.value=state.ville;
