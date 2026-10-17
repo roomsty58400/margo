@@ -94,6 +94,9 @@ Bourgou est la déclinaison œnotouristique de Margo pour la Bourgogne : même m
 
 *Numérotation introduite rétroactivement pour regrouper les évolutions du projet ; les versions les plus anciennes n'ont pas de date précise faute d'historique Git détaillé.*
 
+### v3.26 — Bourgou : onglets dans le bandeau (17 octobre 2026)
+- Les onglets « ① Itinéraire & Vins » et « ② Carnet de Voyage » passent dans le bandeau : au milieu sur ordinateur ; sur téléphone, sous le nom du site, avec le drapeau de traduction entre les deux.
+
 ### v3.25 — Nouveau logo Bourgou : feuille de vigne stylisée (17 octobre 2026)
 - Logo de Bourgou redessiné : feuille de vigne stylisée crème (5 lobes, nervures bordeaux, vrille dorée) sur disque dégradé bordeaux et or ; appliqué au bandeau et aux icônes d'appli (`assets/icons/bourgou-*.png`, cache du service worker v20), captures du manifeste mises à jour.
 

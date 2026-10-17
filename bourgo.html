@@ -722,6 +722,24 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
 }
 .wheel-node.active svg,.wheel-node.active .wn-label{color:#fffcf5;}
 @media (prefers-color-scheme: dark){ .wheel-node .wn-label{color:#4a2e1a;} .wheel-node.active .wn-label{color:#fffcf5;} }
+
+/* Onglets dans le bandeau (comme Margo). */
+header.app-header .stepper{flex:1 1 auto;margin:0;padding:0;max-width:none;justify-content:center;flex-wrap:nowrap;gap:.6rem;}
+header.app-header .step-btn{white-space:nowrap;padding:.5rem 1rem;font-size:.85rem;box-shadow:0 4px 12px -4px rgba(0,0,0,.35);}
+.header-break{display:none;}
+@media (max-width:760px){
+  .header-row{flex-wrap:wrap;row-gap:.45rem;justify-content:flex-start;}
+  header.app-header .stepper{display:contents;}
+  .brand{order:0;flex:1 1 auto;}
+  #btnKeys{order:0;margin-left:auto;}
+  .header-break{display:block;order:1;flex-basis:100%;height:0;}
+  #tabItin{order:2;margin-left:auto;}
+  .lang-dropdown{order:3;}
+  #tabCarnet{order:4;margin-right:auto;}
+  header.app-header .step-btn{font-size:.74rem;padding:.38rem .6rem;gap:.35rem;}
+  header.app-header .step-num{width:20px;height:20px;font-size:.7rem;}
+}
+@media (max-width:380px){ header.app-header .step-btn{font-size:.66rem;padding:.34rem .45rem;} }
 </style>
 </head>
 <body>
@@ -747,7 +765,13 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
         <span class="brand-tagline">L'art de vivre en Bourgogne</span>
       </div>
     </div>
-    <div class="header-spacer"></div>
+    <!-- Onglets des 2 écrans dans le bandeau (comme Margo) : au milieu sur
+         ordinateur ; sur téléphone, sous le nom avec le drapeau entre les deux -->
+    <nav class="stepper">
+      <button class="step-btn active" id="tabItin" data-screen="screen-itin"><span class="step-num">1</span> Itinéraire &amp; Vins</button>
+      <button class="step-btn" id="tabCarnet" data-screen="screen-carnet"><span class="step-num">2</span> Carnet de Voyage</button>
+    </nav>
+    <span class="header-break" aria-hidden="true"></span>
     <button class="pill-btn" id="btnKeys" type="button" title="Clés Google et Gemini"><span aria-hidden="true">🔑</span> Clés</button>
     <div class="lang-dropdown">
       <button class="lang-btn" id="langBtn" title="Traduire le site" aria-haspopup="true"><img id="langFlag" src="https://flagcdn.com/24x18/fr.png" alt=""><span id="langCode">FR</span><svg class="ic"><use href="#icon-chevron-down"></use></svg></button>
@@ -756,10 +780,6 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
   </div>
 </header>
 
-<nav class="stepper">
-  <button class="step-btn active" id="tabItin" data-screen="screen-itin"><span class="step-num">1</span> Itinéraire &amp; Vins</button>
-  <button class="step-btn" id="tabCarnet" data-screen="screen-carnet"><span class="step-num">2</span> Carnet de Voyage</button>
-</nav>
 
 <main>
   <!-- SCREEN 1 : ITINERAIRE & VINS -->
