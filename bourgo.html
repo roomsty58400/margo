@@ -410,6 +410,8 @@ main{max-width:1320px;margin:0 auto;padding:.5rem 1.25rem 0;}
 .agenda-list:empty{display:none;}
 .agenda-item{display:flex;gap:.7rem;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:.55rem .6rem;background:var(--white);}
 .agenda-item img{width:84px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;background:var(--cream-100);}
+.agenda-item img.route-thumb{width:112px;height:84px;border-radius:10px;box-shadow:0 0 0 2px #e0c27a, 0 4px 10px -4px rgba(51,16,25,.45);}
+@media (max-width:520px){ .agenda-item img.route-thumb{width:84px;height:68px;} }
 .agenda-item .ag-body{flex:1;min-width:0;}
 .agenda-item h4{font-size:.88rem;margin:0 0 .15rem;color:var(--wine-800);line-height:1.25;font-family:var(--font-body);}
 .agenda-item .ag-date{font-size:.74rem;font-weight:800;color:#7c3aed;}
@@ -873,7 +875,7 @@ header.app-header .step-btn.active .step-num{background:#efd699;color:#4a1425;}
     <div class="layout-3col">
       <div class="col-left">
         <div class="card results-card">
-          <div class="results-head"><div class="results-title"><h3>Lieux proposés</h3><span id="resultsCount"></span></div><span class="results-head-right"><button type="button" class="sort-toggle" id="btnSortNote" aria-pressed="false" title="Trier chaque sous-catégorie par note Google (les meilleures adresses en premier)"><span class="star">★</span> Mieux notés</button><button type="button" class="btn btn-gold btn-ai" id="btnAiFromList" title="Faire composer et rédiger ton carnet de voyage par l'IA à partir des lieux proposés"><svg class="ic"><use href="#icon-sparkles"></use></svg> IA Carnet</button></span></div>
+          <div class="results-head"><div class="results-title"><h3>Lieux proposés</h3><span id="resultsCount"></span></div><span class="results-head-right"><button type="button" class="sort-toggle" id="btnSortNote" aria-pressed="true" title="Trier chaque sous-catégorie par note Google (les meilleures adresses en premier)"><span class="star">★</span> Mieux notés</button><button type="button" class="btn btn-gold btn-ai" id="btnAiFromList" title="Faire composer et rédiger ton carnet de voyage par l'IA à partir des lieux proposés"><svg class="ic"><use href="#icon-sparkles"></use></svg> IA Carnet</button></span></div>
           <div class="results-list" id="resultsList"><div class="results-empty">Lance une recherche pour découvrir les pépites autour de ton village.</div></div>
           <div class="sel-footer" id="selFooter" hidden>
             <span class="sel-count-text"><svg class="ic"><use href="#icon-glass"></use></svg> <span class="sel-count-num" id="selCount">0</span> <span id="selCountLabel">lieu sélectionné</span></span>
@@ -1244,6 +1246,7 @@ const MODE_META = {
 };
 
 const state = {
+  sortByNote: true,
   ville:'', // démarrage vierge : la destination est à saisir
   center:{lat:47.0243,lng:4.8397},
   radiusKm:12,
@@ -3007,27 +3010,43 @@ document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && !document.get
    savoir plus. Triées par distance à la destination ; hors de la région, des
    liens de recherche adaptés à la destination prennent le relais. */
 const WINE_ROUTES = [
-  { name:'Route des Grands Crus', themes:['vins'], desc:"La route mythique de la Côte de Nuits et de la Côte de Beaune, à travers les climats classés au patrimoine mondial de l'UNESCO et les villages des plus grands vins rouges et blancs.",
+  { name:'Route des Grands Crus', photo:'Clos de Vougeot', themes:['vins'], desc:"La route mythique de la Côte de Nuits et de la Côte de Beaune, à travers les climats classés au patrimoine mondial de l'UNESCO et les villages des plus grands vins rouges et blancs.",
     stops:[['Dijon',47.322,5.041],['Marsannay-la-Côte',47.272,4.989],['Gevrey-Chambertin',47.226,4.968],['Vougeot',47.174,4.963],['Nuits-Saint-Georges',47.137,4.950],['Aloxe-Corton',47.065,4.861],['Beaune',47.024,4.840],['Pommard',47.009,4.797],['Meursault',46.977,4.770],['Puligny-Montrachet',46.947,4.752],['Santenay',46.911,4.695]] },
-  { name:'Voie des Vignes (à vélo)', themes:['vins'], desc:"Une voie verte et partagée au cœur des vignes de la Côte de Beaune, idéale à vélo pour passer d'un village viticole à l'autre.",
+  { name:'Voie des Vignes (à vélo)', photo:'Volnay (AOC)', themes:['vins'], desc:"Une voie verte et partagée au cœur des vignes de la Côte de Beaune, idéale à vélo pour passer d'un village viticole à l'autre.",
     stops:[['Beaune',47.024,4.840],['Pommard',47.009,4.797],['Volnay',46.999,4.782],['Meursault',46.977,4.770],['Puligny-Montrachet',46.947,4.752],['Santenay',46.911,4.695]], mode:'bicycling' },
-  { name:'Saveurs de Côte-d\u2019Or : moutarde, cassis et fromage', themes:['spécialités','fromages'], desc:"Moutarde et pain d'épices à Dijon, cassis à Nuits-Saint-Georges, fromage des moines à l'abbaye de Cîteaux et moutarderie artisanale à Beaune.",
+  { name:'Saveurs de Côte-d\u2019Or : moutarde, cassis et fromage', photo:'Moutarde de Dijon', themes:['spécialités','fromages'], desc:"Moutarde et pain d'épices à Dijon, cassis à Nuits-Saint-Georges, fromage des moines à l'abbaye de Cîteaux et moutarderie artisanale à Beaune.",
     stops:[['Dijon',47.322,5.041],['Nuits-Saint-Georges',47.137,4.950],['Abbaye de Cîteaux, Saint-Nicolas-lès-Cîteaux',47.128,5.098],['Beaune',47.024,4.840]] },
-  { name:'Pays d\u2019Époisses et Auxois', themes:['fromages','spécialités'], desc:"Le berceau du fromage d'Époisses, les anis de Flavigny, la cité médiévale de Semur-en-Auxois et le site d'Alésia.",
+  { name:'Pays d\u2019Époisses et Auxois', photo:'Époisses (fromage)', themes:['fromages','spécialités'], desc:"Le berceau du fromage d'Époisses, les anis de Flavigny, la cité médiévale de Semur-en-Auxois et le site d'Alésia.",
     stops:[['Semur-en-Auxois',47.491,4.334],['Époisses',47.506,4.173],['Flavigny-sur-Ozerain',47.511,4.531],['Alise-Sainte-Reine',47.537,4.493]] },
-  { name:'Route des Vins de la Côte Chalonnaise', themes:['vins'], desc:"Des vignobles plus intimes entre Chagny et Buxy : Rully, Mercurey, Givry et Montagny, vins rouges, blancs et crémants.",
+  { name:'Route des Vins de la Côte Chalonnaise', photo:'Mercurey (AOC)', themes:['vins'], desc:"Des vignobles plus intimes entre Chagny et Buxy : Rully, Mercurey, Givry et Montagny, vins rouges, blancs et crémants.",
     stops:[['Chagny',46.910,4.752],['Rully',46.875,4.744],['Mercurey',46.840,4.716],['Givry',46.781,4.743],['Buxy',46.713,4.702]] },
-  { name:'Route des Vins Mâconnais-Beaujolais', themes:['vins'], desc:"Les blancs du Mâconnais au pied de la roche de Solutré, Pouilly-Fuissé, puis les premiers crus du Beaujolais.",
+  { name:'Route des Vins Mâconnais-Beaujolais', photo:'Roche de Solutré', themes:['vins'], desc:"Les blancs du Mâconnais au pied de la roche de Solutré, Pouilly-Fuissé, puis les premiers crus du Beaujolais.",
     stops:[['Mâcon',46.307,4.829],['Solutré-Pouilly',46.296,4.722],['Fuissé',46.283,4.745],['Saint-Amour-Bellevue',46.244,4.744]] },
-  { name:'Vignobles de Chablis et du Grand Auxerrois', themes:['vins'], desc:"Le chardonnay minéral de Chablis, puis Chitry, Saint-Bris (sauvignon), Irancy et Auxerre.",
+  { name:'Vignobles de Chablis et du Grand Auxerrois', photo:'Chablis (AOC)', themes:['vins'], desc:"Le chardonnay minéral de Chablis, puis Chitry, Saint-Bris (sauvignon), Irancy et Auxerre.",
     stops:[['Chablis',47.814,3.798],['Chitry',47.758,3.698],['Saint-Bris-le-Vineux',47.744,3.649],['Irancy',47.712,3.649],['Auxerre',47.798,3.567]] },
-  { name:'Vézelay et son vignoble', themes:['vins','patrimoine'], desc:"La colline éternelle et sa basilique, entourée du vignoble de l'AOC Vézelay.",
+  { name:'Vézelay et son vignoble', photo:'Basilique Sainte-Marie-Madeleine de Vézelay', themes:['vins','patrimoine'], desc:"La colline éternelle et sa basilique, entourée du vignoble de l'AOC Vézelay.",
     stops:[['Vézelay',47.466,3.748],['Saint-Père',47.464,3.762]] },
-  { name:'Pouilly-Fumé et Sancerre (Loire)', themes:['vins','fromages'], desc:"Les sauvignons des bords de Loire, entre Pouilly-sur-Loire et Sancerre, et le crottin de Chavignol tout proche.",
+  { name:'Pouilly-Fumé et Sancerre (Loire)', photo:'Sancerre', themes:['vins','fromages'], desc:"Les sauvignons des bords de Loire, entre Pouilly-sur-Loire et Sancerre, et le crottin de Chavignol tout proche.",
     stops:[['Pouilly-sur-Loire',47.284,2.952],['Sancerre',47.330,2.840],['Chavignol',47.346,2.820]] },
-  { name:'Pays Charolais-Brionnais', themes:['spécialités','patrimoine'], desc:"Le bœuf charolais et ses prés bocagers, de Charolles à Paray-le-Monial et sa basilique.",
+  { name:'Pays Charolais-Brionnais', photo:'Charolaise', themes:['spécialités','patrimoine'], desc:"Le bœuf charolais et ses prés bocagers, de Charolles à Paray-le-Monial et sa basilique.",
     stops:[['Charolles',46.435,4.276],['Paray-le-Monial',46.451,4.120]] }
 ];
+/* Miniature de chaque route : photo de l'article Wikipédia indiqué (ou, à
+   défaut, de la première commune), via l'API REST publique de Wikipédia. */
+const routePhotoCache = {};
+async function routePhoto(r){
+  if(r.name in routePhotoCache) return routePhotoCache[r.name];
+  const tryTitle = async t=>{
+    try{
+      const res = await fetch('https://fr.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(t.replace(/ /g,'_')));
+      if(!res.ok) return null;
+      const d = await res.json();
+      return d && d.thumbnail ? d.thumbnail.source : null;
+    }catch(err){ return null; }
+  };
+  const url = (r.photo && await tryTitle(r.photo)) || await tryTitle(r.stops[0][0].split(',')[0]);
+  return (routePhotoCache[r.name] = url);
+}
 const THEME_LABEL = { 'vins':'🍷 Vins', 'fromages':'🧀 Fromages', 'spécialités':'🥖 Spécialités', 'patrimoine':'🏛️ Patrimoine' };
 function routeDirections(r){
   const pts = r.stops.map(s=>s[0] + ', France');
@@ -3056,7 +3075,7 @@ function openRoutes(){
   chips.innerHTML = themes.map((t,i)=>`<button type="button" class="tool-chip ${i===0?'on':''}" data-th="${t}">${t==='tout' ? 'Toutes' : THEME_LABEL[t]}</button>`).join('');
   const render = th=>{
     document.getElementById('toolList').innerHTML = shown.filter(x=>th==='tout' || x.r.themes.includes(th)).map(({r,d})=>`
-      <div class="agenda-item route-item"><div class="ag-body">
+      <div class="agenda-item route-item"><img class="route-thumb" data-route="${escapeHtml(r.name)}" alt="" hidden><div class="ag-body">
         <div class="ag-date">${r.themes.map(t=>THEME_LABEL[t]).join(' · ')}${d != null ? `<span class="ag-badge">à ${Math.round(d)} km</span>` : ''}</div>
         <h4>${escapeHtml(r.name)}</h4>
         <div class="ag-desc">${escapeHtml(r.desc)}</div>
@@ -3066,6 +3085,13 @@ function openRoutes(){
   };
   chips.querySelectorAll('.tool-chip').forEach(b=>b.addEventListener('click', ()=>{ chips.querySelectorAll('.tool-chip').forEach(x=>x.classList.toggle('on', x===b)); render(b.dataset.th); }));
   render('tout');
+  // miniatures chargées en arrière-plan, réappliquées à chaque filtre
+  const fillThumbs = ()=>document.querySelectorAll('#toolList img.route-thumb').forEach(img=>{
+    const url = routePhotoCache[img.dataset.route];
+    if(url && !img.getAttribute('src')){ img.onerror = ()=>img.remove(); img.src = url; img.hidden = false; }
+  });
+  shown.forEach(({r})=>routePhoto(r).then(fillThumbs));
+  chips.addEventListener('click', ()=>setTimeout(fillThumbs, 0));
   const q = ville || 'Bourgogne';
   document.getElementById('toolMore').innerHTML = `<span>Autour de ${escapeHtml(q)} :</span>`
     + `<a href="https://www.google.com/search?q=${encodeURIComponent('route des vins ' + q)}" target="_blank" rel="noopener noreferrer">Route des vins</a>`
