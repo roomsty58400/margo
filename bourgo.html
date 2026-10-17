@@ -363,6 +363,45 @@ main{max-width:1320px;margin:0 auto;padding:.5rem 1.25rem 0;}
 .ai-modal[hidden]{display:none;}
 .ai-modal-box{width:min(760px,100%);max-height:calc(100vh - 2rem);display:flex;flex-direction:column;padding:1.1rem 1.2rem;}
 .ai-modal-box .ai-carnet-out{flex:1;min-height:0;overflow-y:auto;padding-right:.3rem;}
+
+/* ---------- Boutons pratiques (comme la rosace de Margo) ---------- */
+.tools-bar{display:flex;flex-wrap:wrap;justify-content:center;gap:.45rem;margin-top:.55rem;}
+.tool-btn{width:42px;height:42px;border-radius:50%;border:2px solid var(--tc);background:radial-gradient(circle at 32% 26%,#fff,var(--cream-100));color:var(--tc);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .15s,box-shadow .15s;padding:0;}
+.tool-btn:hover{transform:translateY(-2px) scale(1.06);box-shadow:var(--shadow-md);}
+.tool-btn svg{width:21px;height:21px;}
+.tool-btn.tool-p span{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:var(--tc);color:#fff;font:900 .95rem/1 Arial,sans-serif;}
+.tool-box{width:min(820px,100%);}
+.tool-title{font-family:var(--font-display);color:var(--wine-700);margin:0;display:flex;align-items:center;gap:.45rem;}
+.tool-title svg{width:20px;height:20px;}
+.tool-chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.35rem;}
+.tool-chips:empty{display:none;}
+.tool-chip{border:1.5px solid var(--line);background:var(--white);color:var(--ink-700);border-radius:var(--radius-pill);padding:.3rem .75rem;font:inherit;font-size:.78rem;font-weight:700;cursor:pointer;}
+.tool-chip.on{background:var(--wine-700);border-color:var(--wine-700);color:#fffcf5;}
+.tool-info{font-size:.78rem;color:var(--ink-500);margin:.45rem 0 .3rem;min-height:1em;}
+.tool-map{height:min(52vh,460px);border-radius:var(--radius-md);overflow:hidden;border:1.5px solid var(--line);}
+.tool-map[hidden]{display:none;}
+.agenda-list{display:flex;flex-direction:column;gap:.5rem;max-height:min(55vh,500px);overflow-y:auto;}
+.agenda-list:empty{display:none;}
+.agenda-item{display:flex;gap:.7rem;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:.55rem .6rem;background:var(--white);}
+.agenda-item img{width:84px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;background:var(--cream-100);}
+.agenda-item .ag-body{flex:1;min-width:0;}
+.agenda-item h4{font-size:.88rem;margin:0 0 .15rem;color:var(--wine-800);line-height:1.25;font-family:var(--font-body);}
+.agenda-item .ag-date{font-size:.74rem;font-weight:800;color:#7c3aed;}
+.agenda-item .ag-badge{display:inline-block;background:#ede9fe;color:#6d28d9;border-radius:8px;padding:0 .4rem;font-size:.66rem;font-weight:800;margin-left:.3rem;}
+.agenda-item .ag-place,.agenda-item .ag-desc{font-size:.74rem;color:var(--ink-500);margin:.1rem 0;line-height:1.4;}
+.agenda-item .ag-links{display:flex;gap:.6rem;flex-wrap:wrap;font-size:.74rem;font-weight:700;margin-top:.2rem;}
+.agenda-item .ag-links a,.tool-more a{color:var(--wine-600);}
+.tool-more{font-size:.78rem;margin-top:.6rem;display:flex;flex-wrap:wrap;gap:.4rem .9rem;}
+.tool-more:empty{display:none;}
+.ot-card{border:1.5px solid var(--line);border-radius:12px;padding:.7rem .85rem;background:var(--white);font-size:.86rem;margin-top:.4rem;}
+.ot-card ul{margin:.3rem 0 0 1.1rem;}
+@media (max-width:520px){ .agenda-item img{width:64px;height:56px;} .tool-btn{width:40px;height:40px;} }
+/* Fenêtres déplaçables (poignée du haut ou titre), comme dans Margo */
+.ai-modal-box.draggable{position:relative;padding-top:1.7rem;}
+.ai-modal-box .drag-grip{position:absolute;top:0;left:0;right:3.2rem;height:1.4rem;cursor:grab;touch-action:none;display:flex;justify-content:center;align-items:center;z-index:3;}
+.ai-modal-box .drag-grip::before{content:'';width:46px;height:5px;border-radius:3px;background:var(--line);}
+.ai-modal-box.draggable .ai-carnet-head h3{cursor:grab;touch-action:none;user-select:none;}
+.ai-modal-box.dragging,.ai-modal-box.dragging .drag-grip{cursor:grabbing;}
 .keys-box{width:min(560px,100%);}
 .key-label{display:block;font-weight:800;font-size:.84rem;color:var(--ink-900);margin-top:.7rem;}
 .key-label small{font-weight:500;color:var(--ink-500);}
@@ -747,6 +786,15 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
             <span class="radius-val" id="radiusVal">Rayon : 12 km</span>
             <button class="stepper-btn" id="radiusPlus" aria-label="Augmenter le rayon"><svg class="ic"><use href="#icon-plus"></use></svg></button>
           </div>
+          <!-- Boutons pratiques, mêmes fonctions que la rosace de Margo -->
+          <div class="tools-bar" aria-label="Infos pratiques autour de la destination">
+            <button type="button" class="tool-btn" data-tool="bornes" title="Bornes de recharge à proximité" style="--tc:#ea580c"><svg class="ic"><use href="#icon-plug"></use></svg></button>
+            <button type="button" class="tool-btn" data-tool="ot" title="Itinéraire suggéré par l'office de tourisme" style="--tc:#1f2937"><svg class="ic"><use href="#icon-snail"></use></svg></button>
+            <button type="button" class="tool-btn tool-p" data-tool="parkings" title="Parkings à proximité de la destination" style="--tc:#1d4ed8"><span>P</span></button>
+            <button type="button" class="tool-btn" data-tool="agenda" title="Agenda loisirs : événements des prochains jours" style="--tc:#7c3aed"><svg class="ic"><use href="#icon-calendar"></use></svg></button>
+            <button type="button" class="tool-btn" data-tool="urgences" title="Urgences, santé et vétérinaires à proximité" style="--tc:#dc2626"><svg class="ic"><use href="#icon-ambulance"></use></svg></button>
+            <button type="button" class="tool-btn" data-tool="depannage" title="Garages, pneus, pare-brise, dépannage" style="--tc:#2563eb"><svg class="ic"><use href="#icon-wrench"></use></svg></button>
+          </div>
           <div class="cat-tab-bar" id="catTabBar"></div>
           <div class="cat-chip-panel" id="catChipPanel" hidden></div>
           <p class="wheel-hint">Choisis un <strong>village</strong>, puis des <strong>catégories</strong> sur la roue ou dans les onglets : la liste se met à jour toute seule.</p>
@@ -848,6 +896,22 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
   </section>
 </main>
 
+<div class="ai-modal" id="toolModal" hidden>
+  <div class="card ai-modal-box tool-box" role="dialog" aria-modal="true" aria-labelledby="toolTitle">
+    <div class="ai-carnet-head">
+      <h3 id="toolTitle" class="tool-title"></h3>
+      <button class="btn btn-ghost" id="btnToolClose" style="padding:.35rem .6rem" aria-label="Fermer"><svg class="ic"><use href="#icon-x"></use></svg></button>
+    </div>
+    <p class="ai-modal-intro" id="toolIntro"></p>
+    <div class="tool-chips" id="toolChips"></div>
+    <div class="tool-chips" id="toolChips2"></div>
+    <p class="tool-info" id="toolInfo"></p>
+    <div class="tool-map" id="toolMap"></div>
+    <div class="agenda-list" id="toolList"></div>
+    <div class="tool-more" id="toolMore"></div>
+  </div>
+</div>
+
 <div class="ai-modal" id="keysModal" hidden>
   <div class="card ai-modal-box keys-box" role="dialog" aria-modal="true" aria-labelledby="keysTitle">
     <div class="ai-carnet-head">
@@ -939,6 +1003,10 @@ header.app-header::after{content:'';position:absolute;left:0;right:0;bottom:0;he
   <symbol id="icon-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></symbol>
   <symbol id="icon-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".6" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".6" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".6" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".6" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.12a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.56-2.5 5.56-5.55C21.97 6.01 17.46 2 12 2z"/></symbol>
   <symbol id="icon-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></symbol>
+  <symbol id="icon-calendar" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></symbol>
+  <symbol id="icon-ambulance" viewBox="0 0 24 24"><path d="M10 10H6"/><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.68-.95l-1.8-.6a1 1 0 0 1-.6-.53L17.5 9H14"/><path d="M8 8v4"/><path d="M9 18h6"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol>
+  <symbol id="icon-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+  <symbol id="icon-snail" viewBox="0 0 24 24"><path d="M2 13a6 6 0 1 0 12 0 4 4 0 1 0-8 0 2 2 0 0 0 4 0"/><circle cx="10" cy="13" r="8"/><path d="M2 21h12c4.4 0 8-3.6 8-8V7a2 2 0 1 0-4 0v6"/><path d="M18 3 19.1 5.2"/><path d="M22 3 20.9 5.2"/></symbol>
   <symbol id="icon-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2-2.2-.8 2.2-.8z"/></symbol>
 </defs></svg>
 
@@ -2500,6 +2568,259 @@ document.getElementById('btnKeysForget').addEventListener('click', ()=>{
   refreshKeysModal();
   document.getElementById('keysStatus').textContent = 'Clés oubliées.';
 });
+
+/* ============ BOUTONS PRATIQUES (mêmes fonctions que Margo) ============
+   Bornes, itinéraire de l'office de tourisme, parkings, agenda loisirs,
+   urgences / santé / vétérinaires, dépannage — tous autour de la
+   destination (village, adresse ou lieu précis). Lieux trouvés par Google
+   Places (si clé) ou OpenStreetMap, sur carte Google (ou carte libre). */
+const TOOLS = {
+  bornes:   { title:'Bornes de recharge', icon:'plug', intro:'Bornes de recharge pour véhicules électriques autour de la destination.', chips:[
+              {label:'Bornes de recharge (10 km)', q:'borne de recharge véhicule électrique', osm:'amenity=charging_station', r:10000, color:'#059669'}],
+              more: c=>[['Chargemap', 'https://chargemap.com/fr-fr/map']] },
+  parkings: { title:'Parkings à proximité', icon:null, intro:'Parkings autour du point de destination (village ou adresse précise).', chips:[
+              {label:'Parkings (1,5 km)', q:'parking', osm:'amenity=parking', r:1500, color:'#1d4ed8'},
+              {label:'Parkings couverts (3 km)', q:'parking souterrain', osm:'parking=underground|parking=multi-storey', r:3000, color:'#1d4ed8'},
+              {label:'Parkings relais (10 km)', q:'parking relais', osm:'park_ride=yes|park_ride=bus', r:10000, color:'#1d4ed8'}] },
+  urgences: { title:'Urgences, santé & vétérinaires', icon:'ambulance', intro:'Hôpitaux, pharmacies, médecins, laboratoires et vétérinaires autour de la destination. En cas d\u2019urgence vitale : 15 ou 112.', chips:[
+              {label:'Hôpitaux & urgences', q:'hôpital urgences', osm:'amenity=hospital|amenity=clinic', r:15000, color:'#dc2626'},
+              {label:'Pharmacies', q:'pharmacie', osm:'amenity=pharmacy', r:8000, color:'#16a34a'},
+              {label:'Médecins', q:'médecin généraliste', osm:'amenity=doctors|healthcare=doctor', r:8000, color:'#2563eb'},
+              {label:'Laboratoires', q:"laboratoire d'analyses médicales", osm:'healthcare=laboratory', r:10000, color:'#0891b2'},
+              {label:'Vétérinaires', q:'vétérinaire', osm:'amenity=veterinary', r:10000, color:'#a16207'}] },
+  depannage:{ title:'Garages & dépannage', icon:'wrench', intro:'Garages, pneus, pare-brise et dépannage autour de la destination.', chips:[
+              {label:'Garages', q:'garage automobile', osm:'shop=car_repair', r:10000, color:'#475569'},
+              {label:'Pneus', q:'pneus', osm:'shop=tyres', r:15000, color:'#1f2937'},
+              {label:'Pare-brise', q:'pare-brise', osm:'service:vehicle:glass=yes', r:15000, color:'#0284c7'},
+              {label:'Dépannage', q:'dépannage remorquage', osm:'service:vehicle:towing=yes', r:20000, color:'#ea580c'}] }
+};
+let toolToken = 0, toolMapObj = null, toolMapKind = null, toolMarkers = [];
+function toolDest(){
+  const v = document.getElementById('villageInput').value.trim() || state.ville;
+  return { ville: v, center: state.center };
+}
+function toolPinIcon(color){
+  return { url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 28 36"><path d="M14 35s11-11.2 11-20A11 11 0 0 0 3 15c0 8.8 11 20 11 20z" fill="${color}" stroke="#fff" stroke-width="2"/><circle cx="14" cy="15" r="4" fill="#fff"/></svg>`), scaledSize: new google.maps.Size(26,34), anchor: new google.maps.Point(13,34) };
+}
+function resetToolMap(){
+  const el = document.getElementById('toolMap');
+  toolMarkers.forEach(m=>{ try{ m.setMap ? m.setMap(null) : m.remove(); }catch(err){} });
+  toolMarkers = [];
+  if(toolMapObj && toolMapKind === 'leaflet'){ try{ toolMapObj.remove(); }catch(err){} }
+  toolMapObj = null; el.innerHTML = '';
+}
+function showToolMap(center, places, color){
+  const el = document.getElementById('toolMap');
+  el.hidden = false;
+  resetToolMap();
+  if(mapKind === 'google' && window.google && google.maps){
+    toolMapKind = 'google';
+    toolMapObj = new google.maps.Map(el, { center, zoom: 14, mapTypeControl:false, streetViewControl:false, gestureHandling:'greedy', clickableIcons:false });
+    const info = new google.maps.InfoWindow();
+    toolMarkers.push(new google.maps.Marker({ map: toolMapObj, position: center, icon: gPinIcon('#33101c','',true), title:'Destination' }));
+    const b = new google.maps.LatLngBounds(center);
+    places.forEach(p=>{
+      const m = new google.maps.Marker({ map: toolMapObj, position:{lat:p.lat,lng:p.lng}, icon: toolPinIcon(color), title:p.name });
+      m.addListener('click', ()=>{ info.setContent(toolPopupHtml(p)); info.open({anchor:m, map:toolMapObj}); });
+      toolMarkers.push(m); b.extend({lat:p.lat,lng:p.lng});
+    });
+    if(places.length) toolMapObj.fitBounds(b, 40);
+  } else if(typeof L !== 'undefined'){
+    toolMapKind = 'leaflet';
+    toolMapObj = L.map(el, {fadeAnimation:false}).setView([center.lat, center.lng], 14);
+    L.tileLayer(BASEMAP_URL, {maxZoom:19, attribution:BASEMAP_ATTRIB}).addTo(toolMapObj);
+    toolMarkers.push(L.marker([center.lat, center.lng], {icon: coloredDivIcon('#33101c','')}).addTo(toolMapObj));
+    const pts = [[center.lat, center.lng]];
+    places.forEach(p=>{ toolMarkers.push(L.marker([p.lat,p.lng], {icon: coloredDivIcon(color)}).addTo(toolMapObj).bindPopup(toolPopupHtml(p))); pts.push([p.lat,p.lng]); });
+    setTimeout(()=>{ toolMapObj.invalidateSize(); if(pts.length > 1) toolMapObj.fitBounds(pts, {padding:[30,30]}); }, 80);
+  }
+}
+function toolPopupHtml(p){
+  const dir = `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
+  return `<div style="font-size:.8rem;max-width:230px;"><strong>${escapeHtml(p.name)}</strong>${p.addr ? '<br>' + escapeHtml(p.addr) : ''}${p.phone ? `<br>Tél. : <a href="tel:${escapeHtml(p.phone.replace(/\s+/g,''))}">${escapeHtml(p.phone)}</a>` : ''}<br><span style="color:#8a7562">${String(round1(p.dist)).replace('.', ',')} km</span> · <a href="${dir}" target="_blank" rel="noopener noreferrer">Itinéraire</a></div>`;
+}
+async function fetchToolPlaces(center, chip){
+  if(await googleUsable()){
+    try{
+      const { places } = await withTimeoutB(GPlace.searchByText({ textQuery: chip.q, fields:['displayName','location','formattedAddress','nationalPhoneNumber'], maxResultCount: 20,
+        locationBias: { center, radius: Math.min(chip.r, 50000) }, language:'fr', region:'FR' }), 10000);
+      const list = (places || []).filter(p=>p.location).map(p=>{
+        const lat = p.location.lat(), lng = p.location.lng();
+        return { name: p.displayName || chip.label, lat, lng, addr: (p.formattedAddress||'').replace(/, France$/,''), phone: p.nationalPhoneNumber || '', dist: haversineKm(center, {lat,lng}) };
+      }).filter(p=>p.dist*1000 <= chip.r);
+      return { list, source: 'Google' };
+    }catch(err){ console.warn('Google Places', chip.q, err); }
+  }
+  const clauses = chip.osm.split('|').map(f=>{ const [k,v] = f.split('='); return `nwr(around:${chip.r},${center.lat},${center.lng})["${k}"="${v}"];`; }).join('');
+  const res = await withTimeoutB(fetch('https://overpass-api.de/api/interpreter', {method:'POST', body:'data=' + encodeURIComponent(`[out:json][timeout:20];(${clauses});out center 60;`)}), 22000);
+  const data = await res.json();
+  const list = (data.elements || []).map(e=>{
+    const lat = e.lat ?? e.center?.lat, lng = e.lon ?? e.center?.lon;
+    if(lat == null) return null;
+    const t = e.tags || {};
+    return { name: t.name || chip.label, lat, lng, addr: [[t['addr:housenumber'], t['addr:street']].filter(Boolean).join(' '), t['addr:city']].filter(Boolean).join(', '), phone: t.phone || t['contact:phone'] || '', dist: haversineKm(center, {lat,lng}) };
+  }).filter(Boolean).sort((a,b)=>a.dist-b.dist);
+  return { list, source: 'OpenStreetMap' };
+}
+async function runToolChip(key, chip){
+  const token = ++toolToken;
+  const info = document.getElementById('toolInfo');
+  const { ville, center } = toolDest();
+  info.textContent = `Recherche « ${chip.label} » autour de ${ville}…`;
+  let res;
+  try{ res = await fetchToolPlaces(center, chip); }
+  catch(err){ if(token === toolToken) info.textContent = 'La recherche ne répond pas pour le moment : réessaie dans un instant.'; return; }
+  if(token !== toolToken) return;
+  showToolMap(center, res.list, chip.color);
+  const km = String(chip.r/1000).replace('.', ',');
+  info.textContent = res.list.length
+    ? `${res.list.length} résultat(s) à moins de ${km} km (données ${res.source}). Touchez un pin pour l'adresse, le téléphone et l'itinéraire.`
+    : `Aucun résultat à moins de ${km} km : utilisez les liens ci-dessous.`;
+}
+function setToolHeader(key, cfg){
+  const t = document.getElementById('toolTitle');
+  t.innerHTML = (cfg.icon ? `<svg class="ic" style="color:var(--wine-600)"><use href="#icon-${cfg.icon}"></use></svg>` : `<span class="tool-btn tool-p" style="--tc:#1d4ed8;width:auto;height:auto;border:none;box-shadow:none;background:none"><span>P</span></span>`) + escapeHtml(cfg.title);
+  document.getElementById('toolIntro').textContent = cfg.intro;
+}
+function openTool(key){
+  const modal = document.getElementById('toolModal');
+  ['toolChips','toolChips2','toolList','toolMore'].forEach(id=>document.getElementById(id).innerHTML = '');
+  document.getElementById('toolInfo').textContent = '';
+  document.getElementById('toolMap').hidden = true;
+  resetToolMap();
+  modal.hidden = false;
+  const { ville } = toolDest();
+  const q = encodeURIComponent(ville);
+  if(key === 'agenda') return openAgendaTool();
+  if(key === 'ot') return openOtTool();
+  const cfg = TOOLS[key];
+  setToolHeader(key, cfg);
+  const chips = document.getElementById('toolChips');
+  chips.innerHTML = cfg.chips.map((c,i)=>`<button type="button" class="tool-chip ${i===0?'on':''}" data-i="${i}">${escapeHtml(c.label)}</button>`).join('');
+  chips.querySelectorAll('.tool-chip').forEach(b=>b.addEventListener('click', ()=>{
+    chips.querySelectorAll('.tool-chip').forEach(x=>x.classList.toggle('on', x===b));
+    runToolChip(key, cfg.chips[Number(b.dataset.i)]);
+  }));
+  const more = [['Ouvrir dans Google Maps', `https://www.google.com/maps/search/${encodeURIComponent(cfg.chips[0].q)}/@${state.center.lat},${state.center.lng},14z`]].concat(cfg.more ? cfg.more() : []);
+  document.getElementById('toolMore').innerHTML = more.map(([l,u])=>`<a href="${escapeHtml(u)}" target="_blank" rel="noopener noreferrer">${escapeHtml(l)}</a>`).join('');
+  runToolChip(key, cfg.chips[0]);
+}
+
+/* ---- Itinéraire suggéré par l'office de tourisme ---- */
+async function openOtTool(){
+  const token = ++toolToken;
+  setToolHeader('ot', { title:"Itinéraire suggéré", icon:'snail', intro:"L'office de tourisme le plus proche de la destination et ses idées de circuits, balades et routes des vins." });
+  const { ville, center } = toolDest();
+  const list = document.getElementById('toolList');
+  document.getElementById('toolInfo').textContent = `Recherche de l'office de tourisme le plus proche de ${ville}…`;
+  let ot = null;
+  try{
+    const r = await fetchToolPlaces(center, { label:'Office de tourisme', q:'office de tourisme', osm:'tourism=information', r:25000 });
+    ot = r.list.filter(p=>/tourisme|tourist|information/i.test(p.name))[0] || r.list[0] || null;
+  }catch(err){}
+  if(token !== toolToken) return;
+  const q = encodeURIComponent(ville);
+  const otLink = ot ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ot.name + ' ' + (ot.addr || ville))}` : `https://www.google.com/search?q=${encodeURIComponent('office de tourisme ' + ville)}`;
+  document.getElementById('toolInfo').textContent = '';
+  list.innerHTML = `<div class="ot-card">${ot ? `🛎️ <strong>${escapeHtml(ot.name)}</strong> (${String(round1(ot.dist)).replace('.', ',')} km)${ot.addr ? ' — ' + escapeHtml(ot.addr) : ''} · <a href="${escapeHtml(otLink)}" target="_blank" rel="noopener noreferrer">Voir sur la carte</a>` : `🛎️ <a href="${escapeHtml(otLink)}" target="_blank" rel="noopener noreferrer">Rechercher l'office de tourisme de ${escapeHtml(ville)}</a>`}
+    <ul>
+      <li><a href="https://www.google.com/search?q=${encodeURIComponent('circuit balade ' + ville + ' office de tourisme')}" target="_blank" rel="noopener noreferrer">Circuits et balades conseillés autour de ${escapeHtml(ville)}</a></li>
+      <li><a href="https://www.google.com/search?q=${encodeURIComponent('route des vins ' + ville + ' Bourgogne')}" target="_blank" rel="noopener noreferrer">Route des vins et caves à visiter</a></li>
+      <li><a href="https://www.tripadvisor.fr/Search?q=${encodeURIComponent('choses à faire ' + ville)}" target="_blank" rel="noopener noreferrer">Que faire à ${escapeHtml(ville)} (TripAdvisor)</a></li>
+      <li><a href="https://www.bourgogne-tourisme.com/" target="_blank" rel="noopener noreferrer">Bourgogne Tourisme (site officiel)</a></li>
+    </ul></div>`;
+}
+
+/* ---- Agenda loisirs (OpenAgenda, comme Margo) ---- */
+const AGENDA_API = 'https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/evenements-publics-openagenda/records';
+let agendaDays = 7, agendaKm = 15;
+const isoDay = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function agendaDateLabel(ev, today){
+  const a = new Date(ev.firstdate_begin), b = new Date(ev.lastdate_end);
+  const fmt = d => d.toLocaleDateString('fr-FR', { weekday:'short', day:'numeric', month:'short' });
+  const hm = d => d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+  if(a < today) return `Jusqu'au ${fmt(b)}`;
+  if(isoDay(a) === isoDay(b)) return `${fmt(a)} · ${hm(a)}`;
+  return ev.daterange_fr || `${fmt(a)} → ${fmt(b)}`;
+}
+function openAgendaTool(){
+  setToolHeader('agenda', { title:'Agenda loisirs', icon:'calendar', intro:'Événements en cours et à venir autour de la destination : dégustations, salons des vins, concerts, expositions, fêtes, visites…' });
+  const c1 = document.getElementById('toolChips'), c2 = document.getElementById('toolChips2');
+  c1.innerHTML = [7,14,30].map(d=>`<button type="button" class="tool-chip ${d===agendaDays?'on':''}" data-days="${d}">${d} jours</button>`).join('');
+  c2.innerHTML = [5,15,40].map(k=>`<button type="button" class="tool-chip ${k===agendaKm?'on':''}" data-km="${k}">${k} km</button>`).join('');
+  [c1,c2].forEach(c=>c.querySelectorAll('.tool-chip').forEach(b=>b.addEventListener('click', ()=>{
+    c.querySelectorAll('.tool-chip').forEach(x=>x.classList.toggle('on', x===b));
+    if(b.dataset.days) agendaDays = Number(b.dataset.days);
+    if(b.dataset.km) agendaKm = Number(b.dataset.km);
+    loadAgenda();
+  })));
+  loadAgenda();
+}
+async function loadAgenda(){
+  const token = ++toolToken;
+  const list = document.getElementById('toolList'), info = document.getElementById('toolInfo'), more = document.getElementById('toolMore');
+  const { ville, center } = toolDest();
+  list.innerHTML = '';
+  const city = ville.split(',').pop().trim() && ville.split(',').length > 1 ? ville.split(',').slice(-1)[0].trim() : ville;
+  const q = encodeURIComponent(city);
+  more.innerHTML = `<span>Voir aussi :</span><a href="https://openagenda.com/fr/search?search=${q}" target="_blank" rel="noopener noreferrer">OpenAgenda</a><a href="https://www.google.com/search?q=${encodeURIComponent('agenda sorties ' + city)}" target="_blank" rel="noopener noreferrer">Agenda des sorties</a><a href="https://www.google.com/search?q=${encodeURIComponent('office de tourisme ' + city + ' agenda')}" target="_blank" rel="noopener noreferrer">Office de tourisme</a><a href="https://www.google.com/search?q=${encodeURIComponent('mairie ' + city + ' agenda événements')}" target="_blank" rel="noopener noreferrer">Site de la commune</a>`;
+  info.textContent = `Recherche des événements autour de ${ville}…`;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const end = new Date(today.getTime() + agendaDays*86400000);
+  const where = `within_distance(location_coordinates, geom'POINT(${center.lng} ${center.lat})', ${agendaKm}km) and lastdate_end >= now() and firstdate_begin <= date'${isoDay(end)}'`;
+  const url = `${AGENDA_API}?${new URLSearchParams({ where, order_by:'firstdate_begin', limit:'100', select:'title_fr,description_fr,firstdate_begin,lastdate_end,daterange_fr,location_name,location_city,location_coordinates,canonicalurl,image,uid' })}`;
+  let data;
+  try{ const r = await withTimeoutB(fetch(url), 12000); if(!r.ok) throw new Error('HTTP ' + r.status); data = await r.json(); }
+  catch(err){ if(token === toolToken) info.textContent = "L'agenda ne répond pas pour le moment : réessaie dans un instant, ou utilise les liens ci-dessous."; return; }
+  if(token !== toolToken) return;
+  const seen = new Set();
+  const events = (data.results || []).filter(ev=>{ const k = ev.uid || ev.canonicalurl || ev.title_fr; if(!ev.title_fr || seen.has(k)) return false; seen.add(k); return true; })
+    .map(ev=>{ const a = new Date(ev.firstdate_begin), b = new Date(ev.lastdate_end), c = ev.location_coordinates;
+      return { ev, a, ongoing: a < today, long: (b - a) > 4*86400000, dist: c ? haversineKm(center, {lat:c.lat, lng:c.lon}) : null }; })
+    .sort((x,y)=>(x.long - y.long) || (x.a - y.a));
+  info.textContent = events.length
+    ? `${events.length} événement(s) dans les ${agendaDays} prochains jours, à moins de ${agendaKm} km (source OpenAgenda). Les expositions longues sont en fin de liste.`
+    : `Aucun événement publié sur OpenAgenda dans les ${agendaDays} prochains jours à moins de ${agendaKm} km : élargis la période ou le rayon, ou consulte les liens ci-dessous.`;
+  list.innerHTML = events.map(({ev, ongoing, long, dist})=>{
+    const c = ev.location_coordinates;
+    const dir = c ? `https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lon}` : '';
+    const desc = (ev.description_fr || '').replace(/\s+/g,' ').trim();
+    const link = /^https:\/\//.test(ev.canonicalurl || '') ? ev.canonicalurl : '';
+    const img = /^https:\/\//.test(ev.image || '') ? `<img src="${escapeHtml(ev.image)}" alt="" loading="lazy" onerror="this.remove()">` : '';
+    return `<div class="agenda-item">${img}<div class="ag-body"><div class="ag-date">${escapeHtml(agendaDateLabel(ev, today))}${ongoing ? '<span class="ag-badge">En cours</span>' : ''}${long && !ongoing ? '<span class="ag-badge">Longue durée</span>' : ''}</div>
+      <h4>${escapeHtml(ev.title_fr)}</h4><div class="ag-place">📍 ${escapeHtml([ev.location_name, ev.location_city].filter(Boolean).join(', '))}${dist != null ? ' · ' + String(round1(dist)).replace('.', ',') + ' km' : ''}</div>
+      ${desc ? `<div class="ag-desc">${escapeHtml(desc.length > 170 ? desc.slice(0,167).trimEnd() + '…' : desc)}</div>` : ''}
+      <div class="ag-links">${link ? `<a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer">Voir l'événement</a>` : ''}${dir ? `<a href="${dir}" target="_blank" rel="noopener noreferrer">Itinéraire</a>` : ''}</div></div></div>`;
+  }).join('');
+}
+function closeTool(){ toolToken++; document.getElementById('toolModal').hidden = true; resetToolMap(); }
+document.querySelectorAll('.tool-btn[data-tool]').forEach(b=>b.addEventListener('click', ()=>openTool(b.dataset.tool)));
+document.getElementById('btnToolClose').addEventListener('click', closeTool);
+document.getElementById('toolModal').addEventListener('click', e=>{ if(e.target.id === 'toolModal') closeTool(); });
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && !document.getElementById('toolModal').hidden) closeTool(); });
+
+/* ---- Fenêtres déplaçables (comme Margo) ---- */
+function makeModalDraggable(overlay){
+  const box = overlay.querySelector('.ai-modal-box');
+  if(!box || box.classList.contains('draggable')) return;
+  box.classList.add('draggable');
+  const grip = document.createElement('div');
+  grip.className = 'drag-grip'; grip.title = 'Glisser pour déplacer la fenêtre';
+  box.prepend(grip);
+  const title = box.querySelector('.ai-carnet-head h3');
+  let dx = 0, dy = 0, sx = 0, sy = 0, bx = 0, by = 0, on = false;
+  const apply = ()=>{ box.style.translate = `${dx}px ${dy}px`; };
+  const down = e=>{ if(e.button !== undefined && e.button !== 0) return; if(e.target.closest('button, a, input, select, textarea')) return;
+    on = true; sx = e.clientX; sy = e.clientY; bx = dx; by = dy; box.classList.add('dragging'); e.currentTarget.setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId); e.preventDefault(); };
+  const move = e=>{ if(!on) return; const r = box.getBoundingClientRect(); const cx = r.left - dx, cy = r.top - dy;
+    dx = Math.min(Math.max(bx + e.clientX - sx, -cx - r.width + 80), innerWidth - cx - 80);
+    dy = Math.min(Math.max(by + e.clientY - sy, -cy), innerHeight - cy - 40); apply(); };
+  const up = ()=>{ on = false; box.classList.remove('dragging'); };
+  [grip, title].filter(Boolean).forEach(h=>{ h.addEventListener('pointerdown', down); h.addEventListener('pointermove', move); h.addEventListener('pointerup', up); h.addEventListener('pointercancel', up); });
+  new MutationObserver(()=>{ if(!overlay.hidden){ dx = 0; dy = 0; apply(); } }).observe(overlay, { attributes:true, attributeFilter:['hidden'] });
+}
+document.querySelectorAll('.ai-modal').forEach(makeModalDraggable);
+
 document.getElementById('btnAiCarnet').addEventListener('click', generateAiCarnet);
 document.getElementById('btnAiCarnetStop').addEventListener('click', ()=>{ if(aiAbort) aiAbort.abort(); });
 document.getElementById('btnAiCarnetCopy').addEventListener('click', async ()=>{
