@@ -255,14 +255,14 @@ main{max-width:1320px;margin:0 auto;padding:.5rem 1.25rem 0;}
 .wheel-node.active{background:linear-gradient(160deg,var(--cat-color),var(--cat-color));border-color:transparent;box-shadow:0 10px 22px -6px color-mix(in srgb, var(--cat-color) 70%, transparent);}
 .wheel-node.active svg,.wheel-node.active .wn-label{color:var(--white);}
 /* 6 cercles répartis en hexagone autour de la destination */
-.wheel-node{width:25%;}
-.wheel-center{width:40%;height:40%;}
-.n-degustation{top:5%;left:18.75%;}
-.n-hebergement{top:5%;left:56.25%;}
-.n-patrimoine{top:37.5%;left:0;}
-.n-routes{top:37.5%;left:75%;}
-.n-transport{top:70%;left:18.75%;}
-.n-gastronomie{top:70%;left:56.25%;}
+.wheel-node{width:24%;}
+.wheel-center{width:36%;height:36%;}
+.n-degustation{top:5.1%;left:19%;}
+.n-hebergement{top:5.1%;left:57%;}
+.n-patrimoine{top:38%;left:0;}
+.n-routes{top:38%;left:76%;}
+.n-transport{top:70.9%;left:19%;}
+.n-gastronomie{top:70.9%;left:57%;}
 
 .radius-row{display:flex;align-items:center;justify-content:center;gap:.7rem;margin-top:.3rem;font-size:.82rem;color:var(--ink-700);font-weight:600;}
 .stepper-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);background:var(--white);color:var(--wine-700);display:flex;align-items:center;justify-content:center;cursor:pointer;}
@@ -749,34 +749,25 @@ header.app-header .step-btn{white-space:nowrap;padding:.5rem 1rem;font-size:.85r
 .wheel-center input.need-dest{border-bottom-color:#dc2626;animation:needDest .5s ease 2;}
 @keyframes needDest{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 
-/* Onglets « Itinéraire & Vins » / « Carnet de Voyage » en liège de bouchon :
-   fond ocre moucheté (grains clairs et foncés), bord arrondi comme un
-   bouchon ; l'onglet actif est un bouchon taché de vin. */
+/* Onglets « Itinéraire & Vins » / « Carnet de Voyage » façon tonneau :
+   douelles de chêne clair (planches horizontales) cerclées de deux bandes
+   de fer aux extrémités ; l'onglet actif est un tonneau teinté de vin. */
 header.app-header .step-btn{
-  background-color:#c99d63;
-  background-image:
-    radial-gradient(circle at 18% 30%, rgba(92,58,31,.55) 0 1.1px, transparent 1.6px),
-    radial-gradient(circle at 63% 72%, rgba(92,58,31,.5) 0 1.2px, transparent 1.7px),
-    radial-gradient(circle at 82% 22%, rgba(255,240,210,.55) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 38% 80%, rgba(255,240,210,.45) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 50% 45%, rgba(120,78,40,.35) 0 .8px, transparent 1.3px),
-    linear-gradient(180deg, rgba(255,255,255,.18), rgba(0,0,0,.12));
-  background-size:9px 9px, 13px 11px, 11px 13px, 7px 10px, 6px 6px, 100% 100%;
-  color:#3a2414;border:1.5px solid #8b5a32;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.35), inset 0 -2px 4px rgba(92,58,31,.35), 0 4px 12px -4px rgba(0,0,0,.4);
-  text-shadow:0 1px 0 rgba(255,240,210,.45);
+  background:
+    linear-gradient(90deg, transparent 0 4px, #3a2a20 4px 7px, transparent 7px calc(100% - 7px), #3a2a20 calc(100% - 7px) calc(100% - 4px), transparent calc(100% - 4px)),
+    repeating-linear-gradient(180deg,#f0dcb6 0 7px,#d9b98a 7px 8px,#e8d0a4 8px 15px,#d9b98a 15px 16px),
+    #e8d0a4;
+  color:#3a2414;border:2px solid #8b5a32;
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.35), inset 0 -3px 5px rgba(92,58,31,.35), 0 4px 12px -4px rgba(0,0,0,.4);
+  text-shadow:0 1px 0 rgba(255,245,225,.6);
 }
 header.app-header .step-btn .step-num{background:#3a2414;color:#efd699;}
 header.app-header .step-btn.active{
-  background-color:#9b6a3c;
-  background-image:
-    radial-gradient(circle at 18% 30%, rgba(40,20,10,.55) 0 1.1px, transparent 1.6px),
-    radial-gradient(circle at 63% 72%, rgba(40,20,10,.5) 0 1.2px, transparent 1.7px),
-    radial-gradient(circle at 82% 22%, rgba(255,230,190,.35) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 50% 45%, rgba(40,20,10,.3) 0 .8px, transparent 1.3px),
-    linear-gradient(180deg, rgba(132,34,63,.55), rgba(102,26,50,.75));
-  background-size:9px 9px, 13px 11px, 11px 13px, 6px 6px, 100% 100%;
-  color:#fffcf5;border-color:#661a32;text-shadow:0 1px 1px rgba(0,0,0,.4);
+  background:
+    linear-gradient(90deg, transparent 0 4px, #1f140e 4px 7px, transparent 7px calc(100% - 7px), #1f140e calc(100% - 7px) calc(100% - 4px), transparent calc(100% - 4px)),
+    linear-gradient(rgba(102,26,50,.62), rgba(102,26,50,.62)),
+    repeating-linear-gradient(180deg,#c99a5e 0 7px,#a97b44 7px 8px,#bf8f53 8px 15px,#a97b44 15px 16px);
+  color:#fffcf5;border-color:#4a1425;text-shadow:0 1px 1px rgba(0,0,0,.45);
 }
 header.app-header .step-btn.active .step-num{background:#efd699;color:#4a1425;}
 </style>
@@ -839,12 +830,12 @@ header.app-header .step-btn.active .step-num{background:#efd699;color:#4a1425;}
         <div class="card wheel-card">
           <div class="wheel-frame" id="wheelFrame">
             <svg class="wheel-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <line x1="50" y1="50" x2="31.25" y2="17.5" stroke="currentColor" stroke-width="1"/>
-              <line x1="50" y1="50" x2="68.75" y2="17.5" stroke="currentColor" stroke-width="1"/>
-              <line x1="50" y1="50" x2="12.5" y2="50" stroke="currentColor" stroke-width="1"/>
-              <line x1="50" y1="50" x2="87.5" y2="50" stroke="currentColor" stroke-width="1"/>
-              <line x1="50" y1="50" x2="31.25" y2="82.5" stroke="currentColor" stroke-width="1"/>
-              <line x1="50" y1="50" x2="68.75" y2="82.5" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="31" y2="17.1" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="69" y2="17.1" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="12" y2="50" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="88" y2="50" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="31" y2="82.9" stroke="currentColor" stroke-width="1"/>
+              <line x1="50" y1="50" x2="69" y2="82.9" stroke="currentColor" stroke-width="1"/>
             </svg>
             <div class="wheel-node n-degustation" data-cat="degustation" style="--cat-color:var(--c-degustation)">
               <svg class="ic"><use href="#icon-glass"></use></svg>
